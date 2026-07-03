@@ -234,11 +234,14 @@ std::string diag = "{}";
 std::mutex diag_mu;
 std::atomic<uint64_t> total_nodes{0};
 static bool last_belief_degraded = false;
+static std::string last_degraded_reason;
 #if defined(__AVX2__)
 static const char *native_backend_name = "avx2";
 #else
 static const char *native_backend_name = "scalar";
 #endif
+
+enum class ParticleSource { CatalogDeck, SyntheticFallback };
 
 struct Model {
   bool loaded = false;
@@ -588,6 +591,8 @@ static bool read_card_metadata() {
 struct World {
   std::vector<int> yd, yp, od, op, oh, oa;
   double weight = 1;
+  ParticleSource source = ParticleSource::CatalogDeck;
+  const Deck *catalog_deck = nullptr;
 };
 
 static std::vector<int> merge_prizes(const std::vector<int32_t> &known,
@@ -789,6 +794,30 @@ static uint64_t belief_rng_seed(const GameState &obs, int particle) {
   return fnv64_mix(hash, uint64_t(particle));
 }
 
+static void append_particle_diagnostics(std::ostringstream &d,
+                                        const std::vector<World> &ws) {
+  int catalog = 0;
+  int synthetic = 0;
+  for (const auto &w : ws) {
+    if (w.source == ParticleSource::SyntheticFallback)
+      ++synthetic;
+    else
+      ++catalog;
+  }
+  d << ",\"catalog_particles\":" << catalog
+    << ",\"synthetic_particles\":" << synthetic
+    << ",\"degraded_reason\":\"";
+  for (char ch : last_degraded_reason) {
+    if (ch == '"')
+      d << "\\\"";
+    else if (ch == '\\')
+      d << "\\\\";
+    else
+      d << ch;
+  }
+  d << "\"";
+}
+
 static std::vector<World> build_degraded_worlds(
     const GameState &obs, const std::vector<int> &own,
     const std::unordered_map<int, int> &seen,
@@ -805,6 +834,8 @@ static std::vector<World> build_degraded_worlds(
     std::mt19937_64 rng(belief_rng_seed(obs, i));
     World w;
     w.weight = 0.25;
+    w.source = ParticleSource::SyntheticFallback;
+    w.catalog_deck = nullptr;
     w.od = synthesize_opponent_pool(on, seen, own, false);
     w.oh = synthesize_opponent_pool(ohn, seen, own, false);
     w.op = merge_prizes(
@@ -841,6 +872,7 @@ static std::vector<World> worlds(const GameState &obs,
                                  const std::vector<int> &own,
                                  Clock::time_point deadline) {
   last_belief_degraded = false;
+  last_degraded_reason.clear();
   const auto &cur = obs.current;
   int yi = cur.your_index;
   const auto &me = cur.players[yi];
@@ -873,6 +905,7 @@ static std::vector<World> worlds(const GameState &obs,
   }
   if (candidates.empty()) {
     last_belief_degraded = true;
+    last_degraded_reason = "no_matching_catalog_deck";
     return build_degraded_worlds(obs, own, seen, own_seen, own_need, on, opn,
                                  ohn, hidden_active, deadline);
   }
@@ -896,6 +929,8 @@ static std::vector<World> worlds(const GameState &obs,
     std::shuffle(pool.begin(), pool.end(), rng);
     World w;
     w.weight = 1.0;
+    w.source = ParticleSource::CatalogDeck;
+    w.catalog_deck = candidate.first;
     auto take = [&](std::vector<int> &v, int k) {
       k = std::min(k, int(pool.size()));
       if (k <= 0)
@@ -2340,8 +2375,9 @@ static int choose_impl(const GameState &obs, const std::vector<int> &own,
       << ",\"simulator_cpu_ms\":0,\"import_cpu_ms\":0"
       << ",\"action_cpu_ms\":0,\"evaluation_cpu_ms\":0"
       << ",\"json_cpu_ms\":0,\"belief_failed\":true"
-      << ",\"belief_degraded\":" << (last_belief_degraded ? "true" : "false")
-      << ",\"native_backend\":\"" << native_backend_name << "\"}";
+      << ",\"belief_degraded\":" << (last_belief_degraded ? "true" : "false");
+    append_particle_diagnostics(d, ws);
+    d << ",\"native_backend\":\"" << native_backend_name << "\"}";
     std::lock_guard lk(diag_mu);
     diag = d.str();
     return int(a.pick.size());
@@ -2524,8 +2560,9 @@ static int choose_impl(const GameState &obs, const std::vector<int> &own,
     << ",\"evaluation_cpu_ms\":" << eval_cpu
     << ",\"json_cpu_ms\":" << import_cpu
     << ",\"plan_cache_steps\":" << plan_cache.steps.size()
-    << ",\"belief_degraded\":" << (last_belief_degraded ? "true" : "false")
-    << ",\"native_backend\":\"" << native_backend_name << "\"";
+    << ",\"belief_degraded\":" << (last_belief_degraded ? "true" : "false");
+  append_particle_diagnostics(d, ws);
+  d << ",\"native_backend\":\"" << native_backend_name << "\"";
   if (cfg.profile && profile_cpu > 0.) {
     d << ",\"simulator_pct\":" << (100. * sim_cpu / profile_cpu)
       << ",\"import_pct\":" << (100. * import_cpu / profile_cpu)

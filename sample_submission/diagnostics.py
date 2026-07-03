@@ -3,9 +3,7 @@ from __future__ import annotations
 
 import json
 import os
-import platform
 import sys
-import time
 from pathlib import Path
 
 
@@ -19,6 +17,7 @@ class SessionDiagnostics:
         self.worker_restart_count = 0
         self.fallback_count = 0
         self.last_native_error = ""
+        self.last_worker_stderr = ""
         self.last_native_elapsed_ms = 0.0
         self.last_search_depth = 0
         self.last_search_nodes = 0
@@ -49,10 +48,15 @@ class SessionDiagnostics:
         self.native_backend = backend or self.native_backend
         if not ok:
             self.native_failure_count += 1
-            self.last_native_error = error
+            if error:
+                self.last_native_error = error
 
     def record_worker_restart(self) -> None:
         self.worker_restart_count += 1
+
+    def record_worker_stderr(self, text: str) -> None:
+        if text:
+            self.last_worker_stderr = text[-8192:]
 
     def record_choose(
         self,
@@ -62,9 +66,13 @@ class SessionDiagnostics:
         diag: dict,
         error: str = "",
         used_fallback: bool = False,
+        worker_stderr: str = "",
     ) -> None:
+        if worker_stderr:
+            self.record_worker_stderr(worker_stderr)
         if used_fallback:
             self.fallback_count += 1
+            self.native_failure_count += 1
             if error:
                 self.last_native_error = error
             return
@@ -90,6 +98,7 @@ class SessionDiagnostics:
             "worker_restart_count": self.worker_restart_count,
             "fallback_count": self.fallback_count,
             "last_native_error": self.last_native_error,
+            "last_worker_stderr": self.last_worker_stderr,
             "last_native_elapsed_ms": self.last_native_elapsed_ms,
             "last_search_depth": self.last_search_depth,
             "last_search_nodes": self.last_search_nodes,
@@ -110,10 +119,6 @@ class SessionDiagnostics:
         backend = diag.get("native_backend")
         if backend:
             self.native_backend = str(backend)
-        elif platform.machine().lower() in {"arm64", "aarch64"}:
-            self.native_backend = "scalar"
-        else:
-            self.native_backend = "avx2"
         return self.native_backend
 
 

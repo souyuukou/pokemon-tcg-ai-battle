@@ -7,9 +7,29 @@ import subprocess
 import sys
 import threading
 import time
+from collections import deque
 from pathlib import Path
 
 from paths import submission_root
+
+
+class _StderrRingBuffer:
+    def __init__(self, max_bytes: int = 8192) -> None:
+        self._max_bytes = max_bytes
+        self._chunks: deque[str] = deque()
+        self._size = 0
+
+    def append(self, text: str) -> None:
+        if not text:
+            return
+        self._chunks.append(text)
+        self._size += len(text)
+        while self._size > self._max_bytes and self._chunks:
+            dropped = self._chunks.popleft()
+            self._size -= len(dropped)
+
+    def tail(self) -> str:
+        return "".join(self._chunks)[-self._max_bytes :]
 
 
 class NativeWorkerClient:
@@ -19,6 +39,12 @@ class NativeWorkerClient:
         self.deck: list[int] = []
         self.error = "not initialized"
         self.last_diagnostics: dict = {}
+        self._stderr_buffer = _StderrRingBuffer()
+        self._stderr_thread: threading.Thread | None = None
+
+    @property
+    def stderr_tail(self) -> str:
+        return self._stderr_buffer.tail()
 
     def _stop(self) -> None:
         process, self.process = self.process, None
@@ -29,7 +55,7 @@ class NativeWorkerClient:
             process.wait(timeout=0.5)
         except Exception:
             pass
-        for stream in (process.stdin, process.stdout):
+        for stream in (process.stdin, process.stdout, process.stderr):
             try:
                 if stream:
                     stream.close()
@@ -49,6 +75,14 @@ class NativeWorkerClient:
         finally:
             responses.put(None)
 
+    def _stderr_reader(self, process: subprocess.Popen[str]) -> None:
+        try:
+            assert process.stderr is not None
+            for chunk in iter(process.stderr.read, ""):
+                self._stderr_buffer.append(chunk)
+        except Exception:
+            pass
+
     def _send(self, message: dict) -> bool:
         try:
             if self.process is None or self.process.stdin is None:
@@ -65,10 +99,14 @@ class NativeWorkerClient:
             response = self.responses.get(timeout=max(0.01, timeout))
         except queue.Empty:
             self.error = "native search hard timeout"
+            if self.stderr_tail:
+                self.error += f"; stderr={self.stderr_tail[-512:]}"
             self._stop()
             return None
         if response is None:
             self.error = "native worker exited"
+            if self.stderr_tail:
+                self.error += f"; stderr={self.stderr_tail[-512:]}"
             self._stop()
             return None
         return response
@@ -77,6 +115,7 @@ class NativeWorkerClient:
         self._stop()
         self.deck = list(deck)
         self.responses = queue.Queue()
+        self._stderr_buffer = _StderrRingBuffer()
         root = submission_root()
         try:
             self.process = subprocess.Popen(
@@ -84,11 +123,17 @@ class NativeWorkerClient:
                 cwd=str(root),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
                 text=True,
                 encoding="utf-8",
                 bufsize=1,
             )
+            self._stderr_thread = threading.Thread(
+                target=self._stderr_reader,
+                args=(self.process,),
+                daemon=True,
+            )
+            self._stderr_thread.start()
             threading.Thread(
                 target=self._reader,
                 args=(self.process, self.responses),
@@ -100,6 +145,8 @@ class NativeWorkerClient:
             response = self._receive(timeout)
             if not response or not response.get("ok"):
                 self.error = (response or {}).get("error", self.error)
+                if self.stderr_tail:
+                    self.error += f"; stderr={self.stderr_tail[-512:]}"
                 self._stop()
                 return False
             self.error = ""
@@ -128,6 +175,8 @@ class NativeWorkerClient:
         response = self._receive(deadline - time.monotonic())
         if not response or not response.get("ok"):
             self.error = (response or {}).get("error", self.error)
+            if self.stderr_tail and "stderr=" not in self.error:
+                self.error += f"; stderr={self.stderr_tail[-512:]}"
             return None
         self.error = ""
         self.last_diagnostics = response.get("diagnostics") or {}

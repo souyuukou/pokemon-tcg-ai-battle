@@ -182,6 +182,7 @@ def agent(obs_dict: dict) -> list[int]:
             diag=diag,
             error=_error(),
             used_fallback=True,
+            worker_stderr=_worker.stderr_tail if _worker is not None else "",
         )
         session_diagnostics.emit()
         return fallback_choose(obs_dict)
@@ -205,6 +206,7 @@ def agent(obs_dict: dict) -> list[int]:
             diag=diag,
             error="illegal native action",
             used_fallback=True,
+            worker_stderr=_worker.stderr_tail if _worker is not None else "",
         )
         session_diagnostics.emit()
         return fallback_choose(obs_dict)

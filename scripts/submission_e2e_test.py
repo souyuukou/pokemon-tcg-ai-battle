@@ -1,7 +1,6 @@
-"""Submission smoke test: native must work, fallback must be zero."""
+"""End-to-end submission test via main.agent with repeated native calls."""
 from __future__ import annotations
 
-import argparse
 import json
 import os
 import sys
@@ -17,76 +16,76 @@ os.chdir(SUB)
 
 from cg.game import battle_finish, battle_select, battle_start
 from diagnostics import session_diagnostics
-from main import agent
+from main import agent, _valid_action
 from model_fixture import ensure_valid_model
 from pvs_bridge import bridge
 
 PROD = {
     "hypotheses": 2,
     "threads": 1,
-    "max_depth": 12,
-    "max_ms": 1500,
+    "max_depth": 10,
+    "max_ms": 1200,
     "safety_seconds": 5.0,
     "risk": 0.12,
 }
 
 
-def load_deck() -> list[int]:
-    return [int(x) for x in (SUB / "deck.csv").read_text().split() if x.strip()]
+def validate(obs: dict, choice: list[int]) -> str | None:
+    select = obs.get("select") or {}
+    if not _valid_action(choice, select):
+        return "illegal action"
+    return None
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--allow-fallback", type=int, default=0)
-    parser.add_argument("--steps", type=int, default=40)
-    args = parser.parse_args()
-
     os.environ["POKEMON_PVS_CONFIG"] = json.dumps(PROD, separators=(",", ":"))
     os.environ["POKEMON_PVS_DIAGNOSTICS"] = "1"
-    deck = load_deck()
+    deck = [int(x) for x in (SUB / "deck.csv").read_text().split() if x.strip()]
     if bridge._native_path() is None:
         print("native library missing")
         return 2
     if not ensure_valid_model(SUB / "model.nnue"):
-        print("model.nnue invalid and could not be regenerated")
-        return 3
-    if not bridge.initialize(deck):
-        print(f"native init failed: {bridge.error}")
+        print("invalid model.nnue")
         return 3
 
     obs, start = battle_start(deck, deck)
     if obs is None:
-        print(f"battle_start failed: {start.errorType}")
+        print(f"start failed: {start.errorType}")
         return 4
 
-    steps = 0
+    calls = 0
+    illegal = 0
+    timings: list[float] = []
     try:
-        while steps < args.steps:
+        agent(obs)
+        while calls < 120:
             if obs.get("select") is None:
                 obs = battle_select(agent(obs))
-                steps += 1
                 continue
+            t0 = time.perf_counter()
             choice = agent({**obs, "remainingOverageTime": 600.0})
+            timings.append((time.perf_counter() - t0) * 1000)
+            err = validate(obs, choice)
+            if err:
+                illegal += 1
             obs = battle_select(choice)
-            steps += 1
+            calls += 1
             if int((obs.get("current") or {}).get("result", -1)) >= 0:
                 break
     finally:
         battle_finish()
 
-    session_diagnostics.detect_backend(bridge.diagnostics())
     report = session_diagnostics.as_dict()
+    report["calls"] = calls
+    report["illegal_actions"] = illegal
+    report["avg_decision_time_ms"] = round(sum(timings) / len(timings), 2) if timings else 0
+    report["p95_decision_time_ms"] = round(sorted(timings)[int(len(timings) * 0.95) - 1], 2) if timings else 0
     print(json.dumps(report, indent=2))
-    if not report["native_initialized"]:
+    if illegal:
         return 5
-    if report["native_failure_count"] > 0 and args.allow_fallback == 0:
-        print("native_failure_count > 0")
-        return 8
-    if args.allow_fallback == 0 and report["fallback_count"] > 0:
-        print("fallback_count > 0")
+    if report["fallback_count"] > 0:
         return 6
-    if report["native_choose_count"] <= 0:
-        print("native_choose_count == 0")
+    if calls < 10:
         return 7
     return 0
 

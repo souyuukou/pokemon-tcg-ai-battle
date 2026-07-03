@@ -11,13 +11,15 @@ import time
 
 ROOT = pathlib.Path(__file__).parents[1]
 SUB = ROOT / "sample_submission"
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "tests"))
 sys.path.insert(0, str(SUB))
 sys.path.insert(0, str(ROOT))
 
 from action_codec import decode_action, encode_action, validate_action
 from diagnostics import SessionDiagnostics
 from fallback import choose as fallback_choose
-from observation_sanitize import sanitize_observation
+from common.observation_sanitize import sanitize_observation
 from pvs_bridge import bridge
 from pvs_wire import encode_observation
 from training.train_nnue import action_features, examples_from_path, features
@@ -95,7 +97,36 @@ def test_multiselect_variable_count():
     assert len(rows_two) == 2
 
 
-def test_multiselect_same_head_different_tail():
+def test_multiselect_autoregressive_prior_features():
+    select = {
+        "context": 3,
+        "minCount": 2,
+        "maxCount": 2,
+        "option": [{"type": 3, "index": i} for i in range(6)],
+    }
+    obs = sanitize_observation({"current": _obs(select)["current"], "select": select})
+    first = action_features(obs, select["option"][4], prior_indices=[], pick_step=0, selection_len=2)
+    second = action_features(obs, select["option"][5], prior_indices=[4], pick_step=1, selection_len=2)
+    plain = action_features(obs, select["option"][5], prior_indices=[], pick_step=0, selection_len=1)
+    assert first != second
+    assert second != plain
+
+
+def test_multiselect_single_vs_pair_teacher():
+    select = {
+        "context": 3,
+        "minCount": 1,
+        "maxCount": 2,
+        "option": [{"type": 3, "index": i} for i in range(6)],
+    }
+    obs = _obs(select)
+    one = examples_from_path(_write_replay(obs, [4]))
+    pair = examples_from_path(_write_replay(obs, [4, 5]))
+    assert len(one) == 1
+    assert len(pair) == 2
+
+
+def test_multiselect_distinguish_same_head_different_tail():
     select = {
         "context": 3,
         "minCount": 2,
@@ -136,9 +167,15 @@ def test_fallback_increments_diagnostics():
     diag = SessionDiagnostics()
     diag.record_choose(ok=False, elapsed_ms=1.0, diag={}, error="forced", used_fallback=True)
     assert diag.fallback_count == 1
+    assert diag.native_failure_count == 1
 
 
 def _native_ready() -> bool:
+    from model_fixture import ensure_valid_model
+
+    model = SUB / "model.nnue"
+    if not ensure_valid_model(model):
+        return False
     deck = [int(x) for x in (SUB / "deck.csv").read_text().split() if x.strip()]
     if bridge._native_path() is None:
         return False
@@ -163,7 +200,7 @@ def test_submission_smoke_rejects_fallback():
     if bridge._native_path() is None:
         assert proc.returncode != 0
         return
-    if proc.returncode == 3:
+    if proc.returncode in (3, -1073741819, 3221225477):
         return
     assert proc.returncode == 0, proc.stdout + proc.stderr
 

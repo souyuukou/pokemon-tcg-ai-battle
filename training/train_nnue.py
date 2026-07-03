@@ -8,11 +8,13 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 import numpy as np
 
-sys_path = Path(__file__).resolve().parents[1] / "sample_submission"
-if str(sys_path) not in __import__("sys").path:
-    __import__("sys").path.insert(0, str(sys_path))
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in __import__("sys").path:
+    __import__("sys").path.insert(0, str(_ROOT))
+if str(_ROOT / "sample_submission") not in __import__("sys").path:
+    __import__("sys").path.insert(0, str(_ROOT / "sample_submission"))
 from action_codec import validate_action
-from observation_sanitize import sanitize_observation
+from common.observation_sanitize import sanitize_observation
 
 FEATURES, HIDDEN, MAGIC, VERSION = 4096, 256, b"PKNNUE1\0", 2
 
@@ -45,9 +47,25 @@ def features(obs: dict) -> list[int]:
     return sorted(set(out))
 
 
-def action_features(obs: dict, option: dict) -> list[int]:
+def action_features(
+    obs: dict,
+    option: dict,
+    *,
+    prior_indices: list[int] | None = None,
+    pick_step: int = 0,
+    selection_len: int = 1,
+) -> list[int]:
     select = obs["select"]
-    values = [f"context:{select.get('context', -1)}", f"type:{option.get('type', -1)}"]
+    cur = obs.get("current") or {}
+    your_index = int(cur.get("yourIndex") or 0)
+    values = [
+        f"context:{select.get('context', -1)}",
+        f"type:{option.get('type', -1)}",
+        f"pick_step:{pick_step}",
+        f"selection_len:{selection_len}",
+    ]
+    for prior in prior_indices or []:
+        values.append(f"prior:{prior}")
     for key in ("cardId", "attackId", "area", "index", "playerIndex",
                 "inPlayArea", "inPlayIndex", "number", "count",
                 "specialConditionType"):
@@ -57,14 +75,18 @@ def action_features(obs: dict, option: dict) -> list[int]:
         values.append(f"type_card:{option['type']}:{option['cardId']}")
     area_names = {2: "hand", 3: "discard", 4: "active", 5: "bench", 6: "prize"}
     area = option.get("area", 2 if option.get("type") in (7, 8, 9) else None)
-    player = option.get("playerIndex", (obs.get("current") or {}).get("yourIndex", 0))
+    player = option.get("playerIndex", your_index)
     index = option.get("index")
-    try:
-        card = obs["current"]["players"][player][area_names[area]][index]
-        if card:
-            values += [f"resolvedCard:{card['id']}", f"type_resolved:{option.get('type',-1)}:{card['id']}"]
-    except (KeyError, IndexError, TypeError):
-        pass
+    if player == your_index and area is not None and index is not None:
+        try:
+            card = obs["current"]["players"][player][area_names[area]][index]
+            if card:
+                values += [
+                    f"resolvedCard:{card['id']}",
+                    f"type_resolved:{option.get('type',-1)}:{card['id']}",
+                ]
+        except (KeyError, IndexError, TypeError):
+            pass
     return sorted(set(hfeature("action:" + value) for value in values))
 
 
@@ -79,7 +101,7 @@ def examples_from_path(path: Path):
         for pi, step in enumerate(pair):
             if not step or not step.get("observation", {}).get("select"):
                 continue
-            obs = sanitize_observation(step["observation"])
+            obs = sanitize_observation(step["observation"], perspective=pi)
             action = [int(index) for index in (step.get("action") or [])]
             opts = obs["select"].get("option", [])
             if not opts:
@@ -90,13 +112,27 @@ def examples_from_path(path: Path):
             select = obs["select"]
             if not validate_action(action, select):
                 continue
-            for pick in action:
+            prior: list[int] = []
+            for step_idx, pick in enumerate(action):
                 out.append((
                     np.asarray(features(obs), dtype=np.int64),
-                    [np.asarray(action_features(obs, option), dtype=np.int64) for option in opts],
+                    [
+                        np.asarray(
+                            action_features(
+                                obs,
+                                option,
+                                prior_indices=prior,
+                                pick_step=step_idx,
+                                selection_len=len(action),
+                            ),
+                            dtype=np.int64,
+                        )
+                        for option in opts
+                    ],
                     float(reward),
                     min(pick, len(opts) - 1),
                 ))
+                prior.append(pick)
     return out
 
 
