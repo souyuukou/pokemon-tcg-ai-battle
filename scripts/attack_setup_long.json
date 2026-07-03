@@ -1,0 +1,149 @@
+[
+  {
+    "episode": 83301723,
+    "step": 96,
+    "turn": 9,
+    "actual": [
+      13
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 121,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      4
+    ],
+    "chosen_label": [
+      "ATTACH(1171)->B2"
+    ],
+    "elapsed": 4.557,
+    "depth": 0,
+    "nodes": 150000,
+    "actions": 14,
+    "root": [
+      {
+        "agg": -770.994,
+        "order": 10.179,
+        "pick": [
+          4
+        ],
+        "label": [
+          "ATTACH(1171)->B2"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": 9.05512,
+        "pick": [
+          5
+        ],
+        "label": [
+          "ATTACH(1171)->B3"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": 7.42334,
+        "pick": [
+          6
+        ],
+        "label": [
+          "PLAY(1152)"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": 5.90194,
+        "pick": [
+          11
+        ],
+        "label": [
+          "PLAY(1152)"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": 0.482089,
+        "pick": [
+          3
+        ],
+        "label": [
+          "ATTACH(1171)->B1"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": -8.40051,
+        "pick": [
+          7
+        ],
+        "label": [
+          "ATTACH(1171)->B0"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": -8.50146,
+        "pick": [
+          9
+        ],
+        "label": [
+          "ATTACH(1171)->B2"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": -9.62539,
+        "pick": [
+          10
+        ],
+        "label": [
+          "ATTACH(1171)->B3"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": -18.1984,
+        "pick": [
+          8
+        ],
+        "label": [
+          "ATTACH(1171)->B1"
+        ]
+      },
+      {
+        "agg": -771.239,
+        "order": 15.7096,
+        "pick": [
+          1
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      },
+      {
+        "agg": -771.385,
+        "order": 20.0428,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1086)"
+        ]
+      },
+      {
+        "agg": -982.6,
+        "order": 10.28,
+        "pick": [
+          2
+        ],
+        "label": [
+          "ATTACH(1171)->B0"
+        ]
+      }
+    ]
+  }
+]

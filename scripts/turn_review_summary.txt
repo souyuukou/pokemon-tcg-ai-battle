@@ -1,0 +1,200 @@
+Winner P0 final turn 25 prize [0, 1]
+Deck: {'11': 'Mist Energy', '19': 'Telepath Psychic Energy', '65': 'Dunsparce', '66': 'Dudunsparce', '304': 'Hop’s Snorlax', '878': "Hop's Phantump", '879': "Hop's Trevenant", '1080': 'Unfair Stamp', '1086': 'Buddy-Buddy Poffin', '1097': 'Night Stretcher', '1115': 'Hop’s Bag', '1122': 'Pokégear 3.0', '1123': 'Switch', '1152': 'Poké Pad', '1171': 'Hop’s Choice Band', '1182': 'Boss’s Orders', '1213': 'Judge', '1227': "Lillie's Determination", '1255': 'Postwick'}
+---
+T1 P0 prize=[6, 6] hand=[7, 6] deck=[46, 47]
+  me: Hop’s Snorlax 150HP
+  my_bench: []
+  opp: Hop’s Snorlax 150HP
+  opp_bench: []
+  -> PLAY | [TO_HAND] CARD | ATTACH slot=0 | PLAY | ATTACH slot=0 | ATTACH slot=0 | END
+
+T2 P1 prize=[6, 6] hand=[7, 3] deck=[46, 45]
+  me: Hop’s Snorlax 150HP
+  my_bench: []
+  opp: Hop’s Snorlax 150HP (E1, T1)
+  opp_bench: ['Hop’s Snorlax 150HP (T1)']
+  -> PLAY | [TO_BENCH] CARD | [TO_BENCH] CARD | ATTACH slot=0 | PLAY | PLAY | [SWITCH] CARD | ATTACK atk=1266
+
+T3 P0 prize=[6, 6] hand=[4, 3] deck=[44, 44]
+  me: Hop’s Snorlax 50HP (E1, T1)
+  my_bench: ['Hop’s Snorlax 150HP (T1)']
+  opp: Hop's Phantump 70HP (T1)
+  opp_bench: ['Hop’s Snorlax 150HP', "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | [TO_BENCH] CARD | [TO_BENCH] CARD | PLAY | [SWITCH] CARD | END
+
+T4 P1 prize=[6, 6] hand=[4, 2] deck=[43, 42]
+  me: Hop’s Snorlax 150HP
+  my_bench: ["Hop's Phantump 70HP (T1)", "Hop's Phantump 70HP"]
+  opp: Hop’s Snorlax 50HP (E1, T1)
+  opp_bench: ['Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | [TO_HAND] CARD | EVOLVE slot=0 | END
+
+T5 P0 prize=[6, 6] hand=[3, 3] deck=[41, 42]
+  me: Hop’s Snorlax 50HP (E1, T1)
+  my_bench: ['Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP", "Hop's Phantump 70HP"]
+  opp: Hop’s Snorlax 150HP
+  opp_bench: ["Hop's Trevenant 140HP (T1)", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> EVOLVE slot=2 | END
+
+T6 P1 prize=[6, 6] hand=[4, 2] deck=[41, 41]
+  me: Hop’s Snorlax 150HP
+  my_bench: ["Hop's Trevenant 140HP (T1)", "Hop's Phantump 70HP"]
+  opp: Hop’s Snorlax 50HP (E1, T1)
+  opp_bench: ['Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP", "Hop's Trevenant 140HP"]
+  stadium: Postwick
+  -> END
+
+T7 P0 prize=[6, 6] hand=[3, 4] deck=[40, 41]
+  me: Hop’s Snorlax 50HP (E1, T1)
+  my_bench: ['Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP", "Hop's Trevenant 140HP"]
+  opp: Hop’s Snorlax 150HP
+  opp_bench: ["Hop's Trevenant 140HP (T1)", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | [TO_HAND] CARD | EVOLVE slot=1 | END
+
+T8 P1 prize=[6, 6] hand=[5, 2] deck=[40, 39]
+  me: Hop’s Snorlax 150HP
+  my_bench: ["Hop's Trevenant 140HP (T1)", "Hop's Phantump 70HP"]
+  opp: Hop’s Snorlax 50HP (E1, T1)
+  opp_bench: ['Hop’s Snorlax 150HP (T1)', "Hop's Trevenant 140HP", "Hop's Trevenant 140HP"]
+  stadium: Postwick
+  -> PLAY | [SWITCH] CARD | ATTACH slot=0 | ATTACK atk=1266 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T9 P0 prize=[6, 5] hand=[3, 4] deck=[38, 40]
+  me: Hop’s Snorlax 150HP (T1)
+  my_bench: ["Hop's Trevenant 140HP", "Hop's Trevenant 140HP"]
+  opp: Hop's Phantump 70HP (T1)
+  opp_bench: ["Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP']
+  stadium: Postwick
+  -> PLAY | [TO_HAND] CARD | PLAY | PLAY | PLAY | ATTACH slot=1 | PLAY | END
+
+T10 P1 prize=[6, 5] hand=[5, 1] deck=[39, 35]
+  me: Hop's Phantump 70HP (T1)
+  my_bench: ["Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP']
+  opp: Hop’s Snorlax 150HP (T1)
+  opp_bench: ["Hop's Trevenant 140HP", "Hop's Trevenant 140HP (E1)", 'Hop’s Snorlax 150HP', "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | PLAY | ATTACH slot=0 | [TO_BENCH] CARD | [TO_BENCH] CARD | PLAY | [TO_HAND] CARD | ATTACK atk=1266
+
+T11 P0 prize=[6, 5] hand=[2, 5] deck=[34, 33]
+  me: Hop’s Snorlax 50HP (T1)
+  my_bench: ["Hop's Trevenant 140HP", "Hop's Trevenant 140HP (E1)", 'Hop’s Snorlax 150HP', "Hop's Phantump 70HP"]
+  opp: Hop's Phantump 70HP (E1, T1)
+  opp_bench: ["Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP', "Hop's Phantump 70HP", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | [TO_BENCH] CARD | END
+
+T12 P1 prize=[6, 5] hand=[6, 1] deck=[32, 33]
+  me: Hop's Phantump 70HP (E1, T1)
+  my_bench: ["Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP', "Hop's Phantump 70HP", "Hop's Phantump 70HP"]
+  opp: Hop’s Snorlax 50HP (T1)
+  opp_bench: ["Hop's Trevenant 140HP", "Hop's Trevenant 140HP (E1)", 'Hop’s Snorlax 150HP', "Hop's Phantump 70HP", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> EVOLVE slot=2 | PLAY | [TO_BENCH] CARD | ATTACH slot=2 | ATTACH slot=4 | ATTACK atk=1266 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T13 P0 prize=[6, 4] hand=[2, 3] deck=[32, 31]
+  me: Hop's Trevenant 140HP (E1)
+  my_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Phantump 70HP", "Hop's Phantump 70HP"]
+  opp: Hop's Phantump 70HP (E1, T1)
+  opp_bench: ["Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", "Hop's Phantump 70HP", 'Hop’s Snorlax 150HP (T1)']
+  stadium: Postwick
+  -> PLAY | ATTACH slot=2 | PLAY | [TO_HAND] CARD | PLAY | [SWITCH] CARD | ATTACK atk=1266 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T14 P1 prize=[5, 4] hand=[4, 7] deck=[30, 25]
+  me: Hop's Trevenant 140HP (T1)
+  my_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", "Hop's Phantump 70HP", 'Hop’s Snorlax 150HP (T1)']
+  opp: Hop's Phantump 70HP (E1)
+  opp_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | [TO_HAND] CARD | PLAY | PLAY | PLAY | ATTACK atk=1267
+
+T15 P0 prize=[5, 4] hand=[8, 1] deck=[24, 30]
+  me: Hop's Phantump 70HP (E1)
+  my_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", "Hop's Phantump 70HP"]
+  opp: Hop's Trevenant 140HP (T1)
+  opp_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", "Hop's Phantump 70HP", 'Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | [SWITCH] CARD | ATTACK atk=1266 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T16 P1 prize=[4, 4] hand=[2, 8] deck=[29, 24]
+  me: Hop's Trevenant 140HP (E1)
+  my_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP"]
+  opp: Hop's Phantump 70HP (E1)
+  opp_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | [TO_HAND] CARD | PLAY | ATTACK atk=1267
+
+T17 P0 prize=[4, 4] hand=[9, 1] deck=[23, 29]
+  me: Hop's Phantump 70HP (E1)
+  my_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", "Hop's Phantump 70HP"]
+  opp: Hop's Trevenant 140HP (E1)
+  opp_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> PLAY | ATTACH slot=2 | PLAY | [TO_HAND] CARD | EVOLVE slot=0 | ATTACH slot=0 | PLAY | ATTACK atk=1267
+
+T18 P1 prize=[4, 4] hand=[5, 4] deck=[25, 22]
+  me: Hop's Trevenant 20HP (E1)
+  my_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP", "Hop's Phantump 70HP"]
+  opp: Hop's Trevenant 140HP (E1, T1)
+  opp_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E2)", "Hop's Phantump 70HP", 'Hop’s Snorlax 150HP']
+  stadium: Postwick
+  -> ATTACH slot=4 | ATTACH slot=0 | ATTACK atk=1267
+
+T19 P0 prize=[4, 4] hand=[5, 3] deck=[21, 25]
+  me: Hop's Trevenant 20HP (E1, T1)
+  my_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E2)", "Hop's Phantump 70HP", 'Hop’s Snorlax 150HP']
+  opp: Hop's Trevenant 20HP (E1, T1)
+  opp_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP", "Hop's Phantump 70HP (E1)"]
+  stadium: Postwick
+  -> ATTACK atk=1267 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T20 P1 prize=[3, 4] hand=[4, 6] deck=[24, 21]
+  me: Hop's Phantump 70HP (E1)
+  my_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP"]
+  opp: Hop's Trevenant 20HP (E1, T1)
+  opp_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E2)", "Hop's Phantump 70HP", 'Hop’s Snorlax 150HP']
+  stadium: Postwick
+  -> PLAY | [TO_HAND] CARD | PLAY | EVOLVE slot=3 | PLAY | [TO_HAND] CARD | EVOLVE slot=0 | ATTACK atk=1267 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T21 P0 prize=[3, 3] hand=[7, 2] deck=[20, 24]
+  me: Hop's Phantump 70HP
+  my_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E2)", 'Hop’s Snorlax 150HP']
+  opp: Hop's Trevenant 140HP (E1)
+  opp_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (T1)", 'Hop’s Snorlax 150HP (T1)', "Hop's Trevenant 140HP", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> ATTACH slot=0 | PLAY | EVOLVE slot=0 | ATTACK atk=1267 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T22 P1 prize=[2, 3] hand=[3, 5] deck=[23, 20]
+  me: Hop's Trevenant 140HP (T1)
+  my_bench: ['Hop’s Snorlax 150HP', 'Hop’s Snorlax 150HP (T1)', "Hop's Trevenant 140HP", "Hop's Phantump 70HP"]
+  opp: Hop's Trevenant 140HP (E1)
+  opp_bench: ["Hop's Trevenant 140HP", 'Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E2)", 'Hop’s Snorlax 150HP']
+  stadium: Postwick
+  -> PLAY | [SWITCH] CARD | ATTACK atk=1267 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T23 P0 prize=[2, 2] hand=[6, 3] deck=[19, 23]
+  me: Hop's Trevenant 140HP
+  my_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", 'Hop’s Snorlax 150HP']
+  opp: Hop's Trevenant 140HP (T1)
+  opp_bench: ['Hop’s Snorlax 150HP', 'Hop’s Snorlax 150HP (T1)', "Hop's Trevenant 140HP", "Hop's Phantump 70HP"]
+  stadium: Postwick
+  -> ATTACH slot=0 | PLAY | PLAY | [SWITCH] CARD | RETREAT | [SWITCH] CARD | ATTACK atk=1267 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T24 P1 prize=[1, 2] hand=[4, 4] deck=[22, 19]
+  me: Hop's Trevenant 140HP
+  my_bench: ['Hop’s Snorlax 150HP', 'Hop’s Snorlax 150HP (T1)', "Hop's Phantump 70HP"]
+  opp: Hop's Trevenant 140HP (E1)
+  opp_bench: ['Hop’s Snorlax 150HP', "Hop's Trevenant 140HP (E1)", 'Hop’s Snorlax 150HP', 'Dunsparce 60HP']
+  stadium: Postwick
+  -> PLAY | [TO_HAND] CARD | PLAY | [TO_HAND] CARD | EVOLVE slot=2 | PLAY | ATTACH slot=0 | PLAY | [TO_HAND] CARD | PLAY | ATTACK atk=1267 | [TO_HAND] CARD | [TO_ACTIVE] CARD
+
+T25 P0 prize=[1, 1] hand=[5, 3] deck=[18, 17]
+  me: Hop's Trevenant 140HP (E1)
+  my_bench: ['Hop’s Snorlax 150HP', 'Hop’s Snorlax 150HP', 'Dunsparce 60HP']
+  opp: Hop's Trevenant 140HP (E1)
+  opp_bench: ['Hop’s Snorlax 150HP', 'Hop’s Snorlax 150HP (T1)', "Hop's Trevenant 140HP", 'Dunsparce 60HP']
+  stadium: Postwick
+  -> EVOLVE slot=2 | PLAY | [TO_BENCH] CARD | [TO_BENCH] CARD | PLAY | ATTACH slot=3 | ATTACK atk=1267 | [TO_HAND] CARD

@@ -1,0 +1,244 @@
+{
+  "positions": [
+    {
+      "turn": 5,
+      "player": 0,
+      "board": "T5 P0 prize=[6, 6] me=Hop's Phantump(70HP,E0) opp=Hop’s Snorlax(150HP)",
+      "options": [
+        "PLAY",
+        "END"
+      ]
+    },
+    {
+      "turn": 29,
+      "player": 0,
+      "error": "game ended early"
+    }
+  ],
+  "probes": [
+    {
+      "label": "T5P0/prod",
+      "picked": [
+        "PLAY"
+      ],
+      "elapsed_s": 5.09,
+      "depth": 4,
+      "nodes": 171584,
+      "budget_ms": 2960,
+      "worlds": 6,
+      "root": [
+        {
+          "agg": -23.34,
+          "order": 4.74169,
+          "pick": [
+            0
+          ]
+        },
+        {
+          "agg": -48.9786,
+          "order": -2.49624,
+          "pick": [
+            1
+          ]
+        }
+      ],
+      "position": "T5P0"
+    },
+    {
+      "label": "T5P0/depth5",
+      "picked": [
+        "PLAY"
+      ],
+      "elapsed_s": 4.3,
+      "depth": 4,
+      "nodes": 142790,
+      "budget_ms": 2960,
+      "worlds": 6,
+      "root": [
+        {
+          "agg": -22.5574,
+          "order": 4.74169,
+          "pick": [
+            0
+          ]
+        },
+        {
+          "agg": -45.2844,
+          "order": -2.49624,
+          "pick": [
+            1
+          ]
+        }
+      ],
+      "position": "T5P0"
+    },
+    {
+      "label": "T5P0/depth40",
+      "picked": [
+        "PLAY"
+      ],
+      "elapsed_s": 5.08,
+      "depth": 4,
+      "nodes": 168512,
+      "budget_ms": 2960,
+      "worlds": 6,
+      "root": [
+        {
+          "agg": -31.1509,
+          "order": 4.74169,
+          "pick": [
+            0
+          ]
+        },
+        {
+          "agg": -48.3813,
+          "order": -2.49624,
+          "pick": [
+            1
+          ]
+        }
+      ],
+      "position": "T5P0"
+    },
+    {
+      "label": "T5P0/time60s",
+      "picked": [
+        "PLAY"
+      ],
+      "elapsed_s": 5.08,
+      "depth": 4,
+      "nodes": 171200,
+      "budget_ms": 2960,
+      "worlds": 6,
+      "root": [
+        {
+          "agg": -18.4228,
+          "order": 4.74169,
+          "pick": [
+            0
+          ]
+        },
+        {
+          "agg": -53.3381,
+          "order": -2.49624,
+          "pick": [
+            1
+          ]
+        }
+      ],
+      "position": "T5P0"
+    },
+    {
+      "label": "T5P0/no_model",
+      "picked": [
+        "PLAY"
+      ],
+      "elapsed_s": 5.09,
+      "depth": 4,
+      "nodes": 170752,
+      "budget_ms": 2960,
+      "worlds": 6,
+      "root": [
+        {
+          "agg": -20.0333,
+          "order": 4.74169,
+          "pick": [
+            0
+          ]
+        },
+        {
+          "agg": -49.66,
+          "order": -2.49624,
+          "pick": [
+            1
+          ]
+        }
+      ],
+      "position": "T5P0"
+    },
+    {
+      "label": "T5P0/no_risk",
+      "picked": [
+        "PLAY"
+      ],
+      "elapsed_s": 5.08,
+      "depth": 4,
+      "nodes": 169088,
+      "budget_ms": 2960,
+      "worlds": 6,
+      "root": [
+        {
+          "agg": -14.4,
+          "order": 4.74169,
+          "pick": [
+            0
+          ]
+        },
+        {
+          "agg": -51.3,
+          "order": -2.49624,
+          "pick": [
+            1
+          ]
+        }
+      ],
+      "position": "T5P0"
+    },
+    {
+      "label": "T5P0/hyp1",
+      "picked": [
+        "END"
+      ],
+      "elapsed_s": 2.97,
+      "depth": 7,
+      "nodes": 92736,
+      "budget_ms": 2960,
+      "worlds": 1,
+      "root": [
+        {
+          "agg": -51.8,
+          "order": -2.49624,
+          "pick": [
+            1
+          ]
+        },
+        {
+          "agg": -60.8,
+          "order": 4.74169,
+          "pick": [
+            0
+          ]
+        }
+      ],
+      "position": "T5P0"
+    },
+    {
+      "label": "T5P0/order_only",
+      "picked": [
+        "PLAY"
+      ],
+      "elapsed_s": 0.02,
+      "depth": 1,
+      "nodes": 60,
+      "budget_ms": 50,
+      "worlds": 6,
+      "root": [
+        {
+          "agg": 43.2001,
+          "order": 4.74169,
+          "pick": [
+            0
+          ]
+        },
+        {
+          "agg": 41.7001,
+          "order": -2.49624,
+          "pick": [
+            1
+          ]
+        }
+      ],
+      "position": "T5P0"
+    }
+  ]
+}

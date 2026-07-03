@@ -1,0 +1,8 @@
+﻿1266 Splashing Dodge cost None damage 10
+1267 Horrifying Revenge cost None damage 30
+1268 Corner cost None damage 90
+422 Dynamic Press cost None damage 140
+1266 energies=[0] dmg=10
+1267 energies=[0] dmg=30
+1268 energies=[5, 0, 0] dmg=90
+422 energies=[0, 0, 0] dmg=140

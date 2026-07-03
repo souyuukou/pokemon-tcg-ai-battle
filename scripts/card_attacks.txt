@@ -1,0 +1,14 @@
+﻿878 Hop's Phantump HP 70
+  1266 Splashing Dodge 10
+879 Hop's Trevenant HP 140
+  1267 Horrifying Revenge 30
+  1268 Corner 90
+304 Hop’s Snorlax HP 150
+  422 Dynamic Press 140
+65 Dunsparce HP 60
+  74 Gnaw 10
+  75 Dig 30
+66 Dudunsparce HP 140
+  76 Land Crush 90
+direct 1266 Splashing Dodge 10
+direct 1267 Horrifying Revenge 30

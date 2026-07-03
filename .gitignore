@@ -1,0 +1,12 @@
+build/
+.tools/
+**/.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+engine.obj
+engine.exp
+engine.lib
+debug-*.log
+submission.zip
+data/20260625/

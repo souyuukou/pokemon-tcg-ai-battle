@@ -1,0 +1,577 @@
+[
+  {
+    "episode": 83225868,
+    "step": 12,
+    "turn": 1,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 235,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.682,
+    "depth": 3,
+    "nodes": 47360,
+    "actions": 1
+  },
+  {
+    "episode": 83225868,
+    "step": 31,
+    "turn": 3,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 1,
+    "opp": 119,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.679,
+    "depth": 4,
+    "nodes": 43776,
+    "actions": 1
+  },
+  {
+    "episode": 83225868,
+    "step": 50,
+    "turn": 5,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 1,
+    "opp": 119,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.731,
+    "depth": 4,
+    "nodes": 41344,
+    "actions": 1
+  },
+  {
+    "episode": 83225868,
+    "step": 73,
+    "turn": 7,
+    "actual": [
+      2
+    ],
+    "active": 66,
+    "energy": 0,
+    "opp": 121,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "PLAY(1097)"
+    ],
+    "elapsed": 2.788,
+    "depth": 1,
+    "nodes": 44032,
+    "actions": 3
+  },
+  {
+    "episode": 83225868,
+    "step": 98,
+    "turn": 9,
+    "actual": [
+      0
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 121,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.757,
+    "depth": 2,
+    "nodes": 42048,
+    "actions": 1
+  },
+  {
+    "episode": 83225868,
+    "step": 110,
+    "turn": 11,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 121,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.787,
+    "depth": 4,
+    "nodes": 42304,
+    "actions": 1
+  },
+  {
+    "episode": 83225868,
+    "step": 129,
+    "turn": 13,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 1,
+    "opp": 121,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.766,
+    "depth": 8,
+    "nodes": 35008,
+    "actions": 1
+  },
+  {
+    "episode": 83228458,
+    "step": 14,
+    "turn": 1,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 119,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.666,
+    "depth": 5,
+    "nodes": 50752,
+    "actions": 1
+  },
+  {
+    "episode": 83228458,
+    "step": 34,
+    "turn": 3,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 119,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.534,
+    "depth": 3,
+    "nodes": 39424,
+    "actions": 1
+  },
+  {
+    "episode": 83228458,
+    "step": 75,
+    "turn": 7,
+    "actual": [
+      5
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 121,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "PLAY(1227)"
+    ],
+    "elapsed": 2.628,
+    "depth": 1,
+    "nodes": 41024,
+    "actions": 6
+  },
+  {
+    "episode": 83228458,
+    "step": 108,
+    "turn": 9,
+    "actual": [
+      0
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 121,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.584,
+    "depth": 1,
+    "nodes": 27264,
+    "actions": 1
+  },
+  {
+    "episode": 83233461,
+    "step": 15,
+    "turn": 1,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 666,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.668,
+    "depth": 4,
+    "nodes": 35584,
+    "actions": 1
+  },
+  {
+    "episode": 83233461,
+    "step": 31,
+    "turn": 3,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 666,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.667,
+    "depth": 6,
+    "nodes": 37376,
+    "actions": 1
+  },
+  {
+    "episode": 83233461,
+    "step": 49,
+    "turn": 5,
+    "actual": [
+      1
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 666,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.652,
+    "depth": 1,
+    "nodes": 30784,
+    "actions": 2
+  },
+  {
+    "episode": 83233461,
+    "step": 70,
+    "turn": 7,
+    "actual": [
+      1
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 190,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.583,
+    "depth": 1,
+    "nodes": 27520,
+    "actions": 2
+  },
+  {
+    "episode": 83233461,
+    "step": 119,
+    "turn": 13,
+    "actual": [
+      1
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 169,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.453,
+    "depth": 2,
+    "nodes": 23168,
+    "actions": 2
+  },
+  {
+    "episode": 83233461,
+    "step": 141,
+    "turn": 15,
+    "actual": [
+      1
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 169,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.491,
+    "depth": 2,
+    "nodes": 19648,
+    "actions": 2
+  },
+  {
+    "episode": 83234959,
+    "step": 13,
+    "turn": 1,
+    "actual": [
+      0
+    ],
+    "active": 878,
+    "energy": 0,
+    "opp": 379,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.668,
+    "depth": 4,
+    "nodes": 41984,
+    "actions": 1
+  },
+  {
+    "episode": 83234959,
+    "step": 31,
+    "turn": 3,
+    "actual": [
+      0
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 379,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.64,
+    "depth": 5,
+    "nodes": 44096,
+    "actions": 1
+  },
+  {
+    "episode": 83234959,
+    "step": 55,
+    "turn": 5,
+    "actual": [
+      0
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 342,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.628,
+    "depth": 8,
+    "nodes": 90432,
+    "actions": 1
+  },
+  {
+    "episode": 83234959,
+    "step": 78,
+    "turn": 7,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 342,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.611,
+    "depth": 6,
+    "nodes": 88128,
+    "actions": 1
+  },
+  {
+    "episode": 83234959,
+    "step": 93,
+    "turn": 9,
+    "actual": [
+      0
+    ],
+    "active": 878,
+    "energy": 0,
+    "opp": 381,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.651,
+    "depth": 5,
+    "nodes": 88768,
+    "actions": 1
+  },
+  {
+    "episode": 83234959,
+    "step": 106,
+    "turn": 11,
+    "actual": [
+      0
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 381,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 2.661,
+    "depth": 5,
+    "nodes": 82816,
+    "actions": 1
+  }
+]

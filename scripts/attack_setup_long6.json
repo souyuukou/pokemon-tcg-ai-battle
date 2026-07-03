@@ -1,0 +1,43 @@
+[
+  {
+    "episode": 83233461,
+    "step": 141,
+    "turn": 15,
+    "actual": [
+      1
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 169,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 17.846,
+    "depth": 4,
+    "nodes": 900000,
+    "actions": 2,
+    "root": [
+      {
+        "agg": -848.915,
+        "order": -3.35095,
+        "pick": [
+          1
+        ]
+      },
+      {
+        "agg": -902.101,
+        "order": -1.76108,
+        "pick": [
+          0
+        ]
+      }
+    ]
+  }
+]

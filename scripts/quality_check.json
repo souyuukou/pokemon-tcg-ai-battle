@@ -1,0 +1,18 @@
+{
+  "winner": 0,
+  "turn": 21,
+  "steps": 171,
+  "prize": [
+    0,
+    1
+  ],
+  "main_total": 112,
+  "main_end_only": 7,
+  "main_with_attack": 14,
+  "attacks": 14,
+  "ends": 7,
+  "avg_depth": 1.99,
+  "max_depth": 2,
+  "depth_ge4": 0,
+  "wall_s": 209.1
+}

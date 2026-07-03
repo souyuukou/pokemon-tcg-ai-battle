@@ -1,0 +1,10 @@
+{
+  "steps": 80,
+  "illegal_empty": 4,
+  "attacks": 4,
+  "end_only_main": 3,
+  "avg_depth": 2.0,
+  "max_depth": 2,
+  "depth_ge3": 0,
+  "wall_s": 90.3
+}

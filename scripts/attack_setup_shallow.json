@@ -1,0 +1,745 @@
+[
+  {
+    "episode": 83283293,
+    "step": 98,
+    "turn": 11,
+    "actual": [
+      3
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 1030,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      2
+    ],
+    "chosen_label": [
+      "ATTACK(1267)"
+    ],
+    "elapsed": 2.427,
+    "depth": 0,
+    "nodes": 158464,
+    "actions": 4,
+    "root": [
+      {
+        "agg": 145.2,
+        "order": 14.6602,
+        "pick": [
+          2
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      },
+      {
+        "agg": -100.2,
+        "order": 9.4694,
+        "pick": [
+          3
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -153.27,
+        "order": 11.662,
+        "pick": [
+          0
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      },
+      {
+        "agg": -153.27,
+        "order": 9.35705,
+        "pick": [
+          1
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83283293,
+    "step": 117,
+    "turn": 15,
+    "actual": [
+      10
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 1030,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      9
+    ],
+    "chosen_label": [
+      "ATTACK(1267)"
+    ],
+    "elapsed": 2.457,
+    "depth": 0,
+    "nodes": 136384,
+    "actions": 11,
+    "root": [
+      {
+        "agg": 164.703,
+        "order": 11.9486,
+        "pick": [
+          9
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      },
+      {
+        "agg": -80.6968,
+        "order": 9.93784,
+        "pick": [
+          10
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -80.6983,
+        "order": 27.6443,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1152)"
+        ]
+      },
+      {
+        "agg": -82.1999,
+        "order": 24.244,
+        "pick": [
+          1
+        ],
+        "label": [
+          "ATTACH(1171)->A0"
+        ]
+      },
+      {
+        "agg": -82.1999,
+        "order": 16.4202,
+        "pick": [
+          2
+        ],
+        "label": [
+          "ATTACH(1171)->B0"
+        ]
+      },
+      {
+        "agg": -82.1999,
+        "order": 9.99506,
+        "pick": [
+          4
+        ],
+        "label": [
+          "ATTACH(1171)->B2"
+        ]
+      },
+      {
+        "agg": -82.1999,
+        "order": 9.2774,
+        "pick": [
+          6
+        ],
+        "label": [
+          "ATTACH(1171)->B4"
+        ]
+      },
+      {
+        "agg": -82.1999,
+        "order": 6.36408,
+        "pick": [
+          5
+        ],
+        "label": [
+          "ATTACH(1171)->B3"
+        ]
+      },
+      {
+        "agg": -82.1999,
+        "order": 4.84853,
+        "pick": [
+          3
+        ],
+        "label": [
+          "ATTACH(1171)->B1"
+        ]
+      },
+      {
+        "agg": -134.499,
+        "order": 16.2236,
+        "pick": [
+          7
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      },
+      {
+        "agg": -134.499,
+        "order": 12.2934,
+        "pick": [
+          8
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83301723,
+    "step": 96,
+    "turn": 9,
+    "actual": [
+      13
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 121,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      12
+    ],
+    "chosen_label": [
+      "ATTACK(1267)"
+    ],
+    "elapsed": 2.64,
+    "depth": 0,
+    "nodes": 187648,
+    "actions": 14,
+    "root": [
+      {
+        "agg": -718.627,
+        "order": 3.48542,
+        "pick": [
+          12
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      },
+      {
+        "agg": -750.485,
+        "order": 20.0428,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1086)"
+        ]
+      },
+      {
+        "agg": -768.865,
+        "order": 7.42334,
+        "pick": [
+          6
+        ],
+        "label": [
+          "PLAY(1152)"
+        ]
+      },
+      {
+        "agg": -768.865,
+        "order": 5.90194,
+        "pick": [
+          11
+        ],
+        "label": [
+          "PLAY(1152)"
+        ]
+      },
+      {
+        "agg": -769.511,
+        "order": -4.80675,
+        "pick": [
+          13
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": 10.28,
+        "pick": [
+          2
+        ],
+        "label": [
+          "ATTACH(1171)->B0"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": 10.179,
+        "pick": [
+          4
+        ],
+        "label": [
+          "ATTACH(1171)->B2"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": 9.05512,
+        "pick": [
+          5
+        ],
+        "label": [
+          "ATTACH(1171)->B3"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": 0.482089,
+        "pick": [
+          3
+        ],
+        "label": [
+          "ATTACH(1171)->B1"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": -8.40051,
+        "pick": [
+          7
+        ],
+        "label": [
+          "ATTACH(1171)->B0"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": -8.50146,
+        "pick": [
+          9
+        ],
+        "label": [
+          "ATTACH(1171)->B2"
+        ]
+      },
+      {
+        "agg": -770.994,
+        "order": -9.62539,
+        "pick": [
+          10
+        ],
+        "label": [
+          "ATTACH(1171)->B3"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83311721,
+    "step": 128,
+    "turn": 15,
+    "actual": [
+      3
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 190,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "PLAY(1123)"
+    ],
+    "elapsed": 0.051,
+    "depth": 1,
+    "nodes": 2333,
+    "actions": 4,
+    "root": [
+      {
+        "agg": -85.4495,
+        "order": 25.0043,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1123)"
+        ]
+      },
+      {
+        "agg": -85.4495,
+        "order": 13.3885,
+        "pick": [
+          1
+        ],
+        "label": [
+          "PLAY(1123)"
+        ]
+      },
+      {
+        "agg": -124.982,
+        "order": 10.7568,
+        "pick": [
+          2
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      },
+      {
+        "agg": -168.016,
+        "order": 2.00627,
+        "pick": [
+          3
+        ],
+        "label": [
+          "END"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83311721,
+    "step": 144,
+    "turn": 17,
+    "actual": [
+      2
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 190,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      2
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 0.013,
+    "depth": 1,
+    "nodes": 156,
+    "actions": 3,
+    "root": [
+      {
+        "agg": -395.305,
+        "order": -2.67791,
+        "pick": [
+          2
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -399.092,
+        "order": 9.05479,
+        "pick": [
+          1
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      },
+      {
+        "agg": -422.074,
+        "order": 15.5053,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1123)"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83315454,
+    "step": 69,
+    "turn": 7,
+    "actual": [
+      1
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 190,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 0.012,
+    "depth": 1,
+    "nodes": 150,
+    "actions": 2,
+    "root": [
+      {
+        "agg": -557.675,
+        "order": 3.43439,
+        "pick": [
+          1
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -781.271,
+        "order": 8.3025,
+        "pick": [
+          0
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83317054,
+    "step": 120,
+    "turn": 16,
+    "actual": [
+      3
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 675,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      2
+    ],
+    "chosen_label": [
+      "ATTACK(1267)"
+    ],
+    "elapsed": 2.631,
+    "depth": 0,
+    "nodes": 152256,
+    "actions": 4,
+    "root": [
+      {
+        "agg": -355.796,
+        "order": 4.10713,
+        "pick": [
+          2
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      },
+      {
+        "agg": -575.332,
+        "order": 8.63505,
+        "pick": [
+          1
+        ],
+        "label": [
+          "PLAY(1086)"
+        ]
+      },
+      {
+        "agg": -594.369,
+        "order": -4.14518,
+        "pick": [
+          3
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -595.097,
+        "order": 9.84785,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83317054,
+    "step": 126,
+    "turn": 18,
+    "actual": [
+      6
+    ],
+    "active": 879,
+    "energy": 1,
+    "opp": 675,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      5
+    ],
+    "chosen_label": [
+      "ATTACK(1267)"
+    ],
+    "elapsed": 2.652,
+    "depth": 0,
+    "nodes": 146176,
+    "actions": 7,
+    "root": [
+      {
+        "agg": -373.494,
+        "order": -1.42603,
+        "pick": [
+          5
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      },
+      {
+        "agg": -572.19,
+        "order": 19.8427,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1086)"
+        ]
+      },
+      {
+        "agg": -612.256,
+        "order": 15.3647,
+        "pick": [
+          1
+        ],
+        "label": [
+          "PLAY(1152)"
+        ]
+      },
+      {
+        "agg": -612.322,
+        "order": -6.97339,
+        "pick": [
+          6
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -613.092,
+        "order": 15.671,
+        "pick": [
+          4
+        ],
+        "label": [
+          "PLAY(1122)"
+        ]
+      },
+      {
+        "agg": -613.373,
+        "order": 2.59821,
+        "pick": [
+          3
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      },
+      {
+        "agg": -613.373,
+        "order": 1.49941,
+        "pick": [
+          2
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83334592,
+    "step": 169,
+    "turn": 17,
+    "actual": [
+      2
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 121,
+    "attack_available": true,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "PLAY(1086)"
+    ],
+    "elapsed": 2.614,
+    "depth": 0,
+    "nodes": 121472,
+    "actions": 3,
+    "root": [
+      {
+        "agg": 145.793,
+        "order": 36.7399,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1086)"
+        ]
+      },
+      {
+        "agg": 145.221,
+        "order": 7.46986,
+        "pick": [
+          1
+        ],
+        "label": [
+          "ATTACK(1267)"
+        ]
+      },
+      {
+        "agg": 126.426,
+        "order": -1.25137,
+        "pick": [
+          2
+        ],
+        "label": [
+          "END"
+        ]
+      }
+    ]
+  }
+]

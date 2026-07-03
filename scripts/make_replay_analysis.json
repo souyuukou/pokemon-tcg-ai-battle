@@ -1,0 +1,981 @@
+{
+  "analyses": [
+    {
+      "episode": 83464248,
+      "seat": 1,
+      "turns": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26
+      ],
+      "main_by_turn": {
+        "2": [
+          "PLAY",
+          "ATTACH",
+          "ATTACK"
+        ],
+        "4": [
+          "EVOLVE",
+          "ATTACK"
+        ],
+        "6": [
+          "ATTACK"
+        ],
+        "8": [
+          "PLAY",
+          "EVOLVE",
+          "PLAY",
+          "PLAY",
+          "EVOLVE",
+          "PLAY",
+          "PLAY",
+          "END"
+        ],
+        "10": [
+          "EVOLVE",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "END"
+        ],
+        "12": [
+          "PLAY",
+          "ATTACH",
+          "END"
+        ],
+        "14": [
+          "EVOLVE",
+          "PLAY",
+          "ATTACH",
+          "END"
+        ],
+        "16": [
+          "ATTACK"
+        ],
+        "18": [
+          "ATTACH",
+          "ATTACK"
+        ],
+        "20": [
+          "EVOLVE",
+          "PLAY",
+          "ATTACH",
+          "PLAY",
+          "END"
+        ],
+        "22": [
+          "ATTACH",
+          "PLAY",
+          "PLAY",
+          "EVOLVE",
+          "END"
+        ],
+        "24": [
+          "END"
+        ],
+        "26": [
+          "ATTACK"
+        ]
+      },
+      "end_with_attack_turns": [],
+      "max_end_streak": 2,
+      "prize_stall_turns": 37,
+      "late_end_heavy_turns": 1,
+      "slow_calls": [
+        {
+          "step": 8,
+          "turn": 2,
+          "duration": 2.841,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 10,
+          "turn": 2,
+          "duration": 2.909,
+          "picked": [
+            "ATTACH"
+          ]
+        },
+        {
+          "step": 11,
+          "turn": 2,
+          "duration": 2.929,
+          "picked": [
+            "ATTACK"
+          ]
+        },
+        {
+          "step": 17,
+          "turn": 4,
+          "duration": 2.883,
+          "picked": [
+            "EVOLVE"
+          ]
+        },
+        {
+          "step": 18,
+          "turn": 4,
+          "duration": 2.888,
+          "picked": [
+            "ATTACK"
+          ]
+        },
+        {
+          "step": 27,
+          "turn": 6,
+          "duration": 2.827,
+          "picked": [
+            "ATTACK"
+          ]
+        },
+        {
+          "step": 34,
+          "turn": 8,
+          "duration": 2.73,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 36,
+          "turn": 8,
+          "duration": 2.786,
+          "picked": [
+            "EVOLVE"
+          ]
+        }
+      ],
+      "calls": 68,
+      "time_s": 191.21,
+      "max_call_s": 3.016,
+      "types": {
+        "3": 24,
+        "0": 1,
+        "7": 18,
+        "8": 6,
+        "13": 6,
+        "9": 7,
+        "14": 7
+      },
+      "contexts": {
+        "1": 1,
+        "38": 1,
+        "2": 1,
+        "0": 44,
+        "5": 5,
+        "4": 5,
+        "7": 9,
+        "3": 1
+      }
+    },
+    {
+      "episode": 83464516,
+      "seat": 0,
+      "turns": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        17,
+        19,
+        21
+      ],
+      "main_by_turn": {
+        "1": [
+          "PLAY",
+          "PLAY",
+          "RETREAT",
+          "PLAY",
+          "PLAY",
+          "END"
+        ],
+        "3": [
+          "PLAY",
+          "EVOLVE",
+          "ATTACH",
+          "END"
+        ],
+        "5": [
+          "ATTACH",
+          "END"
+        ],
+        "7": [
+          "ATTACH",
+          "PLAY",
+          "END"
+        ],
+        "9": [
+          "ATTACH",
+          "END"
+        ],
+        "11": [
+          "ATTACH",
+          "END"
+        ],
+        "13": [
+          "ATTACK"
+        ],
+        "15": [
+          "ATTACK"
+        ],
+        "17": [
+          "ATTACH",
+          "ATTACK"
+        ],
+        "19": [
+          "ATTACK"
+        ],
+        "21": [
+          "PLAY",
+          "EVOLVE",
+          "ATTACH",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "END"
+        ]
+      },
+      "end_with_attack_turns": [],
+      "max_end_streak": 1,
+      "prize_stall_turns": 27,
+      "late_end_heavy_turns": 0,
+      "slow_calls": [
+        {
+          "step": 4,
+          "turn": 1,
+          "duration": 2.758,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 6,
+          "turn": 1,
+          "duration": 2.747,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 8,
+          "turn": 1,
+          "duration": 2.723,
+          "picked": [
+            "RETREAT"
+          ]
+        },
+        {
+          "step": 10,
+          "turn": 1,
+          "duration": 2.7,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 12,
+          "turn": 1,
+          "duration": 2.669,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 13,
+          "turn": 1,
+          "duration": 2.721,
+          "picked": [
+            "END"
+          ]
+        },
+        {
+          "step": 19,
+          "turn": 3,
+          "duration": 2.821,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 20,
+          "turn": 3,
+          "duration": 2.822,
+          "picked": [
+            "EVOLVE"
+          ]
+        }
+      ],
+      "calls": 46,
+      "time_s": 131.8,
+      "max_call_s": 3.304,
+      "types": {
+        "1": 1,
+        "3": 18,
+        "7": 10,
+        "12": 1,
+        "14": 7,
+        "9": 2,
+        "8": 7,
+        "13": 4
+      },
+      "contexts": {
+        "41": 1,
+        "1": 1,
+        "0": 31,
+        "5": 4,
+        "3": 2,
+        "7": 4,
+        "4": 2
+      }
+    },
+    {
+      "episode": 83465054,
+      "seat": 1,
+      "turns": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18
+      ],
+      "main_by_turn": {
+        "2": [
+          "ATTACH",
+          "ATTACH",
+          "PLAY",
+          "PLAY",
+          "RETREAT",
+          "ATTACK"
+        ],
+        "4": [
+          "EVOLVE",
+          "ATTACK"
+        ],
+        "6": [
+          "ATTACK"
+        ],
+        "8": [
+          "EVOLVE",
+          "ATTACH",
+          "PLAY",
+          "EVOLVE",
+          "PLAY",
+          "EVOLVE",
+          "END"
+        ],
+        "10": [
+          "ATTACH",
+          "PLAY",
+          "ATTACK"
+        ],
+        "12": [
+          "PLAY",
+          "ATTACH",
+          "PLAY",
+          "ATTACH",
+          "ABILITY",
+          "PLAY",
+          "ATTACH",
+          "PLAY",
+          "ATTACK"
+        ],
+        "14": [
+          "ATTACK"
+        ],
+        "16": [
+          "ATTACH",
+          "PLAY",
+          "ATTACK"
+        ],
+        "18": [
+          "EVOLVE",
+          "END"
+        ]
+      },
+      "end_with_attack_turns": [],
+      "max_end_streak": 1,
+      "prize_stall_turns": 27,
+      "late_end_heavy_turns": 0,
+      "slow_calls": [
+        {
+          "step": 10,
+          "turn": 2,
+          "duration": 2.744,
+          "picked": [
+            "ATTACH"
+          ]
+        },
+        {
+          "step": 12,
+          "turn": 2,
+          "duration": 2.721,
+          "picked": [
+            "ATTACH"
+          ]
+        },
+        {
+          "step": 13,
+          "turn": 2,
+          "duration": 2.775,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 15,
+          "turn": 2,
+          "duration": 2.746,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 16,
+          "turn": 2,
+          "duration": 2.822,
+          "picked": [
+            "RETREAT"
+          ]
+        },
+        {
+          "step": 18,
+          "turn": 2,
+          "duration": 2.871,
+          "picked": [
+            "ATTACK"
+          ]
+        },
+        {
+          "step": 39,
+          "turn": 4,
+          "duration": 2.747,
+          "picked": [
+            "EVOLVE"
+          ]
+        },
+        {
+          "step": 40,
+          "turn": 4,
+          "duration": 2.717,
+          "picked": [
+            "ATTACK"
+          ]
+        }
+      ],
+      "calls": 54,
+      "time_s": 148.22,
+      "max_call_s": 2.952,
+      "types": {
+        "3": 22,
+        "8": 8,
+        "7": 10,
+        "12": 1,
+        "13": 7,
+        "9": 5,
+        "14": 2,
+        "10": 1
+      },
+      "contexts": {
+        "1": 1,
+        "2": 1,
+        "0": 34,
+        "5": 3,
+        "7": 7,
+        "3": 3,
+        "4": 4
+      }
+    },
+    {
+      "episode": 83465122,
+      "seat": 0,
+      "turns": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        17
+      ],
+      "main_by_turn": {
+        "1": [
+          "PLAY",
+          "ATTACH",
+          "END"
+        ],
+        "3": [
+          "EVOLVE",
+          "ATTACK"
+        ],
+        "5": [
+          "ATTACK"
+        ],
+        "7": [
+          "ATTACH",
+          "PLAY",
+          "EVOLVE",
+          "RETREAT",
+          "ATTACK"
+        ],
+        "9": [
+          "PLAY",
+          "ATTACH",
+          "PLAY",
+          "EVOLVE",
+          "RETREAT",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "EVOLVE",
+          "PLAY",
+          "EVOLVE",
+          "PLAY",
+          "END"
+        ],
+        "11": [
+          "EVOLVE",
+          "END"
+        ],
+        "13": [
+          "PLAY",
+          "PLAY",
+          "ATTACH",
+          "PLAY",
+          "PLAY",
+          "END"
+        ],
+        "15": [
+          "PLAY",
+          "ATTACK"
+        ],
+        "17": [
+          "EVOLVE",
+          "ATTACK"
+        ]
+      },
+      "end_with_attack_turns": [],
+      "max_end_streak": 1,
+      "prize_stall_turns": 31,
+      "late_end_heavy_turns": 0,
+      "slow_calls": [
+        {
+          "step": 9,
+          "turn": 1,
+          "duration": 2.719,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 11,
+          "turn": 1,
+          "duration": 2.806,
+          "picked": [
+            "ATTACH"
+          ]
+        },
+        {
+          "step": 13,
+          "turn": 1,
+          "duration": 2.873,
+          "picked": [
+            "END"
+          ]
+        },
+        {
+          "step": 20,
+          "turn": 3,
+          "duration": 2.814,
+          "picked": [
+            "EVOLVE"
+          ]
+        },
+        {
+          "step": 21,
+          "turn": 3,
+          "duration": 2.81,
+          "picked": [
+            "ATTACK"
+          ]
+        },
+        {
+          "step": 27,
+          "turn": 5,
+          "duration": 2.793,
+          "picked": [
+            "ATTACK"
+          ]
+        },
+        {
+          "step": 33,
+          "turn": 7,
+          "duration": 2.704,
+          "picked": [
+            "ATTACH"
+          ]
+        },
+        {
+          "step": 35,
+          "turn": 7,
+          "duration": 2.666,
+          "picked": [
+            "PLAY"
+          ]
+        }
+      ],
+      "calls": 62,
+      "time_s": 166.41,
+      "max_call_s": 2.926,
+      "types": {
+        "1": 1,
+        "3": 24,
+        "0": 1,
+        "7": 15,
+        "8": 4,
+        "14": 4,
+        "9": 7,
+        "13": 5,
+        "12": 2
+      },
+      "contexts": {
+        "41": 1,
+        "1": 1,
+        "38": 1,
+        "2": 1,
+        "0": 37,
+        "5": 4,
+        "4": 5,
+        "7": 9,
+        "3": 2
+      }
+    },
+    {
+      "episode": 83465729,
+      "seat": 1,
+      "turns": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16
+      ],
+      "main_by_turn": {
+        "2": [
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "ATTACH",
+          "RETREAT",
+          "ATTACK"
+        ],
+        "4": [
+          "EVOLVE",
+          "PLAY",
+          "RETREAT",
+          "PLAY",
+          "EVOLVE",
+          "PLAY",
+          "END"
+        ],
+        "6": [
+          "ATTACH",
+          "PLAY",
+          "PLAY",
+          "END"
+        ],
+        "8": [
+          "ATTACH",
+          "PLAY",
+          "PLAY",
+          "END"
+        ],
+        "10": [
+          "ATTACH",
+          "ATTACK"
+        ],
+        "12": [
+          "ATTACK"
+        ],
+        "14": [
+          "PLAY",
+          "EVOLVE",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "PLAY",
+          "EVOLVE",
+          "END"
+        ],
+        "16": [
+          "PLAY",
+          "ATTACH",
+          "PLAY",
+          "PLAY",
+          "END"
+        ]
+      },
+      "end_with_attack_turns": [],
+      "max_end_streak": 1,
+      "prize_stall_turns": 33,
+      "late_end_heavy_turns": 0,
+      "slow_calls": [
+        {
+          "step": 6,
+          "turn": 2,
+          "duration": 2.777,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 8,
+          "turn": 2,
+          "duration": 2.75,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 9,
+          "turn": 2,
+          "duration": 2.755,
+          "picked": [
+            "PLAY"
+          ]
+        },
+        {
+          "step": 10,
+          "turn": 2,
+          "duration": 2.75,
+          "picked": [
+            "ATTACH"
+          ]
+        },
+        {
+          "step": 12,
+          "turn": 2,
+          "duration": 2.788,
+          "picked": [
+            "RETREAT"
+          ]
+        },
+        {
+          "step": 14,
+          "turn": 2,
+          "duration": 2.761,
+          "picked": [
+            "ATTACK"
+          ]
+        },
+        {
+          "step": 23,
+          "turn": 4,
+          "duration": 2.722,
+          "picked": [
+            "EVOLVE"
+          ]
+        },
+        {
+          "step": 24,
+          "turn": 4,
+          "duration": 2.706,
+          "picked": [
+            "PLAY"
+          ]
+        }
+      ],
+      "calls": 55,
+      "time_s": 148.99,
+      "max_call_s": 2.874,
+      "types": {
+        "3": 18,
+        "7": 19,
+        "8": 5,
+        "12": 2,
+        "13": 3,
+        "9": 4,
+        "14": 5
+      },
+      "contexts": {
+        "1": 1,
+        "0": 38,
+        "5": 4,
+        "3": 3,
+        "4": 4,
+        "7": 4
+      }
+    }
+  ],
+  "probes": [
+    {
+      "label": "END",
+      "turn": 1,
+      "replay_action": [
+        7
+      ],
+      "engine_action": [
+        6
+      ],
+      "elapsed_s": 0.017,
+      "depth": 1,
+      "completed_width": 8,
+      "root_coverage": 1,
+      "common_worlds": 6,
+      "worlds": 6,
+      "nodes": 156,
+      "budget_ms": 2649,
+      "coverage_fallback": false,
+      "belief_failed": null
+    },
+    {
+      "label": "END",
+      "turn": 3,
+      "replay_action": [
+        7
+      ],
+      "engine_action": [
+        5
+      ],
+      "elapsed_s": 0.016,
+      "depth": 1,
+      "completed_width": 8,
+      "root_coverage": 1,
+      "common_worlds": 6,
+      "worlds": 6,
+      "nodes": 144,
+      "budget_ms": 2673,
+      "coverage_fallback": false,
+      "belief_failed": null
+    },
+    {
+      "label": "END",
+      "turn": 5,
+      "replay_action": [
+        8
+      ],
+      "engine_action": [
+        7
+      ],
+      "elapsed_s": 0.04,
+      "depth": 1,
+      "completed_width": 9,
+      "root_coverage": 1,
+      "common_worlds": 6,
+      "worlds": 6,
+      "nodes": 276,
+      "budget_ms": 2725,
+      "coverage_fallback": false,
+      "belief_failed": null
+    },
+    {
+      "label": "END",
+      "turn": 7,
+      "replay_action": [
+        8
+      ],
+      "engine_action": [
+        0
+      ],
+      "elapsed_s": 0.037,
+      "depth": 1,
+      "completed_width": 9,
+      "root_coverage": 1,
+      "common_worlds": 6,
+      "worlds": 6,
+      "nodes": 198,
+      "budget_ms": 2751,
+      "coverage_fallback": false,
+      "belief_failed": null
+    },
+    {
+      "label": "END",
+      "turn": 9,
+      "replay_action": [
+        8
+      ],
+      "engine_action": [
+        8
+      ],
+      "elapsed_s": 0.042,
+      "depth": 1,
+      "completed_width": 9,
+      "root_coverage": 1,
+      "common_worlds": 6,
+      "worlds": 6,
+      "nodes": 198,
+      "budget_ms": 2809,
+      "coverage_fallback": false,
+      "belief_failed": null
+    },
+    {
+      "label": "END",
+      "turn": 11,
+      "replay_action": [
+        8
+      ],
+      "engine_action": [
+        8
+      ],
+      "elapsed_s": 0.04,
+      "depth": 1,
+      "completed_width": 9,
+      "root_coverage": 1,
+      "common_worlds": 6,
+      "worlds": 6,
+      "nodes": 198,
+      "budget_ms": 2869,
+      "coverage_fallback": false,
+      "belief_failed": null
+    },
+    {
+      "label": "END",
+      "turn": 21,
+      "replay_action": [
+        14
+      ],
+      "engine_action": [
+        12
+      ],
+      "elapsed_s": 3.107,
+      "depth": 1,
+      "completed_width": 1,
+      "root_coverage": 0.0666667,
+      "common_worlds": 0,
+      "worlds": 6,
+      "nodes": 46336,
+      "budget_ms": 3039,
+      "coverage_fallback": true,
+      "belief_failed": null
+    }
+  ]
+}

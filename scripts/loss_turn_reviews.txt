@@ -1,0 +1,64 @@
+=== 83464248 seat=1 status=DONE reward=-1 ===
+opponent public: 1145, 1205, 1227, 1235, 3, 721, 722, 723
+T2 prize=(6, 6) deck=(45, 46) me=[878 70HP E0 T0] opp=[721 150HP E1 T0] -> PLAY(1086) | ATTACH(11)->A0 | ATTACK(1266)
+T4 prize=(6, 6) deck=(42, 41) me=[878 70HP E1 T0] opp=[721 140HP E2 T0] -> EVOLVE(879) | ATTACK(1267)
+T6 prize=(6, 6) deck=(41, 38) me=[879 10HP E1 T0] opp=[721 110HP E1 T0] -> ATTACK(1267)
+T8 prize=(6, 5) deck=(40, 39) me=[65 60HP E0 T0] opp=[721 80HP E2 T0] -> PLAY(1097) | EVOLVE(879) | PLAY(1227) | PLAY(1115) | EVOLVE(66) | PLAY(65) | PLAY(1152) | END
+T10 prize=(6, 5) deck=(33, 37) me=[66 10HP E0 T0] opp=[721 80HP E1 T0] -> EVOLVE(66) | PLAY(1227) | PLAY(1097) | PLAY(1152) | PLAY(1122) | PLAY(1122) | PLAY(1123) | END
+T12 prize=(6, 5) deck=(25, 35) me=[879 100HP E0 T0] opp=[721 80HP E1 T0] -> PLAY(1227) | ATTACH(19)->B3 | END
+T14 prize=(6, 5) deck=(23, 33) me=[879 100HP E0 T0] opp=[721 80HP E2 T0] -> EVOLVE(879) | PLAY(1227) | ATTACH(19)->B0 | END
+T16 prize=(6, 4) deck=(20, 32) me=[879 140HP E1 T0] opp=[721 80HP E1 T0] -> ATTACK(1267)
+T18 prize=(5, 4) deck=(19, 34) me=[879 80HP E1 T0] opp=[721 150HP E2 T0] -> ATTACH(19)->A0 | ATTACK(1267)
+T20 prize=(5, 3) deck=(17, 33) me=[66 10HP E0 T0] opp=[721 90HP E1 T0] -> EVOLVE(879) | PLAY(1086) | ATTACH(11)->A0 | PLAY(1080) | END
+T22 prize=(5, 2) deck=(16, 38) me=[879 140HP E0 T0] opp=[721 90HP E2 T0] -> ATTACH(19)->B3 | PLAY(1086) | PLAY(1152) | EVOLVE(879) | END
+T24 prize=(5, 2) deck=(13, 36) me=[879 10HP E0 T0] opp=[721 90HP E2 T0] -> END
+T26 prize=(5, 1) deck=(12, 37) me=[879 140HP E1 T0] opp=[721 90HP E2 T0] -> ATTACK(1267)
+
+=== 83464516 seat=0 status=DONE reward=-1 ===
+opponent public: 1056, 1091, 1097, 1122, 1142, 1147, 1194, 1198, 1219, 1227, 1248, 1251, 1267, 6, 677, 678
+T1 prize=(6, 6) deck=(46, 47) me=[65 60HP E0 T0] opp=[1056 310HP E0 T0] -> PLAY(1115) | PLAY(1115) | RETREAT | PLAY(1152) | PLAY(878) | END
+T3 prize=(6, 6) deck=(40, 42) me=[304 150HP E0 T0] opp=[1056 310HP E1 T0] -> PLAY(1227) | EVOLVE(879) | ATTACH(19)->B3 | END
+T5 prize=(6, 6) deck=(35, 37) me=[304 150HP E0 T0] opp=[1056 310HP E2 T1] -> ATTACH(19)->B3 | END
+T7 prize=(6, 6) deck=(34, 34) me=[304 150HP E0 T0] opp=[1056 310HP E3 T1] -> ATTACH(11)->B4 | PLAY(1182) | END
+T9 prize=(6, 6) deck=(33, 30) me=[304 150HP E0 T0] opp=[677 80HP E1 T0] -> ATTACH(11)->B2 | END
+T11 prize=(6, 6) deck=(32, 27) me=[304 150HP E0 T0] opp=[677 80HP E2 T0] -> ATTACH(11)->B2 | END
+T13 prize=(6, 5) deck=(31, 23) me=[879 140HP E2 T0] opp=[678 340HP E2 T0] -> ATTACK(1267)
+T15 prize=(6, 5) deck=(30, 22) me=[879 40HP E2 T0] opp=[678 20HP E3 T0] -> ATTACK(1267)
+T17 prize=(3, 5) deck=(29, 19) me=[879 40HP E2 T0] opp=[1056 310HP E5 T1] -> ATTACH(19)->B3 | ATTACK(1267)
+T19 prize=(3, 5) deck=(27, 17) me=[879 40HP E2 T0] opp=[1056 310HP E6 T1] -> ATTACK(1267)
+T21 prize=(3, 1) deck=(26, 14) me=[65 90HP E0 T0] opp=[1056 280HP E6 T1] -> PLAY(1086) | EVOLVE(66) | ATTACH(19)->B0 | PLAY(1152) | PLAY(1122) | PLAY(1122) | END
+
+=== 83465054 seat=1 status=DONE reward=-1 ===
+opponent public: 1079, 1080, 1086, 1097, 1121, 1152, 1182, 119, 1198, 120, 121, 1231, 131, 132, 133, 2, 5
+T2 prize=(6, 6) deck=(46, 45) me=[65 60HP E0 T0] opp=[119 70HP E0 T0] -> ATTACH(19)->B0 | ATTACH(1171)->B0 | PLAY(1152) | PLAY(304) | RETREAT | ATTACK(1266)
+T4 prize=(5, 6) deck=(42, 39) me=[878 70HP E1 T1] opp=[120 90HP E2 T0] -> EVOLVE(879) | ATTACK(1267)
+T6 prize=(4, 6) deck=(41, 37) me=[879 70HP E1 T1] opp=[121 320HP E1 T0] -> ATTACK(1267)
+T8 prize=(4, 5) deck=(40, 36) me=[65 60HP E0 T0] opp=[121 230HP E1 T0] -> EVOLVE(66) | ATTACH(11)->A0 | PLAY(1080) | EVOLVE(879) | PLAY(1097) | EVOLVE(879) | END
+T10 prize=(4, 5) deck=(38, 35) me=[66 70HP E1 T0] opp=[121 230HP E1 T0] -> ATTACH(19)->B0 | PLAY(1123) | ATTACK(1267)
+T12 prize=(3, 4) deck=(36, 33) me=[304 80HP E0 T0] opp=[121 170HP E1 T0] -> PLAY(1086) | ATTACH(11)->A0 | PLAY(1123) | ATTACH(1171)->A0 | ABILITY | PLAY(1122) | ATTACH(1171)->A0 | PLAY(1227) | ATTACK(1267)
+T14 prize=(3, 4) deck=(28, 30) me=[879 70HP E0 T1] opp=[121 80HP E1 T0] -> ATTACK(1267)
+T16 prize=(1, 3) deck=(34, 22) me=[879 140HP E1 T0] opp=[121 320HP E1 T0] -> ATTACH(1171)->A0 | PLAY(1255) | ATTACK(1267)
+T18 prize=(1, 1) deck=(33, 18) me=[65 60HP E0 T0] opp=[121 320HP E2 T0] -> EVOLVE(66) | END
+
+=== 83465122 seat=0 status=DONE reward=-1 ===
+opponent public: 1121, 1122, 1147, 169, 190, 666, 8
+T1 prize=(6, 6) deck=(41, 47) me=[878 70HP E0 T0] opp=[666 160HP E0 T0] -> PLAY(1115) | ATTACH(19)->A0 | END
+T3 prize=(6, 6) deck=(37, 43) me=[878 20HP E1 T0] opp=[666 160HP E1 T0] -> EVOLVE(879) | ATTACK(1267)
+T5 prize=(6, 6) deck=(36, 39) me=[879 40HP E1 T0] opp=[666 100HP E1 T0] -> ATTACK(1267)
+T7 prize=(6, 5) deck=(35, 37) me=[65 60HP E0 T0] opp=[666 40HP E1 T0] -> ATTACH(19)->B3 | PLAY(1097) | EVOLVE(879) | RETREAT | ATTACK(1267)
+T9 prize=(5, 4) deck=(33, 35) me=[65 60HP E0 T0] opp=[190 300HP E8 T0] -> PLAY(878) | ATTACH(11)->B2 | PLAY(1097) | EVOLVE(879) | RETREAT | PLAY(1097) | PLAY(1097) | PLAY(1122) | PLAY(1227) | EVOLVE(66) | PLAY(1152) | EVOLVE(66) | PLAY(1152) | END
+T11 prize=(5, 3) deck=(29, 34) me=[878 70HP E0 T0] opp=[190 300HP E8 T0] -> EVOLVE(879) | END
+T13 prize=(5, 2) deck=(28, 33) me=[66 140HP E1 T0] opp=[190 300HP E8 T0] -> PLAY(1227) | PLAY(878) | ATTACH(19)->B3 | PLAY(1152) | PLAY(1152) | END
+T15 prize=(5, 1) deck=(22, 32) me=[878 70HP E1 T0] opp=[190 300HP E8 T0] -> PLAY(65) | ATTACK(1266)
+T17 prize=(5, 1) deck=(21, 31) me=[878 70HP E1 T0] opp=[190 260HP E8 T0] -> EVOLVE(66) | ATTACK(1266)
+
+=== 83465729 seat=1 status=DONE reward=-1 ===
+opponent public: 1030, 1031, 1086, 1119, 1145, 1182, 1227, 1229, 17, 860, 861
+T2 prize=(6, 6) deck=(46, 46) me=[65 60HP E0 T0] opp=[860 70HP E1 T0] -> PLAY(1115) | PLAY(304) | PLAY(1227) | ATTACH(19)->B0 | RETREAT | ATTACK(1266)
+T4 prize=(6, 5) deck=(37, 42) me=[65 60HP E0 T0] opp=[861 270HP E2 T0] -> EVOLVE(879) | PLAY(1086) | RETREAT | PLAY(1152) | EVOLVE(66) | PLAY(1213) | END
+T6 prize=(6, 4) deck=(34, 42) me=[66 140HP E0 T0] opp=[861 270HP E3 T0] -> ATTACH(19)->B2 | PLAY(1115) | PLAY(1086) | END
+T8 prize=(6, 4) deck=(32, 40) me=[304 50HP E0 T0] opp=[861 270HP E3 T0] -> ATTACH(19)->A0 | PLAY(1182) | PLAY(1255) | END
+T10 prize=(6, 3) deck=(31, 39) me=[878 70HP E1 T0] opp=[1031 330HP E1 T0] -> ATTACH(19)->A0 | ATTACK(1266)
+T12 prize=(6, 3) deck=(30, 38) me=[878 70HP E2 T0] opp=[1031 260HP E2 T0] -> ATTACK(1266)
+T14 prize=(6, 1) deck=(29, 37) me=[65 60HP E0 T0] opp=[1031 190HP E2 T0] -> PLAY(1227) | EVOLVE(66) | PLAY(1086) | PLAY(1086) | PLAY(1097) | PLAY(65) | PLAY(1152) | EVOLVE(66) | END
+T16 prize=(6, 1) deck=(20, 35) me=[66 20HP E0 T0] opp=[1031 330HP E1 T0] -> PLAY(1227) | ATTACH(11)->A0 | PLAY(1097) | PLAY(304) | END

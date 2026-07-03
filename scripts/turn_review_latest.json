@@ -1,0 +1,1805 @@
+{
+  "winner": 1,
+  "final_turn": 28,
+  "final_prize": [
+    1,
+    0
+  ],
+  "final_bank": [
+    467.2863563999854,
+    478.7871979999618
+  ],
+  "steps": 232,
+  "turns": [
+    {
+      "turn": 1,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          6,
+          6
+        ],
+        "deck": [
+          46,
+          47
+        ],
+        "hand": [
+          6,
+          6
+        ],
+        "my_active": "Hop’s Snorlax 150HP",
+        "my_bench": [
+          "Hop’s Snorlax 150HP"
+        ],
+        "opp_active": "Hop's Phantump 70HP",
+        "opp_bench": [],
+        "stadium": null
+      },
+      "actions": [
+        "PLAY",
+        "[TO_BENCH] CARD",
+        "[TO_BENCH] CARD",
+        "ATTACH slot=1",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "ATTACH slot=0",
+        "END"
+      ]
+    },
+    {
+      "turn": 2,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          6,
+          6
+        ],
+        "deck": [
+          46,
+          43
+        ],
+        "hand": [
+          7,
+          2
+        ],
+        "my_active": "Hop's Phantump 70HP",
+        "my_bench": [],
+        "opp_active": "Hop’s Snorlax 150HP (T1)",
+        "opp_bench": [
+          "Hop’s Snorlax 150HP",
+          "Hop's Phantump 70HP (T1)",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP"
+        ],
+        "stadium": null
+      },
+      "actions": [
+        "PLAY",
+        "ATTACH slot=0",
+        "ATTACH slot=0",
+        "PLAY",
+        "PLAY",
+        "PLAY",
+        "[TO_BENCH] CARD",
+        "[TO_BENCH] CARD",
+        "ATTACK atk=1266"
+      ]
+    },
+    {
+      "turn": 3,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          6,
+          6
+        ],
+        "deck": [
+          42,
+          38
+        ],
+        "hand": [
+          3,
+          7
+        ],
+        "my_active": "Hop’s Snorlax 80HP (T1)",
+        "my_bench": [
+          "Hop’s Snorlax 150HP",
+          "Hop's Phantump 70HP (T1)",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP"
+        ],
+        "opp_active": "Hop's Phantump 70HP (T1)",
+        "opp_bench": [
+          "Dunsparce 60HP (E1)",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "PLAY",
+        "EVOLVE slot=1",
+        "ATTACH slot=0",
+        "PLAY",
+        "END"
+      ]
+    },
+    {
+      "turn": 4,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          6,
+          6
+        ],
+        "deck": [
+          37,
+          36
+        ],
+        "hand": [
+          8,
+          5
+        ],
+        "my_active": "Hop's Phantump 70HP (T1)",
+        "my_bench": [
+          "Dunsparce 60HP (E1)",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP"
+        ],
+        "opp_active": "Hop’s Snorlax 80HP (E1, T1)",
+        "opp_bench": [
+          "Hop’s Snorlax 150HP",
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "EVOLVE slot=2",
+        "ATTACH slot=0",
+        "PLAY",
+        "PLAY",
+        "EVOLVE slot=0",
+        "ATTACH slot=2",
+        "ABILITY",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "ATTACK atk=1266",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 5,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          6,
+          5
+        ],
+        "deck": [
+          35,
+          33
+        ],
+        "hand": [
+          6,
+          9
+        ],
+        "my_active": "Hop's Trevenant 140HP (T1)",
+        "my_bench": [
+          "Hop’s Snorlax 150HP",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Phantump 70HP (E1, T1)",
+        "opp_bench": [
+          "Hop's Phantump 70HP",
+          "Hop's Trevenant 140HP (T1)",
+          "Hop’s Snorlax 150HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "PLAY",
+        "[SWITCH] CARD",
+        "PLAY",
+        "ATTACH slot=0",
+        "PLAY",
+        "ATTACK atk=1267",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 6,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          5,
+          5
+        ],
+        "deck": [
+          39,
+          34
+        ],
+        "hand": [
+          3,
+          4
+        ],
+        "my_active": "Hop's Phantump 70HP (E1, T1)",
+        "my_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop’s Snorlax 150HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E1, T1)",
+        "opp_bench": [
+          "Hop’s Snorlax 150HP",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ATTACH slot=0",
+        "PLAY",
+        "ATTACH slot=1",
+        "EVOLVE slot=0",
+        "PLAY",
+        "[TO_BENCH] CARD",
+        "[TO_BENCH] CARD",
+        "ATTACH slot=2",
+        "PLAY",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "ATTACK atk=1268",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 7,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          5,
+          4
+        ],
+        "deck": [
+          35,
+          28
+        ],
+        "hand": [
+          3,
+          5
+        ],
+        "my_active": "Dunsparce 60HP",
+        "my_bench": [
+          "Hop’s Snorlax 150HP",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E2, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop’s Snorlax 150HP (T1)",
+          "Hop's Phantump 70HP (T1)",
+          "Dunsparce 60HP",
+          "Hop's Phantump 70HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "RETREAT",
+        "[SWITCH] CARD",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "PLAY",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "ATTACH slot=0",
+        "EVOLVE slot=2",
+        "PLAY",
+        "[TO_BENCH] CARD",
+        "ATTACH slot=4",
+        "END"
+      ]
+    },
+    {
+      "turn": 8,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          5,
+          4
+        ],
+        "deck": [
+          27,
+          29
+        ],
+        "hand": [
+          6,
+          2
+        ],
+        "my_active": "Hop's Trevenant 140HP (E2, T1)",
+        "my_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop’s Snorlax 150HP (T1)",
+          "Hop's Phantump 70HP (T1)",
+          "Dunsparce 60HP",
+          "Hop's Phantump 70HP"
+        ],
+        "opp_active": "Hop’s Snorlax 150HP",
+        "opp_bench": [
+          "Dunsparce 60HP (E1)",
+          "Hop's Phantump 70HP",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP",
+          "Dunsparce 60HP (T1)"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "EVOLVE slot=4",
+        "ATTACK atk=1268",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 9,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          5,
+          3
+        ],
+        "deck": [
+          28,
+          27
+        ],
+        "hand": [
+          3,
+          6
+        ],
+        "my_active": "Dunsparce 60HP (E1)",
+        "my_bench": [
+          "Hop's Phantump 70HP",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP",
+          "Dunsparce 60HP (T1)"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E2, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop’s Snorlax 150HP (T1)",
+          "Hop's Phantump 70HP (T1)",
+          "Dunsparce 60HP",
+          "Hop's Trevenant 140HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "EVOLVE slot=0",
+        "ABILITY",
+        "[TO_ACTIVE] CARD",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "EVOLVE slot=2",
+        "PLAY",
+        "ABILITY",
+        "EVOLVE slot=0",
+        "PLAY",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "ATTACH slot=0",
+        "PLAY",
+        "ATTACK atk=1267",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 10,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          4,
+          3
+        ],
+        "deck": [
+          26,
+          24
+        ],
+        "hand": [
+          7,
+          5
+        ],
+        "my_active": "Hop's Trevenant 140HP (T1)",
+        "my_bench": [
+          "Hop’s Snorlax 150HP (T1)",
+          "Hop's Phantump 70HP (T1)",
+          "Dunsparce 60HP",
+          "Hop's Trevenant 140HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "[SWITCH] CARD",
+        "EVOLVE slot=2",
+        "PLAY",
+        "EVOLVE slot=1",
+        "ATTACK atk=1267",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 11,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          4,
+          2
+        ],
+        "deck": [
+          23,
+          26
+        ],
+        "hand": [
+          6,
+          4
+        ],
+        "my_active": "Hop's Trevenant 140HP (E1)",
+        "my_bench": [
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (T1)",
+        "opp_bench": [
+          "Hop’s Snorlax 150HP (T1)",
+          "Hop's Trevenant 140HP (T1)",
+          "Dudunsparce 140HP",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "EVOLVE slot=1",
+        "PLAY",
+        "[SWITCH] CARD",
+        "ATTACH slot=0",
+        "PLAY",
+        "ATTACK atk=1267",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 12,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          25,
+          21
+        ],
+        "hand": [
+          5,
+          5
+        ],
+        "my_active": "Dunsparce 60HP",
+        "my_bench": [
+          "Hop’s Snorlax 150HP (T1)",
+          "Hop's Trevenant 140HP (T1)",
+          "Dudunsparce 140HP",
+          "Hop's Trevenant 140HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Dudunsparce 140HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ABILITY",
+        "EVOLVE slot=0",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "[SWITCH] CARD",
+        "PLAY",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "PLAY",
+        "PLAY",
+        "END"
+      ]
+    },
+    {
+      "turn": 13,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          20,
+          23
+        ],
+        "hand": [
+          6,
+          2
+        ],
+        "my_active": "Hop's Trevenant 140HP (E1)",
+        "my_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Dudunsparce 140HP"
+        ],
+        "opp_active": "Dudunsparce 140HP",
+        "opp_bench": [
+          "Hop’s Snorlax 150HP (T1)",
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP",
+          "Hop's Phantump 70HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ATTACH slot=0",
+        "PLAY",
+        "PLAY",
+        "PLAY",
+        "ATTACK atk=1267"
+      ]
+    },
+    {
+      "turn": 14,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          22,
+          20
+        ],
+        "hand": [
+          3,
+          2
+        ],
+        "my_active": "Dudunsparce 80HP",
+        "my_bench": [
+          "Hop’s Snorlax 150HP (T1)",
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP",
+          "Hop's Phantump 70HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E2)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Dudunsparce 140HP",
+          "Hop's Phantump 70HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ATTACH slot=0",
+        "EVOLVE slot=4",
+        "ABILITY",
+        "[TO_ACTIVE] CARD",
+        "ATTACK atk=1267"
+      ]
+    },
+    {
+      "turn": 15,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          19,
+          21
+        ],
+        "hand": [
+          3,
+          4
+        ],
+        "my_active": "Hop's Trevenant 20HP (E2)",
+        "my_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Dudunsparce 140HP",
+          "Hop's Phantump 70HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (T1)",
+        "opp_bench": [
+          "Hop’s Snorlax 150HP (E1, T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP",
+          "Hop's Trevenant 140HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "RETREAT",
+        "[DISCARD_ENERGY] ENERGY",
+        "[DISCARD_ENERGY] ENERGY",
+        "[SWITCH] CARD",
+        "EVOLVE slot=3",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "ABILITY",
+        "PLAY",
+        "[SWITCH] CARD",
+        "PLAY",
+        "ATTACH slot=3",
+        "PLAY",
+        "PLAY",
+        "ABILITY",
+        "END"
+      ]
+    },
+    {
+      "turn": 16,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          20,
+          13
+        ],
+        "hand": [
+          5,
+          6
+        ],
+        "my_active": "Hop's Trevenant 140HP (T1)",
+        "my_bench": [
+          "Hop’s Snorlax 150HP (E1, T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP",
+          "Hop's Trevenant 140HP"
+        ],
+        "opp_active": "Hop's Trevenant 20HP",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP (E1)",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ATTACH slot=2",
+        "PLAY",
+        "[SWITCH] CARD",
+        "PLAY",
+        "END"
+      ]
+    },
+    {
+      "turn": 17,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          12,
+          20
+        ],
+        "hand": [
+          7,
+          2
+        ],
+        "my_active": "Hop's Trevenant 20HP",
+        "my_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Hop's Phantump 70HP",
+          "Hop's Phantump 70HP (E1)",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop’s Snorlax 150HP (E1, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP (E1)",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "PLAY",
+        "ATTACH slot=3",
+        "EVOLVE slot=3",
+        "PLAY",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "EVOLVE slot=1",
+        "END"
+      ]
+    },
+    {
+      "turn": 18,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          17,
+          10
+        ],
+        "hand": [
+          5,
+          3
+        ],
+        "my_active": "Hop’s Snorlax 150HP (E1, T1)",
+        "my_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP (E1)",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 20HP",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Hop's Trevenant 140HP",
+          "Hop's Phantump 70HP (E1)",
+          "Dudunsparce 140HP (E1)"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ATTACH slot=2",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "END"
+      ]
+    },
+    {
+      "turn": 19,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          9,
+          17
+        ],
+        "hand": [
+          4,
+          4
+        ],
+        "my_active": "Hop's Trevenant 20HP",
+        "my_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Hop's Trevenant 140HP",
+          "Hop's Phantump 70HP (E1)",
+          "Dudunsparce 140HP (E1)"
+        ],
+        "opp_active": "Hop’s Snorlax 150HP (E1, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP (E2)",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "PLAY",
+        "[SWITCH] CARD",
+        "PLAY",
+        "END"
+      ]
+    },
+    {
+      "turn": 20,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          16,
+          9
+        ],
+        "hand": [
+          5,
+          2
+        ],
+        "my_active": "Hop's Trevenant 140HP (T1)",
+        "my_bench": [
+          "Hop’s Snorlax 150HP (E1, T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP (E2)",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 20HP",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Hop's Trevenant 140HP",
+          "Hop's Phantump 70HP (E1)",
+          "Dudunsparce 140HP (E1)",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ATTACH slot=2",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "EVOLVE slot=4",
+        "END"
+      ]
+    },
+    {
+      "turn": 21,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          8,
+          15
+        ],
+        "hand": [
+          3,
+          3
+        ],
+        "my_active": "Hop's Trevenant 20HP",
+        "my_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Hop's Trevenant 140HP",
+          "Hop's Phantump 70HP (E1)",
+          "Dudunsparce 140HP (E1)",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (T1)",
+        "opp_bench": [
+          "Hop’s Snorlax 150HP (E1, T1)",
+          "Hop's Trevenant 140HP",
+          "Hop’s Snorlax 150HP (E3)",
+          "Hop's Trevenant 140HP",
+          "Dudunsparce 140HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ATTACH slot=0",
+        "ABILITY",
+        "PLAY",
+        "[SWITCH] CARD",
+        "ATTACH slot=0",
+        "ATTACK atk=1267"
+      ]
+    },
+    {
+      "turn": 22,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          3,
+          2
+        ],
+        "deck": [
+          14,
+          8
+        ],
+        "hand": [
+          4,
+          3
+        ],
+        "my_active": "Hop’s Snorlax 60HP (E3)",
+        "my_bench": [
+          "Hop’s Snorlax 150HP (E1, T1)",
+          "Hop's Trevenant 140HP",
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Dudunsparce 140HP"
+        ],
+        "opp_active": "Hop's Trevenant 20HP (E1, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (E1)",
+          "Hop's Trevenant 140HP",
+          "Hop's Phantump 70HP (E1)",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ABILITY",
+        "PLAY",
+        "PLAY",
+        "[SWITCH] CARD",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "ATTACK atk=422",
+        "[TO_HAND] CARD",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 23,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          2,
+          1
+        ],
+        "deck": [
+          7,
+          12
+        ],
+        "hand": [
+          5,
+          5
+        ],
+        "my_active": "Hop's Trevenant 140HP (E1)",
+        "my_bench": [
+          "Hop's Trevenant 20HP (E1, T1)",
+          "Hop's Phantump 70HP (E1)",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop’s Snorlax 150HP (E1, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP",
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "EVOLVE slot=1",
+        "ATTACK atk=1267",
+        "[TO_HAND] CARD",
+        "[TO_ACTIVE] CARD"
+      ]
+    },
+    {
+      "turn": 24,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          1,
+          1
+        ],
+        "deck": [
+          11,
+          7
+        ],
+        "hand": [
+          6,
+          5
+        ],
+        "my_active": "Hop's Trevenant 140HP",
+        "my_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E1)",
+        "opp_bench": [
+          "Hop's Trevenant 20HP (E1, T1)",
+          "Hop's Trevenant 140HP (E1)",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "EVOLVE slot=2",
+        "PLAY",
+        "PLAY",
+        "PLAY",
+        "[SWITCH] CARD",
+        "END"
+      ]
+    },
+    {
+      "turn": 25,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          1,
+          1
+        ],
+        "deck": [
+          6,
+          9
+        ],
+        "hand": [
+          6,
+          4
+        ],
+        "my_active": "Hop's Trevenant 140HP (E1)",
+        "my_bench": [
+          "Hop's Trevenant 20HP (E1, T1)",
+          "Hop's Trevenant 140HP (E1)",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Dudunsparce 140HP",
+        "opp_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "EVOLVE slot=2",
+        "PLAY",
+        "[TO_BENCH] CARD",
+        "[TO_BENCH] CARD",
+        "ATTACH slot=0",
+        "ATTACK atk=1267"
+      ]
+    },
+    {
+      "turn": 26,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          1,
+          1
+        ],
+        "deck": [
+          8,
+          4
+        ],
+        "hand": [
+          5,
+          3
+        ],
+        "my_active": "Dudunsparce 50HP",
+        "my_bench": [
+          "Hop's Trevenant 140HP (T1)",
+          "Hop's Trevenant 140HP",
+          "Hop's Trevenant 140HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E1, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 20HP (E1, T1)",
+          "Hop's Trevenant 140HP (E1)",
+          "Dudunsparce 140HP",
+          "Dunsparce 60HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "PLAY",
+        "PLAY",
+        "ATTACH slot=0",
+        "ABILITY",
+        "[TO_ACTIVE] CARD",
+        "EVOLVE slot=2",
+        "PLAY",
+        "[TO_HAND] CARD",
+        "PLAY",
+        "ATTACK atk=1267"
+      ]
+    },
+    {
+      "turn": 27,
+      "player": 0,
+      "board_start": {
+        "prize": [
+          1,
+          1
+        ],
+        "deck": [
+          2,
+          5
+        ],
+        "hand": [
+          5,
+          4
+        ],
+        "my_active": "Hop's Trevenant 50HP (E1, T1)",
+        "my_bench": [
+          "Hop's Trevenant 20HP (E1, T1)",
+          "Hop's Trevenant 140HP (E1)",
+          "Dudunsparce 140HP",
+          "Dunsparce 60HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 140HP (E1, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 140HP",
+          "Hop's Trevenant 140HP",
+          "Dudunsparce 140HP",
+          "Dunsparce 60HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ABILITY",
+        "EVOLVE slot=2",
+        "EVOLVE slot=3",
+        "ATTACH slot=2",
+        "ATTACK atk=1267"
+      ]
+    },
+    {
+      "turn": 28,
+      "player": 1,
+      "board_start": {
+        "prize": [
+          1,
+          1
+        ],
+        "deck": [
+          4,
+          2
+        ],
+        "hand": [
+          5,
+          4
+        ],
+        "my_active": "Hop's Trevenant 50HP (E1, T1)",
+        "my_bench": [
+          "Hop's Trevenant 140HP",
+          "Hop's Trevenant 140HP",
+          "Dudunsparce 140HP",
+          "Dunsparce 60HP"
+        ],
+        "opp_active": "Hop's Trevenant 50HP (E1, T1)",
+        "opp_bench": [
+          "Hop's Trevenant 20HP (E1, T1)",
+          "Hop's Trevenant 140HP (E1)",
+          "Dudunsparce 140HP (E1)",
+          "Dudunsparce 140HP"
+        ],
+        "stadium": "Postwick"
+      },
+      "actions": [
+        "ATTACK atk=1267",
+        "[TO_HAND] CARD"
+      ]
+    }
+  ],
+  "sub_choices": [
+    {
+      "step": 0,
+      "turn": 0,
+      "player": 0,
+      "ctx": "IS_FIRST",
+      "pick": [
+        "YES"
+      ]
+    },
+    {
+      "step": 1,
+      "turn": 0,
+      "player": 0,
+      "ctx": "SETUP_ACTIVE_POKEMON",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 2,
+      "turn": 0,
+      "player": 1,
+      "ctx": "SETUP_ACTIVE_POKEMON",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 3,
+      "turn": 0,
+      "player": 0,
+      "ctx": "SETUP_BENCH_POKEMON",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 5,
+      "turn": 1,
+      "player": 0,
+      "ctx": "TO_BENCH",
+      "pick": [
+        "CARD",
+        "CARD"
+      ]
+    },
+    {
+      "step": 8,
+      "turn": 1,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 18,
+      "turn": 2,
+      "player": 1,
+      "ctx": "TO_BENCH",
+      "pick": [
+        "CARD",
+        "CARD"
+      ]
+    },
+    {
+      "step": 34,
+      "turn": 4,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 36,
+      "turn": 4,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 37,
+      "turn": 4,
+      "player": 0,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 39,
+      "turn": 5,
+      "player": 0,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 44,
+      "turn": 5,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 45,
+      "turn": 5,
+      "player": 1,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 51,
+      "turn": 6,
+      "player": 1,
+      "ctx": "TO_BENCH",
+      "pick": [
+        "CARD",
+        "CARD"
+      ]
+    },
+    {
+      "step": 55,
+      "turn": 6,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 58,
+      "turn": 6,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 59,
+      "turn": 6,
+      "player": 0,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 61,
+      "turn": 7,
+      "player": 0,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 63,
+      "turn": 7,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 67,
+      "turn": 7,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 71,
+      "turn": 7,
+      "player": 0,
+      "ctx": "TO_BENCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 76,
+      "turn": 8,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 77,
+      "turn": 8,
+      "player": 0,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 80,
+      "turn": 9,
+      "player": 0,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 82,
+      "turn": 9,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 89,
+      "turn": 9,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 93,
+      "turn": 9,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 94,
+      "turn": 9,
+      "player": 1,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 96,
+      "turn": 10,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 98,
+      "turn": 10,
+      "player": 1,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 103,
+      "turn": 10,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 104,
+      "turn": 10,
+      "player": 0,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 107,
+      "turn": 11,
+      "player": 0,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 111,
+      "turn": 11,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 112,
+      "turn": 11,
+      "player": 1,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 116,
+      "turn": 12,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 118,
+      "turn": 12,
+      "player": 1,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 122,
+      "turn": 12,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 136,
+      "turn": 14,
+      "player": 1,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 139,
+      "turn": 15,
+      "player": 0,
+      "ctx": "DISCARD_ENERGY",
+      "pick": [
+        "ENERGY"
+      ]
+    },
+    {
+      "step": 140,
+      "turn": 15,
+      "player": 0,
+      "ctx": "DISCARD_ENERGY",
+      "pick": [
+        "ENERGY"
+      ]
+    },
+    {
+      "step": 141,
+      "turn": 15,
+      "player": 0,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 144,
+      "turn": 15,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 148,
+      "turn": 15,
+      "player": 0,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 158,
+      "turn": 16,
+      "player": 1,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 166,
+      "turn": 17,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 171,
+      "turn": 18,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 174,
+      "turn": 19,
+      "player": 0,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 179,
+      "turn": 20,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 185,
+      "turn": 21,
+      "player": 0,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 191,
+      "turn": 22,
+      "player": 1,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 193,
+      "turn": 22,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 196,
+      "turn": 22,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 197,
+      "turn": 22,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 198,
+      "turn": 22,
+      "player": 0,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 199,
+      "turn": 22,
+      "player": 1,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 202,
+      "turn": 23,
+      "player": 0,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 203,
+      "turn": 23,
+      "player": 1,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 208,
+      "turn": 24,
+      "player": 1,
+      "ctx": "SWITCH",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 212,
+      "turn": 25,
+      "player": 0,
+      "ctx": "TO_BENCH",
+      "pick": [
+        "CARD",
+        "CARD"
+      ]
+    },
+    {
+      "step": 219,
+      "turn": 26,
+      "player": 1,
+      "ctx": "TO_ACTIVE",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 222,
+      "turn": 26,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    },
+    {
+      "step": 231,
+      "turn": 28,
+      "player": 1,
+      "ctx": "TO_HAND",
+      "pick": [
+        "CARD"
+      ]
+    }
+  ],
+  "deck_names": {
+    "11": "Mist Energy",
+    "19": "Telepath Psychic Energy",
+    "65": "Dunsparce",
+    "66": "Dudunsparce",
+    "304": "Hop’s Snorlax",
+    "878": "Hop's Phantump",
+    "879": "Hop's Trevenant",
+    "1080": "Unfair Stamp",
+    "1086": "Buddy-Buddy Poffin",
+    "1097": "Night Stretcher",
+    "1115": "Hop’s Bag",
+    "1122": "Pokégear 3.0",
+    "1123": "Switch",
+    "1152": "Poké Pad",
+    "1171": "Hop’s Choice Band",
+    "1182": "Boss’s Orders",
+    "1213": "Judge",
+    "1227": "Lillie's Determination",
+    "1255": "Postwick"
+  }
+}

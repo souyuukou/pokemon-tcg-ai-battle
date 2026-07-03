@@ -1,0 +1,523 @@
+[
+  {
+    "episode": 83386796,
+    "step": 12,
+    "turn": 1,
+    "actual": [
+      1
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 666,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 0.539,
+    "depth": 2,
+    "nodes": 27285,
+    "actions": 2,
+    "width": 32,
+    "coverage": 1,
+    "endpoints": 9212,
+    "intermediate_evaluations": 0,
+    "common_worlds": 6,
+    "coverage_fallback": false,
+    "root": [
+      {
+        "agg": 7.30036,
+        "order": 0.0683646,
+        "pick": [
+          1
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": 4.16437,
+        "order": 10.8345,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1123)"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83386796,
+    "step": 25,
+    "turn": 3,
+    "actual": [
+      3
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 666,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      0
+    ],
+    "chosen_label": [
+      "PLAY(1123)"
+    ],
+    "elapsed": 2.366,
+    "depth": 2,
+    "nodes": 120664,
+    "actions": 4,
+    "width": 4,
+    "coverage": 1,
+    "endpoints": 50182,
+    "intermediate_evaluations": 0,
+    "common_worlds": 6,
+    "coverage_fallback": false,
+    "root": [
+      {
+        "agg": -53.0851,
+        "order": 21.7734,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1123)"
+        ]
+      },
+      {
+        "agg": -53.1323,
+        "order": 10.1191,
+        "pick": [
+          1
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      },
+      {
+        "agg": -103.297,
+        "order": 9.00017,
+        "pick": [
+          2
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      },
+      {
+        "agg": -192.066,
+        "order": 0.966842,
+        "pick": [
+          3
+        ],
+        "label": [
+          "END"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83386796,
+    "step": 37,
+    "turn": 5,
+    "actual": [
+      4
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 1031,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      3
+    ],
+    "chosen_label": [
+      "ABILITY"
+    ],
+    "elapsed": 2.769,
+    "depth": 2,
+    "nodes": 123060,
+    "actions": 5,
+    "width": 8,
+    "coverage": 1,
+    "endpoints": 83481,
+    "intermediate_evaluations": 0,
+    "common_worlds": 6,
+    "coverage_fallback": false,
+    "root": [
+      {
+        "agg": -517.99,
+        "order": 13.7341,
+        "pick": [
+          3
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      },
+      {
+        "agg": -531.865,
+        "order": 11.5662,
+        "pick": [
+          2
+        ],
+        "label": [
+          "PLAY(1097)"
+        ]
+      },
+      {
+        "agg": -564.241,
+        "order": 24.017,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1123)"
+        ]
+      },
+      {
+        "agg": -567.759,
+        "order": 11.0129,
+        "pick": [
+          1
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      },
+      {
+        "agg": -576.428,
+        "order": 5.4357,
+        "pick": [
+          4
+        ],
+        "label": [
+          "END"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83386796,
+    "step": 54,
+    "turn": 7,
+    "actual": [
+      4
+    ],
+    "active": 879,
+    "energy": 0,
+    "opp": 1031,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      3
+    ],
+    "chosen_label": [
+      "ABILITY"
+    ],
+    "elapsed": 2.797,
+    "depth": 2,
+    "nodes": 125537,
+    "actions": 5,
+    "width": 8,
+    "coverage": 1,
+    "endpoints": 75389,
+    "intermediate_evaluations": 0,
+    "common_worlds": 6,
+    "coverage_fallback": false,
+    "root": [
+      {
+        "agg": -1101.01,
+        "order": 0.00478649,
+        "pick": [
+          3
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      },
+      {
+        "agg": -1134.7,
+        "order": 14.0683,
+        "pick": [
+          2
+        ],
+        "label": [
+          "PLAY(1152)"
+        ]
+      },
+      {
+        "agg": -1137.77,
+        "order": 22.6747,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1123)"
+        ]
+      },
+      {
+        "agg": -1140.77,
+        "order": 11.7377,
+        "pick": [
+          1
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      },
+      {
+        "agg": -1152.88,
+        "order": 3.80554,
+        "pick": [
+          4
+        ],
+        "label": [
+          "END"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83386796,
+    "step": 59,
+    "turn": 9,
+    "actual": [
+      5
+    ],
+    "active": 66,
+    "energy": 0,
+    "opp": 1031,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      5
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 0.225,
+    "depth": 2,
+    "nodes": 11161,
+    "actions": 6,
+    "width": 1,
+    "coverage": 1,
+    "endpoints": 4200,
+    "intermediate_evaluations": 0,
+    "common_worlds": 6,
+    "coverage_fallback": false,
+    "root": [
+      {
+        "agg": -1199.75,
+        "order": 5.19209,
+        "pick": [
+          5
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -1200.24,
+        "order": 12.5845,
+        "pick": [
+          2
+        ],
+        "label": [
+          "PLAY(1152)"
+        ]
+      },
+      {
+        "agg": -1202.75,
+        "order": 9.00559,
+        "pick": [
+          1
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      },
+      {
+        "agg": -1202.75,
+        "order": 7.58831,
+        "pick": [
+          3
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      },
+      {
+        "agg": -1202.8,
+        "order": 20.1922,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1123)"
+        ]
+      },
+      {
+        "agg": -1239.09,
+        "order": 9.84512,
+        "pick": [
+          4
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83386796,
+    "step": 70,
+    "turn": 11,
+    "actual": [
+      1
+    ],
+    "active": 304,
+    "energy": 0,
+    "opp": 1031,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      1
+    ],
+    "chosen_label": [
+      "END"
+    ],
+    "elapsed": 1.346,
+    "depth": 2,
+    "nodes": 52465,
+    "actions": 2,
+    "width": 16,
+    "coverage": 1,
+    "endpoints": 40083,
+    "intermediate_evaluations": 0,
+    "common_worlds": 6,
+    "coverage_fallback": false,
+    "root": [
+      {
+        "agg": -1667.51,
+        "order": 2.30791,
+        "pick": [
+          1
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -1669.07,
+        "order": 8.36669,
+        "pick": [
+          0
+        ],
+        "label": [
+          "PLAY(1122)"
+        ]
+      }
+    ]
+  },
+  {
+    "episode": 83386796,
+    "step": 82,
+    "turn": 13,
+    "actual": [
+      4
+    ],
+    "active": 66,
+    "energy": 0,
+    "opp": 1031,
+    "attack_available": false,
+    "actual_label": [
+      "END"
+    ],
+    "chosen": [
+      3
+    ],
+    "chosen_label": [
+      "ABILITY"
+    ],
+    "elapsed": 0.057,
+    "depth": 2,
+    "nodes": 1877,
+    "actions": 5,
+    "width": 1,
+    "coverage": 1,
+    "endpoints": 748,
+    "intermediate_evaluations": 0,
+    "common_worlds": 6,
+    "coverage_fallback": false,
+    "root": [
+      {
+        "agg": -1625.14,
+        "order": 4.52449,
+        "pick": [
+          3
+        ],
+        "label": [
+          "ABILITY"
+        ]
+      },
+      {
+        "agg": -1627.45,
+        "order": 3.22456,
+        "pick": [
+          4
+        ],
+        "label": [
+          "END"
+        ]
+      },
+      {
+        "agg": -1630.46,
+        "order": 22.217,
+        "pick": [
+          0
+        ],
+        "label": [
+          "ATTACH(1171)->A0"
+        ]
+      },
+      {
+        "agg": -1630.46,
+        "order": 21.7628,
+        "pick": [
+          1
+        ],
+        "label": [
+          "ATTACH(1171)->B0"
+        ]
+      },
+      {
+        "agg": -1630.49,
+        "order": 5.33791,
+        "pick": [
+          2
+        ],
+        "label": [
+          "PLAY(1255)"
+        ]
+      }
+    ]
+  }
+]
