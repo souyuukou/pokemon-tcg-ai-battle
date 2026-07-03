@@ -4,6 +4,8 @@ from __future__ import annotations
 import struct
 from typing import Any
 
+from observation_sanitize import sanitize_observation
+
 MAGIC = b"PKOBS1\x00\x00"
 VERSION = 2
 FLAG_HAS_SELECT = 1
@@ -114,6 +116,7 @@ def _zone_cards(current: dict[str, Any], key: str) -> list[tuple[int, int]]:
 
 
 def encode_observation(obs: dict[str, Any]) -> bytes:
+    obs = sanitize_observation(obs)
     flags = 0
     select = obs.get("select")
     if select is not None:

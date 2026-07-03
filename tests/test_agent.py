@@ -42,7 +42,7 @@ def test_model_v2_checksum():
     magic,version,nf,nh,size,_,_,checksum,_=struct.unpack("<8sIIIIffQ24s",data[:64])
     value=14695981039346656037
     for byte in data[64:]: value=((value^byte)*1099511628211)&0xffffffffffffffff
-    assert (magic,version,nf,nh,size)==(b"PKNNUE1\0",2,4096,128,len(data)-64)
+    assert (magic,version,nf,nh,size)==(b"PKNNUE1\0",2,4096,256,len(data)-64)
     assert value==checksum
 
 

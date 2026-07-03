@@ -111,9 +111,17 @@ class NativeWorkerClient:
 
     def choose(self, observation: dict, timeout: float) -> list[int] | None:
         deadline = time.monotonic() + max(0.01, timeout)
+        restarted = False
         if self.process is None or self.process.poll() is not None:
+            restarted = True
             if not self.start(self.deck, min(2.0, max(0.01, deadline - time.monotonic()))):
                 return None
+        if restarted:
+            try:
+                from diagnostics import session_diagnostics
+                session_diagnostics.record_worker_restart()
+            except Exception:
+                pass
         if not self._send({"cmd": "choose", "observation": observation}):
             self._stop()
             return None

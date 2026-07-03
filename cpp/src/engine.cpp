@@ -28,6 +28,7 @@
 #ifdef _WIN32
 #define NOMINMAX
 #include <windows.h>
+#include <intrin.h>
 #else
 #include <dlfcn.h>
 #endif
@@ -232,6 +233,12 @@ std::unordered_map<int, bool> basic_cards;
 std::string diag = "{}";
 std::mutex diag_mu;
 std::atomic<uint64_t> total_nodes{0};
+static bool last_belief_degraded = false;
+#if defined(__AVX2__)
+static const char *native_backend_name = "avx2";
+#else
+static const char *native_backend_name = "scalar";
+#endif
 
 struct Model {
   bool loaded = false;
@@ -371,7 +378,7 @@ static bool load_model(const char *path) {
   uint32_t wanted =
       model.nf * model.nh + model.nh * 4 + model.nh + 4 + model.nf * model.nh;
   if (!f || std::memcmp(magic, "PKNNUE1", 7) || ver != 2 || model.nf != 4096 ||
-      model.nh != 128 || payload != wanted)
+      model.nh != 256 || payload != wanted)
     return false;
   std::vector<uint8_t> bytes(payload);
   f.read(reinterpret_cast<char *>(bytes.data()), bytes.size());
@@ -760,9 +767,80 @@ adjust_pool_size(std::vector<int> pool, int need,
   return pool;
 }
 
+static uint64_t fnv64_mix(uint64_t hash, uint64_t value) {
+  hash ^= value;
+  hash *= 0x100000001b3ULL;
+  return hash;
+}
+
+static uint64_t belief_rng_seed(const GameState &obs, int particle) {
+  uint64_t hash = 0xcbf29ce484222325ULL;
+  const auto &current = obs.current;
+  hash = fnv64_mix(hash, uint64_t(current.turn));
+  hash = fnv64_mix(hash, uint64_t(current.turn_action_count));
+  hash = fnv64_mix(hash, uint64_t(current.your_index));
+  hash = fnv64_mix(hash, uint64_t(current.first_player));
+  for (int player_index = 0; player_index < 2; ++player_index) {
+    const auto &player = current.players[player_index];
+    hash = fnv64_mix(hash, uint64_t(player.deck_count));
+    hash = fnv64_mix(hash, uint64_t(player.hand_count));
+    hash = fnv64_mix(hash, uint64_t(player.prize.size()));
+  }
+  return fnv64_mix(hash, uint64_t(particle));
+}
+
+static std::vector<World> build_degraded_worlds(
+    const GameState &obs, const std::vector<int> &own,
+    const std::unordered_map<int, int> &seen,
+    const std::unordered_map<int, int> &own_seen, int own_need, int on, int opn,
+    int ohn, bool hidden_active, Clock::time_point deadline) {
+  const auto &cur = obs.current;
+  int yi = cur.your_index;
+  const auto &me = cur.players[yi];
+  const auto &them = cur.players[1 - yi];
+  std::vector<World> out;
+  for (int i = 0; i < cfg.hypotheses; ++i) {
+    if (Clock::now() >= deadline)
+      break;
+    std::mt19937_64 rng(belief_rng_seed(obs, i));
+    World w;
+    w.weight = 0.25;
+    w.od = synthesize_opponent_pool(on, seen, own, false);
+    w.oh = synthesize_opponent_pool(ohn, seen, own, false);
+    w.op = merge_prizes(
+        them.prize, synthesize_opponent_pool(opn, seen, own, false));
+    if (hidden_active) {
+      auto basics = synthesize_opponent_pool(1, seen, own, true);
+      if (!basics.empty())
+        w.oa.push_back(basics.front());
+    }
+    auto myrem = remainder(own, own_seen);
+    if (int(myrem.size()) < own_need)
+      myrem = adjust_pool_size(std::move(myrem), own_need, own_seen, own, false);
+    if (int(myrem.size()) > own_need)
+      myrem.resize(size_t(own_need));
+    std::shuffle(myrem.begin(), myrem.end(), rng);
+    auto mtake = [&](std::vector<int> &v, int k) {
+      k = std::min(k, int(myrem.size()));
+      v.insert(v.end(), myrem.end() - k, myrem.end());
+      myrem.resize(myrem.size() - size_t(k));
+    };
+    std::vector<int> own_prize_unknown;
+    mtake(own_prize_unknown, int(std::count(me.prize.begin(), me.prize.end(), 0)));
+    w.yp = merge_prizes(me.prize, std::move(own_prize_unknown));
+    mtake(w.yd, me.deck_count);
+    if (int(w.od.size()) != on || int(w.oh.size()) != ohn ||
+        int(w.yd.size()) != me.deck_count)
+      continue;
+    out.push_back(std::move(w));
+  }
+  return out;
+}
+
 static std::vector<World> worlds(const GameState &obs,
                                  const std::vector<int> &own,
                                  Clock::time_point deadline) {
+  last_belief_degraded = false;
   const auto &cur = obs.current;
   int yi = cur.your_index;
   const auto &me = cur.players[yi];
@@ -775,14 +853,17 @@ static std::vector<World> worlds(const GameState &obs,
   bool hidden_active = !them.active.empty() && them.active.front().face_down;
   auto own_seen = visible_player(me);
   collect_global_cards(cur, yi, own_seen);
-  auto myrem = remainder_relaxed(own, own_seen);
+  auto myrem = remainder(own, own_seen);
   int own_need = yn + ypn;
-  if (int(myrem.size()) > own_need)
-    myrem.resize(size_t(own_need));
-  else if (int(myrem.size()) < own_need)
-    myrem = adjust_pool_size(std::move(myrem), own_need, own_seen, own, false);
+  if (int(myrem.size()) != own_need)
+    return {};
   auto seen = visible_player(them);
   collect_global_cards(cur, 1 - yi, seen);
+  std::vector<int> seen_vec;
+  seen_vec.reserve(32);
+  for (const auto &[id, count] : seen)
+    for (int i = 0; i < count; ++i)
+      seen_vec.push_back(id);
   std::vector<std::pair<const Deck *, std::vector<int>>> candidates;
   int required_hidden_cards = on + opn + ohn + int(hidden_active);
   for (auto &deck : catalog) {
@@ -790,27 +871,26 @@ static std::vector<World> worlds(const GameState &obs,
     if (int(remaining.size()) == required_hidden_cards)
       candidates.push_back({&deck, std::move(remaining)});
   }
-  int opponent_need = on + opn + ohn + int(hidden_active);
-  if (candidates.empty() && opponent_need >= 0) {
-    auto pool = adjust_pool_size({}, opponent_need, seen, own, hidden_active);
-    if (int(pool.size()) == opponent_need)
-      candidates.push_back({nullptr, std::move(pool)});
+  if (candidates.empty()) {
+    last_belief_degraded = true;
+    return build_degraded_worlds(obs, own, seen, own_seen, own_need, on, opn,
+                                 ohn, hidden_active, deadline);
   }
-  std::mt19937_64 rng(uint64_t(cur.turn) * 0x9e3779b97f4a7c15ULL +
-                      uint64_t(cur.turn_action_count + 1));
-  if (candidates.empty() || int(myrem.size()) != own_need)
-    return {};
   std::vector<World> out;
   std::vector<double> posterior;
   posterior.reserve(candidates.size());
-  for (const auto &candidate : candidates)
-    posterior.push_back(
-        std::max(1e-12, candidate.first ? candidate.first->prior : 1.0));
-  std::discrete_distribution<size_t> sample_candidate(posterior.begin(),
-                                                      posterior.end());
+  for (const auto &candidate : candidates) {
+    double logp = std::log(std::max(1e-12, candidate.first->prior));
+    if (!seen_vec.empty())
+      logp += 2.0 * multiset_jaccard(candidate.first->cards, seen_vec);
+    posterior.push_back(std::exp(logp));
+  }
   for (int i = 0; i < cfg.hypotheses; i++) {
     if (Clock::now() >= deadline)
       break;
+    std::mt19937_64 rng(belief_rng_seed(obs, i));
+    std::discrete_distribution<size_t> sample_candidate(posterior.begin(),
+                                                          posterior.end());
     const auto &candidate = candidates[sample_candidate(rng)];
     auto pool = candidate.second;
     std::shuffle(pool.begin(), pool.end(), rng);
@@ -850,33 +930,11 @@ static std::vector<World> worlds(const GameState &obs,
     mtake(w.yd, yn);
     out.push_back(std::move(w));
   }
-  if (out.empty() && opponent_need >= 0 && own_need >= 0) {
-    for (int i = 0; i < cfg.hypotheses; i++) {
-      if (Clock::now() >= deadline)
-        break;
-      World w;
-      w.weight = 1.0;
-      w.od = adjust_pool_size({}, on, seen, own, false);
-      w.oh = adjust_pool_size({}, ohn, seen, own, false);
-      w.op =
-          merge_prizes(them.prize, adjust_pool_size({}, opn, seen, own, false));
-      if (hidden_active) {
-        auto basics = synthesize_opponent_pool(1, seen, own, true);
-        if (!basics.empty())
-          w.oa.push_back(basics.front());
-      }
-      w.yd = adjust_pool_size({}, yn, own_seen, own, false);
-      w.yp = merge_prizes(me.prize,
-                          adjust_pool_size({}, ypn, own_seen, own, false));
-      if (int(w.od.size()) != on || int(w.oh.size()) != ohn ||
-          int(w.yd.size()) != yn)
-        continue;
-      out.push_back(std::move(w));
-    }
-  }
   double z = 0;
   for (auto &w : out)
     z += w.weight;
+  if (z <= 0)
+    return {};
   for (auto &w : out)
     w.weight /= z;
   return out;
@@ -1049,9 +1107,15 @@ static std::vector<float> neural_hidden(const GameState &obs, int perspective) {
       if (card.id)
         add_side_zone_card(side, "discard", card.id);
     }
-    for (const auto &card : p.hand) {
-      if (card.id)
-        add_side_zone_card(side, "hand", card.id);
+    if (pi == perspective) {
+      for (const auto &card : p.hand) {
+        if (card.id)
+          add_side_zone_card(side, "hand", card.id);
+      }
+    } else {
+      uint32_t hand_hash = fnv(side);
+      hand_hash = append(":hand:", hand_hash);
+      push_unique_id(ids, append_int(hand_hash, p.hand_count / 4));
     }
   }
   push_unique_id(ids, append_int(fnv("turn:"), c.turn / 2));
@@ -1334,12 +1398,6 @@ static float prize_race_score(const GameState &obs, int root_player) {
   if (!opp.active.empty() && opp.active.front().present)
     score -= 4.f * float(opp.active.front().energy_count);
   return score;
-}
-
-static uint64_t fnv64_mix(uint64_t hash, uint64_t value) {
-  hash ^= value;
-  hash *= 0x100000001b3ULL;
-  return hash;
 }
 
 static uint64_t commutative_mix_id(int32_t id) {
@@ -2238,10 +2296,11 @@ static int choose_impl(const GameState &obs, const std::vector<int> &own,
   auto root_action_end = Clock::now();
   if (as.empty()) {
     if (obs.has_select && !obs.select.options.empty()) {
-      if (cap < 1)
-        return -4;
-      out[0] = 0;
-      return 1;
+      if (obs.select.min_count <= 1 && cap >= 1) {
+        out[0] = 0;
+        return 1;
+      }
+      return -4;
     }
     return 0;
   }
@@ -2280,7 +2339,9 @@ static int choose_impl(const GameState &obs, const std::vector<int> &own,
       << ",\"search_wall_ms\":0,\"aggregate_ms\":0"
       << ",\"simulator_cpu_ms\":0,\"import_cpu_ms\":0"
       << ",\"action_cpu_ms\":0,\"evaluation_cpu_ms\":0"
-      << ",\"json_cpu_ms\":0,\"belief_failed\":true}";
+      << ",\"json_cpu_ms\":0,\"belief_failed\":true"
+      << ",\"belief_degraded\":" << (last_belief_degraded ? "true" : "false")
+      << ",\"native_backend\":\"" << native_backend_name << "\"}";
     std::lock_guard lk(diag_mu);
     diag = d.str();
     return int(a.pick.size());
@@ -2462,7 +2523,9 @@ static int choose_impl(const GameState &obs, const std::vector<int> &own,
     << ",\"action_cpu_ms\":" << action_cpu
     << ",\"evaluation_cpu_ms\":" << eval_cpu
     << ",\"json_cpu_ms\":" << import_cpu
-    << ",\"plan_cache_steps\":" << plan_cache.steps.size();
+    << ",\"plan_cache_steps\":" << plan_cache.steps.size()
+    << ",\"belief_degraded\":" << (last_belief_degraded ? "true" : "false")
+    << ",\"native_backend\":\"" << native_backend_name << "\"";
   if (cfg.profile && profile_cpu > 0.) {
     d << ",\"simulator_pct\":" << (100. * sim_cpu / profile_cpu)
       << ",\"import_pct\":" << (100. * import_cpu / profile_cpu)
@@ -2502,9 +2565,31 @@ static int choose_impl(const GameState &obs, const std::vector<int> &own,
 }
 } // namespace
 
+#if defined(__AVX2__)
+static bool cpu_has_avx2() {
+#ifdef _WIN32
+  int cpu_info[4] = {};
+  __cpuid(cpu_info, 0);
+  const int ids = cpu_info[0];
+  if (ids < 7)
+    return false;
+  __cpuidex(cpu_info, 7, 0);
+  return (cpu_info[1] & (1 << 5)) != 0;
+#elif defined(__GNUC__)
+  return __builtin_cpu_supports("avx2");
+#else
+  return true;
+#endif
+}
+#endif
+
 extern "C" PVS_EXPORT int pvs_init(const char *cg, const char *cat,
                                    const char *weights, const char *config) {
   try {
+#if defined(__AVX2__)
+    if (!cpu_has_avx2())
+      return -6;
+#endif
     if (!feature_schema_compatible())
       return -5;
     if (!api.load(cg))

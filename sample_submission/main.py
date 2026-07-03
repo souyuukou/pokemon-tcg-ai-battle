@@ -6,7 +6,9 @@ import time
 from pathlib import Path
 
 from debug_log import debug_log
+from diagnostics import session_diagnostics
 from fallback import choose as fallback_choose
+from observation_sanitize import sanitize_observation
 from paths import submission_root
 from pvs_bridge import bridge
 from native_worker_client import NativeWorkerClient
@@ -51,6 +53,7 @@ def _error() -> str:
 
 
 def _choose(obs: dict) -> list[int] | None:
+    obs = sanitize_observation(obs)
     if _worker is None:
         return bridge.choose(obs)
     remaining = float(obs.get("remainingOverageTime", 600.0))
@@ -112,12 +115,14 @@ def agent(obs_dict: dict) -> list[int]:
     if obs_dict.get("select") is None:
         _deck = read_deck_csv()
         _init_failed = not _initialize(_deck)
+        session_diagnostics.record_init(not _init_failed, _error())
         if _init_failed:
             print(f"pvs init failed: {_error()}", file=sys.stderr, flush=True)
         return _deck
     if _deck is None:
         _deck = read_deck_csv()
         _init_failed = not _initialize(_deck)
+        session_diagnostics.record_init(not _init_failed, _error())
         if _init_failed:
             print(f"pvs init failed: {_error()}", file=sys.stderr, flush=True)
     select = obs_dict.get("select") or {}
@@ -171,6 +176,14 @@ def agent(obs_dict: dict) -> list[int]:
         )
         # #endregion
         print(f"pvs choose failed: {_error()}", file=sys.stderr, flush=True)
+        session_diagnostics.record_choose(
+            ok=False,
+            elapsed_ms=elapsed_ms,
+            diag=diag,
+            error=_error(),
+            used_fallback=True,
+        )
+        session_diagnostics.emit()
         return fallback_choose(obs_dict)
     if not _valid_action(result, select):
         # #region agent log
@@ -186,5 +199,15 @@ def agent(obs_dict: dict) -> list[int]:
             file=sys.stderr,
             flush=True,
         )
+        session_diagnostics.record_choose(
+            ok=False,
+            elapsed_ms=elapsed_ms,
+            diag=diag,
+            error="illegal native action",
+            used_fallback=True,
+        )
+        session_diagnostics.emit()
         return fallback_choose(obs_dict)
+    session_diagnostics.detect_backend(diag)
+    session_diagnostics.record_choose(ok=True, elapsed_ms=elapsed_ms, diag=diag)
     return result
