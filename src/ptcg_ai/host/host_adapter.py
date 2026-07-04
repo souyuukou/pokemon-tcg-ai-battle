@@ -111,12 +111,14 @@ def _build_actor_view(
                 f"deck conservation failed: visible+unknown != manifest "
                 f"(deck={self_player.deck_count} prizes_down={self_player.prize_face_down_count})"
             )
-        session.diagnostics.record({"event": "conservation_quality", "quality": ConservationQuality.VERIFIED.value})
+        conservation_quality = ConservationQuality.VERIFIED.value
+        session.diagnostics.record({"event": "conservation_quality", "quality": conservation_quality})
     else:
+        conservation_quality = classify_conservation(conservation_verified=False).value
         session.diagnostics.record(
             {
                 "event": "conservation_quality",
-                "quality": classify_conservation(conservation_verified=False).value,
+                "quality": conservation_quality,
                 "deck_count": self_player.deck_count,
                 "prize_face_down": self_player.prize_face_down_count,
             }
@@ -174,6 +176,7 @@ def _build_actor_view(
         ),
         legal_contract=contract,
         observation_hash=obs_hash,
+        conservation_quality=conservation_quality,
     )
 
 

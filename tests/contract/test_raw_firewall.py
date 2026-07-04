@@ -34,6 +34,9 @@ def test_only_host_package_imports_raw_observation_module():
                 importers.append(str(py.relative_to(ROOT)))
     allowed = {
         "src/ptcg_ai/runtime/runtime.py",
+        "src/ptcg_ai/eval/runtime_harness.py",
+        "src/ptcg_ai/eval/schema_capture.py",
+        "src/ptcg_ai/eval/schema_fixture_builder.py",
     }
     normalized = {str(Path(p)) for p in importers}
     assert normalized <= {str(Path(a)) for a in allowed}, f"unexpected imports: {importers}"

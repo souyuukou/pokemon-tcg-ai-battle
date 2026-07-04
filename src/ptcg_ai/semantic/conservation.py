@@ -8,6 +8,7 @@ class ConservationQuality(str, Enum):
     VERIFIED = "verified"
     UNVERIFIED = "unverified"
     MISMATCH = "mismatch"
+    UNAVAILABLE = "unavailable"
 
 
 def classify_conservation(*, conservation_verified: bool, mismatch: bool = False) -> ConservationQuality:

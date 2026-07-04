@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from .conservation import ConservationQuality
 from .legal_contract import LegalActionContract
 
 
@@ -102,6 +103,7 @@ class ActorView:
     decision_context: DecisionContext
     legal_contract: LegalActionContract
     observation_hash: str
+    conservation_quality: str = ConservationQuality.UNAVAILABLE.value
 
 
 def canonical_hash(payload: Mapping[str, Any]) -> str:

@@ -12,6 +12,7 @@ from ..host.host_envelope import HostCallKind, preflight
 from ..host.host_response import to_host_response
 from ..host.raw_observation import RawObservation
 from ..runtime.exceptions import CardConservationMismatch, ContractMismatch, OperationalFailure
+from ..semantic.conservation import ConservationQuality
 from ..semantic.response_ir import UnsupportedSelectionSchema
 from .agent_session import AgentSession, DeckSelectionRequest, FixedDeckProvider
 from .deadline import Deadline
@@ -80,7 +81,7 @@ class CompetitionRuntime:
                     semantic_schema_key=None,
                     response_pattern=(),
                     elapsed_ms=None,
-                    conservation_quality=None,
+                    conservation_quality=ConservationQuality.UNAVAILABLE.value,
                     incident_code=None,
                     host_call_kind=HostCallKind.TERMINAL.value,
                 )
@@ -102,7 +103,7 @@ class CompetitionRuntime:
                     semantic_schema_key=None,
                     response_pattern=None,
                     elapsed_ms=None,
-                    conservation_quality=None,
+                    conservation_quality=ConservationQuality.UNAVAILABLE.value,
                     incident_code=None,
                     host_call_kind=HostCallKind.DECK_SELECTION.value,
                 )
@@ -136,12 +137,9 @@ class CompetitionRuntime:
             started_at=call_start,
         )
 
-        conservation_quality: str | None = None
         try:
             decision = self._host.sanitize_decision(raw, session)
-            conservation_quality = getattr(decision.actor_view, "conservation_quality", None)
-            if conservation_quality is None and hasattr(decision.actor_view, "metadata"):
-                conservation_quality = (decision.actor_view.metadata or {}).get("conservation_quality")
+            conservation_quality = decision.actor_view.conservation_quality
         except (CardConservationMismatch, ContractMismatch) as exc:
             self._record_incident(session, reason_code=type(exc).__name__, stage="sanitize", exc=exc)
             self._set_telemetry(
@@ -152,7 +150,7 @@ class CompetitionRuntime:
                     semantic_schema_key=None,
                     response_pattern=None,
                     elapsed_ms=None,
-                    conservation_quality=None,
+                    conservation_quality=ConservationQuality.UNAVAILABLE.value,
                     incident_code=type(exc).__name__,
                     host_call_kind=HostCallKind.IN_GAME.value,
                 )

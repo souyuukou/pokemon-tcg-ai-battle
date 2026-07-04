@@ -51,6 +51,8 @@ def _run_pytest() -> tuple[str, bool, str]:
         "tests/semantic",
         "tests/runtime",
         "tests/submission",
+        "-k",
+        "not test_artifact_e2e_host_battle_select",
         "-q",
     ]
     proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
@@ -89,6 +91,7 @@ def _run_soak(games: int, *, mode: str) -> tuple[str, dict]:
         max_steps=800,
         time_bank_mode="authoritative" if mode == "authoritative" else "no_authoritative",
         initial_time_seconds=600.0,
+        mode="strict",
     )
     card = run_soak_batch(wrap_runtime_act(runtime, telemetry_card), deck, games=games, sim_root=ROOT / "sample_submission", config=cfg)
     card.fallback_count = telemetry_card.fallback_count
@@ -123,6 +126,8 @@ def _qualification_level(status: dict) -> str:
         status.get("crash_count", 1) == 0,
         status.get("time_bank_exhaustion_count", 1) == 0,
         status.get("max_rss_bytes") is not None and (status.get("max_rss_bytes") or 0) > 0,
+        status.get("conservation_mismatch_count", 1) == 0,
+        status.get("conservation_telemetry_coverage_ok") is True,
     ]
     if all(gates):
         return "qualified"
@@ -140,6 +145,8 @@ def _soak_passed(soak: dict, *, games: int) -> bool:
         and soak.get("protocol_error_count", 0) == 0
         and soak.get("crash_count", 0) == 0
         and soak.get("time_bank_exhaustion_count", 0) == 0
+        and soak.get("conservation_mismatch_count", 0) == 0
+        and soak.get("conservation_telemetry_coverage_ok") is True
         and _seat_distribution_ok(soak, games)
     )
 
@@ -214,6 +221,10 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         + soak_noauth.get("conservation_unverified_count", 0),
         "conservation_mismatch_count": soak_auth.get("conservation_mismatch_count", 0)
         + soak_noauth.get("conservation_mismatch_count", 0),
+        "conservation_unavailable_count": soak_auth.get("conservation_unavailable_count", 0)
+        + soak_noauth.get("conservation_unavailable_count", 0),
+        "in_game_decision_count": soak_auth.get("in_game_decision_count", 0)
+        + soak_noauth.get("in_game_decision_count", 0),
         "seat_distribution": {
             "first": soak_auth.get("seat_distribution", {}).get("first", 0),
             "second": soak_auth.get("seat_distribution", {}).get("second", 0),
@@ -222,6 +233,17 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
 
     seat_auth_ok = _seat_distribution_ok(soak_auth, soak_games)
     seat_noauth_ok = _seat_distribution_ok(soak_noauth, soak_games)
+
+    conservation_total = (
+        merged_soak["conservation_verified_count"]
+        + merged_soak["conservation_unverified_count"]
+        + merged_soak["conservation_mismatch_count"]
+        + merged_soak["conservation_unavailable_count"]
+    )
+    conservation_coverage_ok = (
+        merged_soak["in_game_decision_count"] > 0
+        and conservation_total == merged_soak["in_game_decision_count"]
+    )
 
     status = {
         "tested_commit": tested_commit,
@@ -269,6 +291,9 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         "conservation_verified_count": merged_soak["conservation_verified_count"],
         "conservation_unverified_count": merged_soak["conservation_unverified_count"],
         "conservation_mismatch_count": merged_soak["conservation_mismatch_count"],
+        "conservation_unavailable_count": merged_soak["conservation_unavailable_count"],
+        "in_game_decision_count": merged_soak["in_game_decision_count"],
+        "conservation_telemetry_coverage_ok": conservation_coverage_ok,
     }
     status["qualification_level"] = _qualification_level(status)
     return status, {

@@ -11,6 +11,7 @@ from ..runtime.memory_guard import memory_snapshot
 from .scorecard import Scorecard, merge_scorecards
 
 TimeBankMode = Literal["authoritative", "no_authoritative"]
+ArenaMode = Literal["strict", "discovery"]
 
 
 @dataclass
@@ -19,6 +20,18 @@ class ArenaConfig:
     time_bank_mode: TimeBankMode = "authoritative"
     initial_time_seconds: float = 600.0
     desired_seat: int | None = None
+    mode: ArenaMode = "strict"
+
+
+@dataclass(frozen=True)
+class UnsupportedSchemaEvent:
+    obs: dict[str, Any]
+    agent_seat: int | None
+    game_index: int
+    decision_index: int
+    decision_trace_prefix: tuple[tuple[int, ...], ...]
+    time_bank_mode: str
+    exception_key: str
 
 
 class AuthoritativeTimeTracker:
@@ -57,7 +70,6 @@ def _first_seat(obs: dict[str, Any]) -> int | None:
 def _minimal_legal_choice(obs: dict[str, Any]) -> list[int]:
     s = obs.get("select") or {}
     lo = int(s.get("minCount", 0))
-    hi = int(s.get("maxCount", 0))
     opts = s.get("option") or []
     if lo == 0:
         return []
@@ -68,6 +80,42 @@ def _minimal_legal_choice(obs: dict[str, Any]) -> list[int]:
     return list(range(min(lo, len(opts))))
 
 
+def _handle_unsupported_schema(
+    exc: Exception,
+    *,
+    cfg: ArenaConfig,
+    card: Scorecard,
+    obs: dict[str, Any],
+    agent_seat: int | None,
+    game_index: int,
+    decision_index: int,
+    decision_trace: list[list[int]],
+    on_unsupported_schema: Callable[[UnsupportedSchemaEvent], Any] | None,
+) -> bool:
+    from ..semantic.response_ir import UnsupportedSelectionSchema
+
+    if not isinstance(exc, UnsupportedSelectionSchema):
+        raise exc
+    if cfg.mode == "discovery":
+        card.schema_incomplete_games += 1
+        card.captured_schema_events += 1
+        if on_unsupported_schema is not None:
+            on_unsupported_schema(
+                UnsupportedSchemaEvent(
+                    obs=_prepare_observation(obs, None),
+                    agent_seat=agent_seat,
+                    game_index=game_index,
+                    decision_index=decision_index,
+                    decision_trace_prefix=tuple(tuple(step) for step in decision_trace),
+                    time_bank_mode=cfg.time_bank_mode,
+                    exception_key=str(exc),
+                )
+            )
+        return True
+    card.unsupported_schema_count += 1
+    return True
+
+
 def _play_one_game(
     agent_fn: Callable[[dict[str, Any]], list[int]],
     deck: list[int],
@@ -76,6 +124,8 @@ def _play_one_game(
     battle_start,
     battle_select,
     battle_finish,
+    game_index: int = 0,
+    on_unsupported_schema: Callable[[UnsupportedSchemaEvent], Any] | None = None,
 ) -> Scorecard:
     card = Scorecard(total_games=1)
     tracker: AuthoritativeTimeTracker | None = None
@@ -83,6 +133,8 @@ def _play_one_game(
         tracker = AuthoritativeTimeTracker(cfg.initial_time_seconds)
 
     seat_recorded = False
+    decision_trace: list[list[int]] = []
+    agent_decision_index = 0
     try:
         obs, _ = battle_start(deck, deck)
         if obs is None:
@@ -91,7 +143,22 @@ def _play_one_game(
         steps = 0
         while steps < cfg.max_steps:
             if obs.get("select") is None:
-                choice = agent_fn(_prepare_observation(obs, tracker))
+                try:
+                    choice = agent_fn(_prepare_observation(obs, tracker))
+                except Exception as exc:
+                    if _handle_unsupported_schema(
+                        exc,
+                        cfg=cfg,
+                        card=card,
+                        obs=obs,
+                        agent_seat=None,
+                        game_index=game_index,
+                        decision_index=agent_decision_index,
+                        decision_trace=decision_trace,
+                        on_unsupported_schema=on_unsupported_schema,
+                    ):
+                        return card
+                    raise
                 obs = battle_select(choice)
                 steps += 1
                 continue
@@ -108,7 +175,22 @@ def _play_one_game(
                     card.time_bank_exhaustion_count += 1
                     card.protocol_error_count += 1
                     break
-                choice = agent_fn(_prepare_observation(obs, tracker))
+                try:
+                    choice = agent_fn(_prepare_observation(obs, tracker))
+                except Exception as exc:
+                    if _handle_unsupported_schema(
+                        exc,
+                        cfg=cfg,
+                        card=card,
+                        obs=obs,
+                        agent_seat=seat,
+                        game_index=game_index,
+                        decision_index=agent_decision_index,
+                        decision_trace=decision_trace,
+                        on_unsupported_schema=on_unsupported_schema,
+                    ):
+                        return card
+                    raise
                 elapsed = (time.perf_counter() - t0) * 1000
                 if tracker is not None:
                     tracker.record_elapsed(elapsed / 1000.0)
@@ -118,8 +200,11 @@ def _play_one_game(
                         break
                 card.record_decision_time(elapsed)
                 card.record_rss(memory_snapshot().get("rss_bytes"))
+                decision_trace.append(list(choice))
+                agent_decision_index += 1
             else:
                 choice = _minimal_legal_choice(obs)
+                decision_trace.append(list(choice))
 
             lo = int((obs.get("select") or {}).get("minCount", 0))
             hi = int((obs.get("select") or {}).get("maxCount", 0))
@@ -138,12 +223,7 @@ def _play_one_game(
                 card.completed_games = 1
                 break
     except Exception as exc:
-        from ..semantic.response_ir import UnsupportedSelectionSchema
-
-        if isinstance(exc, UnsupportedSelectionSchema):
-            card.unsupported_schema_count += 1
-        else:
-            card.crash_count += 1
+        card.crash_count += 1
         return card
     finally:
         try:
@@ -163,6 +243,8 @@ def run_self_play(
     max_steps: int = 500,
     sim_root: Path | None = None,
     config: ArenaConfig | None = None,
+    game_index: int = 0,
+    on_unsupported_schema: Callable[[UnsupportedSchemaEvent], Any] | None = None,
 ) -> Scorecard:
     cfg = config or ArenaConfig(max_steps=max_steps)
     root = sim_root or Path(__file__).resolve().parents[3] / "sample_submission"
@@ -184,6 +266,8 @@ def run_self_play(
         battle_start=battle_start,
         battle_select=battle_select,
         battle_finish=battle_finish,
+        game_index=game_index,
+        on_unsupported_schema=on_unsupported_schema,
     )
 
 
@@ -194,12 +278,20 @@ def run_soak_batch(
     games: int = 50,
     sim_root: Path | None = None,
     config: ArenaConfig | None = None,
+    on_unsupported_schema: Callable[[UnsupportedSchemaEvent], Any] | None = None,
 ) -> Scorecard:
     merged = Scorecard()
     for game_index in range(games):
         base = config or ArenaConfig()
         cfg = replace(base, desired_seat=game_index % 2)
-        card = run_self_play(agent_fn, deck, sim_root=sim_root, config=cfg)
+        card = run_self_play(
+            agent_fn,
+            deck,
+            sim_root=sim_root,
+            config=cfg,
+            game_index=game_index,
+            on_unsupported_schema=on_unsupported_schema,
+        )
         merged = merge_scorecards(merged, card)
     merged.total_games = games
     return merged

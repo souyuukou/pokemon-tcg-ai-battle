@@ -43,6 +43,19 @@ def _purge_forbidden(forbid: Path) -> None:
     sys.path = cleaned
 
 
+def _unsupported_schema_detail(obs: dict, exc: Exception) -> dict:
+    s = obs.get("select") or {}
+    opts = s.get("option") or []
+    return {
+        "semantic_schema_key": str(exc).split(": ", 1)[-1],
+        "select_type": s.get("type"),
+        "context": s.get("context"),
+        "min_count": s.get("minCount"),
+        "max_count": s.get("maxCount"),
+        "option_type_pattern": [o.get("type") if isinstance(o, dict) else None for o in opts],
+        "option_count": len(opts),
+    }
+
 def _minimal_legal_choice(obs: dict) -> list[int]:
     s = obs.get("select") or {}
     lo = int(s.get("minCount", 0))
@@ -53,7 +66,7 @@ def _minimal_legal_choice(obs: dict) -> list[int]:
         return []
     if lo == 1:
         return [0]
-    return list(range(min(lo, len(opts))))
+    return list(range(min(lo, len(opts)))
 
 
 def _emit(result: dict) -> None:
@@ -121,6 +134,7 @@ def main() -> int:
     protocol_errors = 0
     completed_game = False
     last_error: str | None = None
+    schema_failure: dict | None = None
     games_played = 0
     max_games = 10
 
@@ -148,6 +162,8 @@ def main() -> int:
             except Exception as exc:
                 protocol_errors += 1
                 last_error = f"{type(exc).__name__}: {exc}"
+                if type(exc).__name__ == "UnsupportedSelectionSchema":
+                    schema_failure = _unsupported_schema_detail(obs, exc)
                 break
 
             if obs.get("select") is not None:
@@ -185,6 +201,7 @@ def main() -> int:
             "manifest_hash": _manifest_hash(artifact),
             "tested_commit": args.tested_commit,
             "last_error": last_error,
+            "schema_failure": schema_failure,
         }
     )
     return 0 if passed else 2

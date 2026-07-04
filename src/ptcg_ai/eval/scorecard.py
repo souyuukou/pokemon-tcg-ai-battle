@@ -16,9 +16,13 @@ class Scorecard:
     emergency_decision_count: int = 0
     backend_failure_count: int = 0
     unsupported_schema_count: int = 0
+    schema_incomplete_games: int = 0
+    captured_schema_events: int = 0
     conservation_unverified_count: int = 0
     conservation_verified_count: int = 0
     conservation_mismatch_count: int = 0
+    conservation_unavailable_count: int = 0
+    in_game_decision_count: int = 0
     seat_first_count: int = 0
     seat_second_count: int = 0
     max_rss_bytes: int | None = None
@@ -39,6 +43,19 @@ class Scorecard:
         else:
             self.seat_second_count += 1
 
+    def conservation_decision_total(self) -> int:
+        return (
+            self.conservation_verified_count
+            + self.conservation_unverified_count
+            + self.conservation_mismatch_count
+            + self.conservation_unavailable_count
+        )
+
+    def conservation_telemetry_coverage_ok(self) -> bool:
+        if self.in_game_decision_count == 0:
+            return False
+        return self.conservation_decision_total() == self.in_game_decision_count
+
     def percentile(self, p: float) -> float | None:
         if not self.decision_times_ms:
             return None
@@ -55,6 +72,12 @@ class Scorecard:
         d["p95_decision_ms"] = self.percentile(0.95)
         d["p99_decision_ms"] = self.percentile(0.99)
         d["seat_distribution"] = self.seat_distribution()
+        d["conservation_telemetry_coverage"] = (
+            self.conservation_decision_total() / self.in_game_decision_count
+            if self.in_game_decision_count
+            else 0.0
+        )
+        d["conservation_telemetry_coverage_ok"] = self.conservation_telemetry_coverage_ok()
         return d
 
 
@@ -69,9 +92,13 @@ def merge_scorecards(a: Scorecard, b: Scorecard) -> Scorecard:
         emergency_decision_count=a.emergency_decision_count + b.emergency_decision_count,
         backend_failure_count=a.backend_failure_count + b.backend_failure_count,
         unsupported_schema_count=a.unsupported_schema_count + b.unsupported_schema_count,
+        schema_incomplete_games=a.schema_incomplete_games + b.schema_incomplete_games,
+        captured_schema_events=a.captured_schema_events + b.captured_schema_events,
         conservation_unverified_count=a.conservation_unverified_count + b.conservation_unverified_count,
         conservation_verified_count=a.conservation_verified_count + b.conservation_verified_count,
         conservation_mismatch_count=a.conservation_mismatch_count + b.conservation_mismatch_count,
+        conservation_unavailable_count=a.conservation_unavailable_count + b.conservation_unavailable_count,
+        in_game_decision_count=a.in_game_decision_count + b.in_game_decision_count,
         seat_first_count=a.seat_first_count + b.seat_first_count,
         seat_second_count=a.seat_second_count + b.seat_second_count,
         max_rss_bytes=max(filter(None, [a.max_rss_bytes, b.max_rss_bytes]), default=None),
