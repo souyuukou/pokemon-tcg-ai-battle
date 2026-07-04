@@ -1,8 +1,9 @@
-"""Response compilation — only fixture-validated or builtin-single schemas."""
+"""Response compilation — validated responses only."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ..runtime.exceptions import ContractMismatch
 from ..semantic.response_ir import ValidationResult, validate_response_indices
 from ..semantic.option_ir import ResponseIR, SanitizedDecision
 from ..semantic.schema_keys import ResponseInstanceKey
@@ -13,7 +14,18 @@ if TYPE_CHECKING:
 
 
 def compile_candidate_responses(decision: SanitizedDecision) -> tuple[ResponseIR, ...]:
+    """Deprecated alias — production code must import validated_responses directly."""
     return compile_responses_for_decision(decision)
+
+
+def require_validated_response(decision: SanitizedDecision, response: ResponseIR) -> None:
+    """Ensure response is in the SchemaRegistry-expanded validated set."""
+    validated = compile_responses_for_decision(decision)
+    allowed = {r.fingerprint for r in validated}
+    if response.fingerprint not in allowed:
+        raise ContractMismatch(
+            f"response {response.fingerprint} not in registry validated set ({len(allowed)} candidates)"
+        )
 
 
 def validate_response(contract: LegalActionContract, response: ResponseIR) -> ValidationResult:
@@ -46,6 +58,7 @@ def to_host_response(contract: LegalActionContract, response: ResponseIR) -> lis
 
 __all__ = [
     "compile_candidate_responses",
+    "require_validated_response",
     "to_host_response",
     "validate_response",
 ]

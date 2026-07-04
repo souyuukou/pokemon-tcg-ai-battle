@@ -15,13 +15,20 @@
     "duplicates_allowed": false,
     "supported_in_production": true,
     "response_strategy": "any_singleton",
+    "generalization_verified": true,
+    "generalization_evidence_paths": [
+      "docs/competition_contract/fixtures/single_main.evidence.json",
+      "docs/competition_contract/fixtures/single_type1.evidence.json"
+    ],
+    "minimum_distinct_fixture_count": 2,
+    "scope_justification": "any_singleton host-apply verified on select_type 0 ctx 0 and select_type 1 ctx 1",
     "first_observed_commit": "6577b1c",
     "last_verified_commit": "HEAD"
   },
   {
     "semantic_schema_key": "family:0:1:1:single",
     "select_type": 0,
-    "context": "*",
+    "context": 0,
     "min_count": 1,
     "max_count": 1,
     "selection_mode": "single",
@@ -40,7 +47,7 @@
   {
     "semantic_schema_key": "family:1:1:1:single",
     "select_type": 1,
-    "context": "*",
+    "context": 1,
     "min_count": 1,
     "max_count": 1,
     "selection_mode": "single",
@@ -59,7 +66,7 @@
   {
     "semantic_schema_key": "family:1:0:1:optional_single",
     "select_type": 1,
-    "context": "*",
+    "context": 2,
     "min_count": 0,
     "max_count": 1,
     "selection_mode": "optional_single",
@@ -78,7 +85,7 @@
   {
     "semantic_schema_key": "family:1:0:2:sequence",
     "select_type": 1,
-    "context": "*",
+    "context": 5,
     "min_count": 0,
     "max_count": 2,
     "selection_mode": "sequence",
@@ -97,7 +104,7 @@
   {
     "semantic_schema_key": "family:1:0:3:sequence",
     "select_type": 1,
-    "context": "*",
+    "context": 2,
     "min_count": 0,
     "max_count": 3,
     "selection_mode": "sequence",

@@ -44,6 +44,19 @@ def test_registry_supports_optional_single():
     assert tpl.semantic_schema_key == "family:1:0:1:optional_single"
 
 
+def test_registry_requires_exact_context():
+    tpl = get_template(
+        "ignored",
+        select_type=1,
+        context=99,
+        min_count=0,
+        max_count=1,
+        option_count=1,
+        option_types=(14,),
+    )
+    assert tpl is None
+
+
 def test_all_supported_have_fixtures():
     for tpl in all_supported_templates():
         assert tpl.fixture_path

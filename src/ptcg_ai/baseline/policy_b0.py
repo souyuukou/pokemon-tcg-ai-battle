@@ -4,7 +4,7 @@ from __future__ import annotations
 from ..contract.runtime_profile import RuntimeProfile
 from ..runtime.deadline import Deadline
 from ..runtime.exceptions import OperationalFailure
-from ..runtime.fallback import FallbackSelector
+from ..runtime.fallback import ValidatedFallbackSelector
 from ..semantic.option_ir import ResponseIR, SanitizedDecision
 from ..semantic.response_ir import UnsupportedSelectionSchema
 from .proposer import Proposer
@@ -16,7 +16,7 @@ class PolicyB0:
         self._profile = profile
         self._proposer = Proposer()
         self._ranker = Ranker(profile)
-        self._fallback = FallbackSelector()
+        self._fallback = ValidatedFallbackSelector()
 
     @property
     def version(self) -> str:
@@ -36,7 +36,10 @@ class PolicyB0:
             candidates = self._proposer.propose(decision)
         except UnsupportedSelectionSchema:
             raise
-        selected = self._ranker.select(decision, candidates, decision_counter=decision_counter)
+        try:
+            selected = self._ranker.select(decision, candidates, decision_counter=decision_counter)
+        except Exception:
+            return self._fallback.choose(decision, reason="ranker_exception"), True
         if selected is not None:
             return selected, False
         try:

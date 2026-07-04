@@ -8,8 +8,8 @@ from typing import Any
 from ..baseline.policy_b0 import PolicyB0
 from ..contract.runtime_profile import RuntimeProfile, load_runtime_profile
 from ..host.host_adapter import HostAdapter
-from ..host.host_envelope import preflight
-from ..host.host_response import to_host_response
+from ..host.host_envelope import HostCallKind, preflight
+from ..host.host_response import require_validated_response, to_host_response
 from ..host.raw_observation import RawObservation
 from ..runtime.exceptions import CardConservationMismatch, ContractMismatch, OperationalFailure
 from ..semantic.response_ir import UnsupportedSelectionSchema
@@ -52,11 +52,16 @@ class CompetitionRuntime:
         )
 
     def act(self, obs_dict: dict[str, Any]) -> list[int]:
-        session = self._ensure_session()
         raw = RawObservation.from_dict(obs_dict)
         envelope = preflight(raw)
 
-        if envelope.is_deck_selection:
+        if envelope.host_call_kind == HostCallKind.TERMINAL:
+            if self._session is not None:
+                self._session.close()
+                self._session = None
+            return []
+
+        if envelope.host_call_kind == HostCallKind.DECK_SELECTION:
             if self._session is not None:
                 self._session.close()
             deck = self._deck_provider.select_deck(DeckSelectionRequest())
@@ -65,6 +70,7 @@ class CompetitionRuntime:
             session.diagnostics.record({"event": "deck_selection", "deck_hash": session.deck_hash})
             return list(deck)
 
+        session = self._ensure_session()
         call_start = begin_decision_clock(session.time_bank_state)
         update_time_bank(
             session.time_bank_state,
@@ -131,6 +137,7 @@ class CompetitionRuntime:
         if used_fallback:
             session.diagnostics.record_fallback(response.category)
 
+        require_validated_response(decision, response)
         host_response = to_host_response(decision.contract, response)
         elapsed_ms = (time.perf_counter() - call_start) * 1000
         session.diagnostics.record(
@@ -146,8 +153,6 @@ class CompetitionRuntime:
                 **memory_snapshot(),
             }
         )
-        if envelope.is_terminal:
-            session.close()
         return host_response
 
 

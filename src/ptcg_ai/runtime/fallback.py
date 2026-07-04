@@ -6,9 +6,14 @@ from ..runtime.exceptions import OperationalFailure
 from ..semantic.option_ir import ResponseIR, SanitizedDecision
 
 
-class FallbackSelector:
+class ValidatedFallbackSelector:
+    """Choose only from SchemaRegistry-validated response sets."""
+
     def choose(self, decision: SanitizedDecision, *, reason: str = "operational") -> ResponseIR:
         try:
             return operational_fallback(decision, reason=reason)
         except Exception as exc:
             raise OperationalFailure(f"no validated fallback: {reason}") from exc
+
+
+FallbackSelector = ValidatedFallbackSelector
