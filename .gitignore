@@ -10,4 +10,10 @@ engine.exp
 engine.lib
 debug-*.log
 submission.zip
-data/20260625/
+dist/
+data/kaggle_replays/
+data/download_kaggle_replays.py
+docs/competition_contract/captured_schemas.json
+tests/_tmp_replay.json
+sample_submission/*.bak
+sample_submission/model_test.nnue
