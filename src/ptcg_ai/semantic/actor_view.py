@@ -3,19 +3,37 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Mapping
 
 from .legal_contract import LegalActionContract
 
 
 @dataclass(frozen=True)
+class PublicPokemon:
+    card_id: int
+    zone: str
+    slot: int
+    damage: int | None
+    maximum_hp: int | None
+    remaining_hp: int | None
+    attached_energy: tuple[tuple[int, int], ...]
+    attached_tool_ids: tuple[int, ...]
+    status: tuple[str, ...]
+    retreat_cost: int | None
+    stage: int | None
+    can_attack: bool | None
+
+
+@dataclass(frozen=True)
 class PublicBoard:
-    active_self: tuple[int, ...]
-    bench_self: tuple[int, ...]
-    active_opponent: tuple[int, ...]
-    bench_opponent: tuple[int, ...]
+    self_active: PublicPokemon | None
+    self_bench: tuple[PublicPokemon, ...]
+    opponent_active: PublicPokemon | None
+    opponent_bench: tuple[PublicPokemon, ...]
     stadium: int | None
+    self_prize_count: int
+    opponent_prize_count: int
 
 
 @dataclass(frozen=True)
@@ -48,6 +66,7 @@ class VisibleZoneSummary:
     discard: Mapping[int, int]
     lost_or_removed: Mapping[int, int]
     prizes_taken: Mapping[int, int]
+    attached_energy: Mapping[int, int]
 
 
 @dataclass(frozen=True)
@@ -61,6 +80,7 @@ class SelfKnownOrder:
 class SelfUnknownZoneSummary:
     remaining_card_counts: Mapping[int, int]
     known_order: SelfKnownOrder
+    conservation_verified: bool
 
 
 @dataclass(frozen=True)

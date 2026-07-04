@@ -1,168 +1,192 @@
-"""Host adapter — sole reader of raw observation dicts."""
+"""Host adapter — whitelist projection, sole raw observation reader."""
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
+from ..runtime.exceptions import CardConservationMismatch
 from ..semantic.actor_view import (
     ActorView,
     DecisionContext,
     OpponentPublicSummary,
     PublicBoard,
     PublicEvent,
-    SelfDeckManifest,
-    SelfKnownOrder,
-    SelfUnknownZoneSummary,
-    VisibleZoneSummary,
+    PublicPokemon,
     canonical_hash,
 )
-from ..semantic.catalog import card_multiset_from_cards
 from ..semantic.legal_contract import (
     LegalActionContract,
     option_fingerprint,
     request_fingerprint,
     response_schema_key,
 )
-from ..semantic.observation_ledger import ObservationLedger
 from ..semantic.option_ir import SanitizedDecision, build_option_ir
-from ..semantic.self_card_ledger import build_visible_zones, compute_unknown_zone
+from ..semantic.self_card_ledger import build_visible_zones, compute_unknown_zone, verify_conservation
 
-from .raw_observation import RawObservation, strip_hidden_from_raw
+from .observation_projector import ProjectedCard, project_observation
+from .raw_observation import RawObservation
 
 if TYPE_CHECKING:
     from ..runtime.agent_session import AgentSession
 
 
-def _public_board(players: list[dict[str, Any]], your_index: int) -> tuple[PublicBoard, PublicBoard]:
-    def board_for(idx: int) -> PublicBoard:
-        p = players[idx] if idx < len(players) else {}
-        active = tuple(card_multiset_from_cards(list(p.get("active") or [])).keys())
-        bench = tuple(card_multiset_from_cards(list(p.get("bench") or [])).keys())
-        return PublicBoard(active_self=active, bench_self=bench, active_opponent=(), bench_opponent=(), stadium=None)
-
-    self_b = board_for(your_index)
-    opp_idx = 1 - your_index
-    opp = players[opp_idx] if opp_idx < len(players) else {}
-    opp_active = tuple(card_multiset_from_cards(list(opp.get("active") or [])).keys())
-    opp_bench = tuple(card_multiset_from_cards(list(opp.get("bench") or [])).keys())
-    public_self = PublicBoard(
-        active_self=self_b.active_self,
-        bench_self=self_b.bench_self,
-        active_opponent=opp_active,
-        bench_opponent=opp_bench,
-        stadium=None,
+def _to_public_pokemon(card: ProjectedCard, *, zone: str, slot: int) -> PublicPokemon:
+    return PublicPokemon(
+        card_id=card.card_id,
+        zone=zone,
+        slot=slot,
+        damage=card.damage,
+        maximum_hp=card.maximum_hp,
+        remaining_hp=card.remaining_hp,
+        attached_energy=card.attached_energy,
+        attached_tool_ids=card.attached_tool_ids,
+        status=card.status,
+        retreat_cost=card.retreat_cost,
+        stage=card.stage,
+        can_attack=card.can_attack,
     )
-    return public_self, board_for(opp_idx)
 
 
-def _parse_logs(logs: list[Any]) -> tuple[PublicEvent, ...]:
-    events: list[PublicEvent] = []
-    for entry in logs or []:
-        if not isinstance(entry, dict):
-            continue
-        events.append(
-            PublicEvent(
-                event_type=str(entry.get("type", "")),
-                player_index=entry.get("playerIndex"),
-                card_id=entry.get("cardId"),
-                summary="",
-            )
-        )
-        if str(entry.get("type")) == "0":
-            pass  # shuffle — ledger handles invalidation separately
-    return tuple(events)
+def _build_public_board(projected, your_index: int) -> tuple[PublicBoard, PublicBoard]:
+    self_p = projected.players[your_index]
+    opp_p = projected.players[1 - your_index]
+    self_active = (
+        _to_public_pokemon(self_p.active[0], zone="active", slot=0) if self_p.active else None
+    )
+    self_bench = tuple(
+        _to_public_pokemon(c, zone="bench", slot=i) for i, c in enumerate(self_p.bench)
+    )
+    opp_active = (
+        _to_public_pokemon(opp_p.active[0], zone="active", slot=0) if opp_p.active else None
+    )
+    opp_bench = tuple(
+        _to_public_pokemon(c, zone="bench", slot=i) for i, c in enumerate(opp_p.bench)
+    )
+    board = PublicBoard(
+        self_active=self_active,
+        self_bench=self_bench,
+        opponent_active=opp_active,
+        opponent_bench=opp_bench,
+        stadium=None,
+        self_prize_count=self_p.prize_face_down_count + self_p.prize_known_count,
+        opponent_prize_count=opp_p.prize_face_down_count,
+    )
+    opp_board = PublicBoard(
+        self_active=opp_active,
+        self_bench=opp_bench,
+        opponent_active=self_active,
+        opponent_bench=self_bench,
+        stadium=None,
+        self_prize_count=opp_p.prize_face_down_count,
+        opponent_prize_count=self_p.prize_face_down_count + self_p.prize_known_count,
+    )
+    return board, opp_board
 
 
 def _build_actor_view(
-    sanitized: dict[str, Any],
+    projected,
     contract: LegalActionContract,
     session: AgentSession,
 ) -> ActorView:
-    current = sanitized.get("current") or {}
-    your_index = int(current.get("yourIndex") or 0)
-    players = list(current.get("players") or [{}, {}])
-    while len(players) < 2:
-        players.append({})
-    self_player = players[your_index] if your_index < len(players) else {}
-    opp_idx = 1 - your_index
-    opp_player = players[opp_idx] if opp_idx < len(players) else {}
+    your_index = projected.your_index
+    self_player = projected.players[your_index]
+    opp_player = projected.players[1 - your_index]
 
     visible = build_visible_zones(self_player)
-    deck_count = int(self_player.get("deckCount") or 0)
-    prize_list = list(self_player.get("prize") or [])
-    prize_face_down = sum(1 for p in prize_list if p is None)
     unknown = compute_unknown_zone(
         session.deck_manifest,
         visible,
-        deck_count=deck_count,
-        prize_face_down=prize_face_down,
+        deck_count=self_player.deck_count,
+        prize_face_down=self_player.prize_face_down_count,
         known_order_valid=session.observation_ledger.known_order_valid,
     )
-    public_board, opp_board = _public_board(players, your_index)
-    opp_seen: dict[int, int] = {}
-    for zone in ("discard", "active", "bench"):
-        for cid, n in card_multiset_from_cards(list(opp_player.get(zone) or [])).items():
-            opp_seen[cid] = opp_seen.get(cid, 0) + n
-
-    select = sanitized.get("select") or {}
-    obs_hash_payload = {
-        "turn": current.get("turn"),
-        "your_index": your_index,
-        "self_active": list(public_board.active_self),
-        "self_bench": list(public_board.bench_self),
-        "opp_active": list(public_board.active_opponent),
-        "opp_bench": list(public_board.bench_opponent),
-        "players_public": [
+    if unknown.conservation_verified:
+        if not verify_conservation(
+            session.deck_manifest,
+            visible,
+            unknown,
+            self_player.deck_count,
+            self_player.prize_face_down_count,
+        ):
+            raise CardConservationMismatch(
+                f"deck conservation failed: visible+unknown != manifest "
+                f"(deck={self_player.deck_count} prizes_down={self_player.prize_face_down_count})"
+            )
+    else:
+        session.diagnostics.record(
             {
-                "hand_count": len(players[i].get("hand") or []) if i == your_index else players[i].get("handCount"),
-                "prize_len": len(players[i].get("prize") or []),
-                "deck_count": players[i].get("deckCount"),
+                "event": "conservation_unverified",
+                "deck_count": self_player.deck_count,
+                "prize_face_down": self_player.prize_face_down_count,
             }
-            for i in range(2)
-        ],
+        )
+
+    public_board, opp_board = _build_public_board(projected, your_index)
+    opp_seen: dict[int, int] = {}
+    for c in opp_player.discard + opp_player.active + opp_player.bench:
+        opp_seen[c.card_id] = opp_seen.get(c.card_id, 0) + 1
+
+    history = tuple(
+        PublicEvent(
+            event_type=str(e.get("type", "")),
+            player_index=e.get("playerIndex"),
+            card_id=e.get("cardId"),
+            summary="",
+        )
+        for e in projected.public_events
+    )
+
+    obs_hash_payload = {
+        "turn": projected.turn,
+        "your_index": your_index,
+        "self_active": public_board.self_active.card_id if public_board.self_active else None,
+        "self_active_hp": public_board.self_active.remaining_hp if public_board.self_active else None,
+        "self_active_damage": public_board.self_active.damage if public_board.self_active else None,
+        "self_bench": [p.card_id for p in public_board.self_bench],
+        "opp_active": public_board.opponent_active.card_id if public_board.opponent_active else None,
+        "opp_bench": [p.card_id for p in public_board.opponent_bench],
+        "self_prizes": public_board.self_prize_count,
+        "opp_prizes": public_board.opponent_prize_count,
         "contract": contract.option_fingerprint,
     }
     obs_hash = canonical_hash(obs_hash_payload)
 
+    select = projected.select
     return ActorView(
         public_board=public_board,
-        public_history=_parse_logs(sanitized.get("logs") or []),
+        public_history=history,
         self_hand=visible.hand,
         self_visible_zones=visible,
         self_unknown_zone=unknown,
         opponent_public=OpponentPublicSummary(
             public_cards_seen=opp_seen,
-            hand_count=int(opp_player.get("handCount") or len(opp_player.get("hand") or [])),
-            prize_count=len(opp_player.get("prize") or []),
+            hand_count=opp_player.hand_count,
+            prize_count=opp_player.prize_face_down_count,
             public_board=opp_board,
         ),
         decision_context=DecisionContext(
-            turn=current.get("turn"),
+            turn=projected.turn,
             your_index=your_index,
-            select_type=select.get("type"),
-            context=select.get("context"),
-            first_player=current.get("firstPlayer"),
+            select_type=select.select_type if select else None,
+            context=select.context if select else None,
+            first_player=projected.first_player,
         ),
         legal_contract=contract,
         observation_hash=obs_hash,
     )
 
 
-def _build_contract(sanitized: dict[str, Any], observation_hash: str, decision_id: str) -> LegalActionContract:
-    select = sanitized.get("select") or {}
-    options = list(select.get("option") or [])
-    min_count = int(select.get("minCount", 0))
-    max_count = int(select.get("maxCount", 0))
-    opt_fp = option_fingerprint(options)
-    schema = response_schema_key(
-        select.get("type"),
-        select.get("context"),
-        min_count,
-        max_count,
-        opt_fp,
-    )
+def _build_contract(projected, observation_hash: str, decision_id: str) -> LegalActionContract:
+    select = projected.select
+    if select is None:
+        raise ValueError("deck selection is not an in-game decision")
+    options = list(select.options)
+    min_count = select.min_count
+    max_count = select.max_count
+    opt_fp = option_fingerprint([dict(o) for o in options])
+    schema = response_schema_key(select.select_type, select.context, min_count, max_count, opt_fp)
     contract_fields = {
-        "select_type": select.get("type"),
-        "context": select.get("context"),
+        "select_type": select.select_type,
+        "context": select.context,
         "min_count": min_count,
         "max_count": max_count,
         "option_fp": opt_fp,
@@ -170,8 +194,8 @@ def _build_contract(sanitized: dict[str, Any], observation_hash: str, decision_i
     return LegalActionContract(
         decision_id=decision_id,
         request_fingerprint=request_fingerprint(observation_hash, contract_fields),
-        select_type=select.get("type"),
-        context=select.get("context"),
+        select_type=select.select_type,
+        context=select.context,
         min_count=min_count,
         max_count=max_count,
         option_count=len(options),
@@ -182,13 +206,12 @@ def _build_contract(sanitized: dict[str, Any], observation_hash: str, decision_i
 
 class HostAdapter:
     def sanitize_decision(self, raw: RawObservation, session: AgentSession) -> SanitizedDecision:
-        sanitized = strip_hidden_from_raw(raw.data)
-        for entry in sanitized.get("logs") or []:
-            if isinstance(entry, dict) and str(entry.get("type")) == "0":
-                session.observation_ledger.record_shuffle()
+        projected = project_observation(raw.data)
+        session.observation_ledger.ingest_public_events(projected.public_events, turn=projected.turn)
+
         decision_id = f"g{session.observation_ledger.game_sequence}d{session.observation_ledger.next_decision()}"
-        pre_contract = _build_contract(sanitized, "", decision_id)
-        actor_view = _build_actor_view(sanitized, pre_contract, session)
+        pre_contract = _build_contract(projected, "", decision_id)
+        actor_view = _build_actor_view(projected, pre_contract, session)
         contract = LegalActionContract(
             decision_id=decision_id,
             request_fingerprint=request_fingerprint(
@@ -209,13 +232,11 @@ class HostAdapter:
             option_fingerprint=pre_contract.option_fingerprint,
             response_schema_key=pre_contract.response_schema_key,
         )
-        actor_view = _build_actor_view(sanitized, contract, session)
-        select = sanitized.get("select") or {}
-        options_raw = list(select.get("option") or [])
-        context = select.get("context")
+        actor_view = _build_actor_view(projected, contract, session)
+        select = projected.select
+        assert select is not None
         options = tuple(
-            build_option_ir(i, opt if isinstance(opt, dict) else {}, context)
-            for i, opt in enumerate(options_raw)
+            build_option_ir(i, dict(opt), select.context) for i, opt in enumerate(select.options)
         )
         return SanitizedDecision(actor_view=actor_view, contract=contract, options=options)
 

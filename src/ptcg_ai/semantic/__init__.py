@@ -5,6 +5,7 @@ from .actor_view import (
     OpponentPublicSummary,
     PublicBoard,
     PublicEvent,
+    PublicPokemon,
     SelfDeckManifest,
     SelfKnownOrder,
     SelfUnknownZoneSummary,
@@ -14,8 +15,8 @@ from .actor_view import (
 from .catalog import card_multiset_from_cards, count_cards
 from .legal_contract import LegalActionContract, response_schema_key
 from .observation_ledger import ObservationLedger
-from .option_ir import OptionIR
-from .response_ir import ResponseIR, SelectionMode
+from .option_ir import OptionIR, ResponseIR, SelectionMode
+from .response_ir import UnsupportedSelectionSchema, ValidationResult, classify_selection_mode
 
 __all__ = [
     "ActorView",
@@ -27,14 +28,18 @@ __all__ = [
     "OpponentPublicSummary",
     "PublicBoard",
     "PublicEvent",
+    "PublicPokemon",
     "ResponseIR",
     "SelectionMode",
     "SelfDeckManifest",
     "SelfKnownOrder",
     "SelfUnknownZoneSummary",
     "VisibleZoneSummary",
+    "UnsupportedSelectionSchema",
+    "ValidationResult",
     "categorize_option_type",
     "card_multiset_from_cards",
     "count_cards",
+    "classify_selection_mode",
     "response_schema_key",
 ]

@@ -45,10 +45,10 @@ def main() -> int:
                 "result": -1,
                 "players": [
                     {
-                        "hand": [{"id": 10}],
+                        "hand": [{"id": 65}],
                         "handCount": 1,
                         "prize": [None] * 6,
-                        "deckCount": 45,
+                        "deckCount": 53,
                         "active": [],
                         "bench": [],
                         "discard": [],
@@ -57,7 +57,7 @@ def main() -> int:
                         "hand": [],
                         "handCount": 3,
                         "prize": [None] * 6,
-                        "deckCount": 45,
+                        "deckCount": 53,
                         "active": [],
                         "bench": [],
                         "discard": [],

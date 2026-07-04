@@ -59,8 +59,13 @@ def run_self_play(
             if int((obs.get("current") or {}).get("result", -1)) >= 0:
                 card.completed_games = 1
                 break
-    except Exception:
-        card.crash_count += 1
+    except Exception as exc:
+        from ..semantic.response_ir import UnsupportedSelectionSchema
+
+        if isinstance(exc, UnsupportedSelectionSchema):
+            card.unsupported_schema_count += 1
+        else:
+            card.crash_count += 1
     finally:
         try:
             battle_finish()

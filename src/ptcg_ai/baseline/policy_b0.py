@@ -3,8 +3,10 @@ from __future__ import annotations
 
 from ..contract.runtime_profile import RuntimeProfile
 from ..runtime.deadline import Deadline
+from ..runtime.exceptions import OperationalFailure
 from ..runtime.fallback import FallbackSelector
 from ..semantic.option_ir import ResponseIR, SanitizedDecision
+from ..semantic.response_ir import UnsupportedSelectionSchema
 from .proposer import Proposer
 from .ranker import Ranker, POLICY_VERSION
 
@@ -28,20 +30,21 @@ class PolicyB0:
         decision_counter: int,
         emergency: bool,
     ) -> tuple[ResponseIR, bool]:
-        used_fallback = False
+        if deadline.should_stop() or emergency:
+            return self._fallback.choose(decision, reason="deadline_or_emergency"), True
         try:
-            if deadline.should_stop() or emergency:
-                response = self._fallback.choose(decision, reason="deadline_or_emergency")
-                return response, True
             candidates = self._proposer.propose(decision)
-            if not candidates:
-                response = self._fallback.choose(decision, reason="no_candidates")
-                return response, True
-            selected = self._ranker.select(decision, candidates, decision_counter=decision_counter)
-            if selected is None:
-                response = self._fallback.choose(decision, reason="ranker_empty")
-                return response, True
+        except UnsupportedSelectionSchema:
+            raise
+        selected = self._ranker.select(decision, candidates, decision_counter=decision_counter)
+        if selected is not None:
             return selected, False
-        except Exception:
-            response = self._fallback.choose(decision, reason="exception")
-            return response, True
+        try:
+            return self._fallback.choose(decision, reason="ranker_empty"), True
+        except OperationalFailure:
+            raise
+        except Exception as exc:
+            try:
+                return self._fallback.choose(decision, reason="exception"), True
+            except OperationalFailure:
+                raise OperationalFailure("ranker failed without validated fallback") from exc

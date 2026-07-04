@@ -6,7 +6,7 @@ from ptcg_ai.host.raw_observation import RawObservation
 from ptcg_ai.runtime.agent_session import AgentSession
 
 
-def _obs(active_id: int) -> dict:
+def _obs(active_id: int, *, hp: int = 120, damage: int = 10) -> dict:
     return {
         "select": {
             "type": 0,
@@ -19,8 +19,23 @@ def _obs(active_id: int) -> dict:
             "yourIndex": 0,
             "turn": 3,
             "players": [
-                {"hand": [], "prize": [None] * 6, "deckCount": 50, "active": [{"id": active_id}], "bench": [], "discard": []},
-                {"hand": [], "handCount": 0, "prize": [None] * 6, "deckCount": 50, "active": [], "bench": [], "discard": []},
+                {
+                    "hand": [],
+                    "prize": [None] * 6,
+                    "deckCount": 53,
+                    "active": [{"id": active_id, "hp": hp, "damage": damage}],
+                    "bench": [],
+                    "discard": [],
+                },
+                {
+                    "hand": [],
+                    "handCount": 0,
+                    "prize": [None] * 6,
+                    "deckCount": 53,
+                    "active": [],
+                    "bench": [],
+                    "discard": [],
+                },
             ],
         },
         "logs": [],
@@ -32,6 +47,6 @@ def test_public_board_change_alters_observation_hash():
     adapter = HostAdapter()
     s1 = AgentSession.start_new(deck)
     s2 = AgentSession.start_new(deck)
-    d1 = adapter.sanitize_decision(RawObservation.from_dict(_obs(100)), s1)
-    d2 = adapter.sanitize_decision(RawObservation.from_dict(_obs(200)), s2)
+    d1 = adapter.sanitize_decision(RawObservation.from_dict(_obs(65, hp=120, damage=10)), s1)
+    d2 = adapter.sanitize_decision(RawObservation.from_dict(_obs(65, hp=120, damage=50)), s2)
     assert d1.actor_view.observation_hash != d2.actor_view.observation_hash

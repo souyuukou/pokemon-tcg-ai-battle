@@ -14,6 +14,8 @@ from .legal_contract import LegalActionContract
 
 class SelectionMode(str, Enum):
     SINGLE = "single"
+    EMPTY = "empty"
+    OPTIONAL_SINGLE = "optional_single"
     SET = "set"
     SEQUENCE = "sequence"
     CONFIRM = "confirm"

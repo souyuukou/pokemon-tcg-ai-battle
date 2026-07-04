@@ -10,13 +10,12 @@ from ..contract.runtime_profile import RuntimeProfile, load_runtime_profile
 from ..host.host_adapter import HostAdapter
 from ..host.host_response import to_host_response
 from ..host.raw_observation import RawObservation
+from ..runtime.exceptions import CardConservationMismatch, ContractMismatch, OperationalFailure
 from ..semantic.response_ir import UnsupportedSelectionSchema
 from .agent_session import AgentSession, DeckSelectionRequest, FixedDeckProvider
 from .deadline import Deadline
-from .diagnostics import DiagnosticsBuffer
-from .fallback import FallbackSelector
 from .memory_guard import memory_snapshot
-from .time_bank import budget_for_decision, update_time_bank
+from .time_bank import begin_decision_clock, budget_for_decision, update_time_bank
 
 POLICY_VERSION = "b0_v1.11.2"
 _RUNTIME: CompetitionRuntime | None = None
@@ -33,13 +32,23 @@ class CompetitionRuntime:
         self._session: AgentSession | None = None
         self._host = HostAdapter()
         self._policy = PolicyB0(self._profile)
-        self._fallback = FallbackSelector()
 
     def _ensure_session(self) -> AgentSession:
         if self._session is None:
             deck = self._deck_provider.select_deck(DeckSelectionRequest())
             self._session = AgentSession.start_new(deck, profile_cache_max=self._profile.soft_cache_max_entries)
         return self._session
+
+    def _record_incident(self, session: AgentSession, *, reason_code: str, stage: str, exc: Exception | None = None) -> None:
+        session.diagnostics.incident_count += 1
+        session.diagnostics.record(
+            {
+                "event": "incident",
+                "reason_code": reason_code,
+                "stage": stage,
+                "exception_class": type(exc).__name__ if exc else None,
+            }
+        )
 
     def act(self, obs_dict: dict[str, Any]) -> list[int]:
         session = self._ensure_session()
@@ -52,39 +61,51 @@ class CompetitionRuntime:
             session.diagnostics.record({"event": "deck_selection", "deck_hash": session.deck_hash})
             return list(deck)
 
-        t0 = time.perf_counter()
+        call_start = begin_decision_clock(session.time_bank_state)
         host_remaining = obs_dict.get("remainingOverageTime")
         if host_remaining is not None:
             try:
                 host_remaining = float(host_remaining)
             except (TypeError, ValueError):
                 host_remaining = None
+
         update_time_bank(
             session.time_bank_state,
             host_remaining=host_remaining,
             safety_margin=self._profile.safety_margin_seconds,
+            call_start_monotonic=call_start,
+            match_budget_seconds=self._profile.time_bank_seconds,
         )
         eff = session.time_bank_state.effective()
         if eff <= self._profile.emergency_threshold_seconds:
             session.emergency_mode = True
+            session.time_bank_state.emergency_mode = True
+
+        budget = budget_for_decision(
+            session.time_bank_state,
+            option_count=len((obs_dict.get("select") or {}).get("option") or []),
+            emergency_threshold=self._profile.emergency_threshold_seconds,
+            emergency=session.emergency_mode,
+            total_budget_seconds=self._profile.time_bank_seconds,
+        )
+        deadline = Deadline.from_budget(
+            soft_seconds=max(0.05, budget - self._profile.hard_reserve_seconds),
+            hard_seconds=max(0.02, budget),
+            started_at=call_start,
+        )
 
         raw = RawObservation.from_dict(obs_dict)
         try:
             decision = self._host.sanitize_decision(raw, session)
+        except (CardConservationMismatch, ContractMismatch) as exc:
+            self._record_incident(session, reason_code=type(exc).__name__, stage="sanitize", exc=exc)
+            raise
         except Exception as exc:
-            session.diagnostics.incident_count += 1
+            self._record_incident(session, reason_code="sanitizer_failure", stage="sanitize", exc=exc)
             raise
 
-        budget = budget_for_decision(
-            session.time_bank_state,
-            option_count=decision.contract.option_count,
-            emergency_threshold=self._profile.emergency_threshold_seconds,
-            emergency=session.emergency_mode,
-        )
-        deadline = Deadline.from_budget(
-            soft_seconds=max(0.1, budget - self._profile.hard_reserve_seconds),
-            hard_seconds=max(0.05, budget),
-        )
+        if deadline.should_stop():
+            session.emergency_mode = True
 
         used_fallback = False
         try:
@@ -95,7 +116,7 @@ class CompetitionRuntime:
                 emergency=session.emergency_mode,
             )
         except UnsupportedSelectionSchema as exc:
-            session.diagnostics.incident_count += 1
+            self._record_incident(session, reason_code="unsupported_schema", stage="compile", exc=exc)
             session.diagnostics.record(
                 {
                     "event": "contract_violation",
@@ -103,14 +124,19 @@ class CompetitionRuntime:
                     "reason": str(exc),
                 }
             )
-            response = self._fallback.choose(decision, reason="unsupported_schema")
-            used_fallback = True
+            raise
+        except (CardConservationMismatch, ContractMismatch) as exc:
+            self._record_incident(session, reason_code=type(exc).__name__, stage="policy", exc=exc)
+            raise
+        except OperationalFailure as exc:
+            self._record_incident(session, reason_code="operational_failure", stage="policy", exc=exc)
+            raise
 
         if used_fallback:
             session.diagnostics.record_fallback(response.category)
 
         host_response = to_host_response(decision.contract, response)
-        elapsed_ms = (time.perf_counter() - t0) * 1000
+        elapsed_ms = (time.perf_counter() - call_start) * 1000
         session.diagnostics.record(
             {
                 "event": "decision",

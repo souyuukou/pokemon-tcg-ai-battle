@@ -12,8 +12,8 @@ class Deadline:
     hard_deadline_monotonic: float
 
     @classmethod
-    def from_budget(cls, soft_seconds: float, hard_seconds: float) -> Deadline:
-        now = time.monotonic()
+    def from_budget(cls, soft_seconds: float, hard_seconds: float, started_at: float | None = None) -> Deadline:
+        now = started_at if started_at is not None else time.monotonic()
         return cls(
             started_monotonic=now,
             soft_deadline_monotonic=now + soft_seconds,

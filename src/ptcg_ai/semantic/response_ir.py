@@ -17,19 +17,17 @@ class ValidationResult:
 
 
 def classify_selection_mode(min_count: int, max_count: int, option_count: int) -> str:
+    if min_count == 0 and max_count == 0:
+        return SelectionMode.EMPTY.value
     if min_count == 1 and max_count == 1:
         return SelectionMode.SINGLE.value
-    if min_count == 0 and max_count == 0:
-        return SelectionMode.CONFIRM.value
-    if min_count == max_count == 1:
-        return SelectionMode.SINGLE.value
-    if min_count == 0 and max_count == 1 and option_count <= 2:
-        return SelectionMode.CONFIRM.value
+    if min_count == 0 and max_count == 1:
+        return SelectionMode.OPTIONAL_SINGLE.value
     if min_count > 1 or max_count > 1:
         if min_count == max_count:
             return SelectionMode.SET.value
-        return SelectionMode.OPAQUE.value
-    return SelectionMode.SINGLE.value
+        return SelectionMode.SEQUENCE.value
+    return SelectionMode.OPAQUE.value
 
 
 def validate_response_indices(

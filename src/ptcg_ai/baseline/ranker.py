@@ -24,6 +24,7 @@ class Ranker:
             + feats.get("evolve_bonus", 0) * 4
             + feats.get("opp_prize", 0) * -0.5
             + feats.get("self_hand", 0) * 0.1
+            + feats.get("self_active_hp", 0) * 0.01
             + feats.get("end_penalty", 0) * 2
         )
         return score

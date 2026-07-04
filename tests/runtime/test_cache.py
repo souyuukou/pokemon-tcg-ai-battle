@@ -13,8 +13,8 @@ def _obs() -> dict:
         "current": {
             "yourIndex": 0,
             "players": [
-                {"hand": [], "prize": [None] * 6, "deckCount": 50, "active": [], "bench": [], "discard": []},
-                {"hand": [], "handCount": 0, "prize": [None] * 6, "deckCount": 50, "active": [], "bench": [], "discard": []},
+                {"hand": [], "prize": [None] * 6, "deckCount": 54, "active": [], "bench": [], "discard": []},
+                {"hand": [], "handCount": 0, "prize": [None] * 6, "deckCount": 54, "active": [], "bench": [], "discard": []},
             ],
         },
         "logs": [],

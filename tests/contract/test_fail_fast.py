@@ -11,8 +11,8 @@ from ptcg_ai.runtime.agent_session import AgentSession
 from ptcg_ai.runtime.deadline import Deadline
 
 
-def _obs():
-    return {
+def test_proposer_exception_uses_validated_fallback():
+    obs = {
         "select": {
             "type": 0,
             "context": 0,
@@ -23,21 +23,34 @@ def _obs():
         "current": {
             "yourIndex": 0,
             "players": [
-                {"hand": [], "prize": [None] * 6, "deckCount": 54, "active": [], "bench": [], "discard": []},
-                {"hand": [], "handCount": 0, "prize": [None] * 6, "deckCount": 54, "active": [], "bench": [], "discard": []},
+                {
+                    "hand": [],
+                    "prize": [None] * 6,
+                    "deckCount": 54,
+                    "active": [],
+                    "bench": [],
+                    "discard": [],
+                },
+                {
+                    "hand": [],
+                    "handCount": 0,
+                    "prize": [None] * 6,
+                    "deckCount": 54,
+                    "active": [],
+                    "bench": [],
+                    "discard": [],
+                },
             ],
         },
         "logs": [],
     }
-
-
-def test_ranker_empty_uses_validated_fallback():
     deck = [65] * 60
     session = AgentSession.start_new(deck)
-    decision = HostAdapter().sanitize_decision(RawObservation.from_dict(_obs()), session)
+    decision = HostAdapter().sanitize_decision(RawObservation.from_dict(obs), session)
     policy = PolicyB0(DEFAULT_PROFILE)
     deadline = Deadline.from_budget(10.0, 10.0)
     with patch.object(policy._ranker, "select", return_value=None):
         resp, used_fb = policy.decide(decision, deadline=deadline, decision_counter=1, emergency=False)
     assert used_fb
     assert len(resp.option_indices) == 1
+    assert 0 <= resp.option_indices[0] < 2

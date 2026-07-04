@@ -1,13 +1,14 @@
 """T1/T12: Hidden twin and capability quarantine tests."""
 from __future__ import annotations
 
+import pytest
+
 from ptcg_ai.baseline.features import cache_key, feature_vector
 from ptcg_ai.baseline.ranker import Ranker
 from ptcg_ai.contract.runtime_profile import DEFAULT_PROFILE
 from ptcg_ai.host.host_adapter import HostAdapter
 from ptcg_ai.host.raw_observation import RawObservation
 from ptcg_ai.runtime.agent_session import AgentSession
-from ptcg_ai.semantic.legal_contract import LegalActionContract
 from ptcg_ai.semantic.option_ir import ResponseIR
 
 
@@ -25,9 +26,10 @@ def _base_obs() -> dict:
             "turn": 4,
             "players": [
                 {
-                    "hand": [{"id": 10}],
-                    "prize": [{"id": 501}, None, None, None, None, None],
-                    "deckCount": 50,
+                    "hand": [{"id": 65}],
+                    "handCount": 1,
+                    "prize": [None] * 6,
+                    "deckCount": 53,
                     "active": [],
                     "bench": [],
                     "discard": [],
@@ -35,8 +37,8 @@ def _base_obs() -> dict:
                 {
                     "hand": [{"id": 999}],
                     "handCount": 5,
-                    "prize": [{"id": 101}, {"id": 102}, None, None, None, None],
-                    "deckCount": 50,
+                    "prize": [None] * 6,
+                    "deckCount": 53,
                     "active": [],
                     "bench": [],
                     "discard": [],
@@ -49,14 +51,14 @@ def _base_obs() -> dict:
 
 
 def _deck() -> list[int]:
-    return [10] * 60
+    base = [10] * 10 + [65] * 50
+    return base[:60]
 
 
 def test_hidden_twin_invariance():
     obs_a = _base_obs()
     obs_b = _base_obs()
     obs_b["current"]["players"][1]["hand"] = [{"id": 888}, {"id": 777}]
-    obs_b["current"]["players"][1]["prize"] = [{"id": 201}, {"id": 202}, None, None, None, None]
     obs_b["search_begin_input"] = "token_a"
     obs_a["search_begin_input"] = "token_b"
 

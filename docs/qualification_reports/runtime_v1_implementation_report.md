@@ -1,131 +1,98 @@
 # Runtime v1 Implementation Report
 
-**Date:** 2026-07-04  
+**Date:** 2026-07-04 (updated after P0 blocker fixes)  
 **Branch:** `feat/competition-runtime-v1`  
-**Base commit:** `4d8ad04` (main)
+**Reviewed commit:** `b87ee75` (pre-fix); pending new commit with P0 fixes
 
-## 1. 実装した機能
+## Review metadata
 
-### Phase -1: 提出物凍結・再現ビルド
-- `tools/build_submission.py` — `src/ptcg_ai` を `dist/submission/ptcg_runtime/` にコピーし、`main.py` / `deck.csv` / `manifest.json` を生成
-- `submission/main.py` — 極小エントリポイント (`agent` → `ptcg_runtime.runtime`)
-- preflight / repository map レポート
+| Field | Value |
+|-------|-------|
+| branch | `feat/competition-runtime-v1` |
+| reviewed_commit (baseline) | `b87ee755e66373eb45bdbb0005e38aa78ff602ce` |
+| Python | 3.13.5 |
+| OS | Windows 10 |
+| cabt simulator | `sample_submission/cg/` (local `battle_start`) |
+| fixture count | 2 (`deck_selection/basic`, `attack/single_select`) |
+| soak games | 1 self-play (same deck vs same deck, seat 0) |
+| soak seat distribution | mirror self-play, single seat path |
 
-### Phase 0: Competition Contract Probe と fixture 基盤
-- `tools/probe_contract.py` — cabt シミュレータから schema 採取（ローカルで `cabt_simulator` ソース確認済み）
-- `src/ptcg_ai/contract/competition_contract.py` — `CompetitionContract` + `is_explicitly_allowed`
-- `docs/competition_contract/` — probe 出力 JSON
-- `docs/runtime_profiles/runtime_profile_local.json`
-- `tests/fixtures/` — deck_selection (parsed), attack/single_select (response-validated)
-- `src/ptcg_ai/eval/fixture_loader.py`
-
-### Phase 1: B0 Production Baseline Runtime
-- **host:** `RawObservation` 隔離、`HostAdapter`、`compile_candidate_responses` / `validate_response` / `to_host_response`
-- **semantic:** `ActorView`, `LegalActionContract`, `OptionIR`, `ResponseIR`, `ObservationLedger`, card conservation
-- **runtime:** `AgentSession`, `Deadline`, `TimeBankState`, `DiagnosticsBuffer`, `FallbackSelector`, `CompetitionRuntime`
-- **baseline:** 決定論的 B0 `PolicyB0` / `Ranker` / `Proposer`（標準ライブラリのみ）
-- unsupported multi-select は `UnsupportedSelectionSchema` で fail-fast（推測 response 禁止）
-
-## 2. 変更した主要ファイル（新規）
-
-| 領域 | パス |
-|------|------|
-| コア | `src/ptcg_ai/**` |
-| 提出 | `submission/main.py`, `submission/deck.csv` |
-| ツール | `tools/build_submission.py`, `probe_contract.py`, `run_smoke.py`, `run_soak.py` |
-| テスト | `tests/contract/`, `tests/semantic/`, `tests/runtime/`, `tests/submission/`, `tests/fixtures/` |
-| ドキュメント | `docs/qualification_reports/`, `docs/competition_contract/`, `docs/runtime_profiles/` |
-| pytest | `conftest.py` |
-
-既存の `sample_submission/`, `training/`, `cpp/`, `scripts/` は**未変更**（研究・legacy 提出物は温存）。
-
-## 3. ブランチ / commit
-
-- ブランチ `feat/competition-runtime-v1` を main から作成
-- **コミットは未作成**（ユーザー指示待ち）
-
-## 4. 実行したコマンドとテスト結果
+### Commands run (2026-07-04)
 
 ```text
 python -m pytest tests/contract tests/semantic tests/runtime tests/submission -q
-→ 14 passed
-
-python -m pytest tests/test_agent.py tests/test_hidden_info.py -q
-→ 11 passed (legacy 互換)
-
-python tools/build_submission.py
-→ dist/submission 生成成功
-
-python tools/probe_contract.py
-→ source: cabt_simulator
+→ 18 passed
 
 python tools/run_smoke.py
-→ smoke OK (deck 60枚, 1 decision 処理)
+→ smoke OK
 
 python tools/run_soak.py
-→ completed_games=1, crash=0, illegal=0, fallback=0, p95≈1.6ms
+→ crash=0, illegal=0, fallback=0, unsupported_schema=1 (0..1 decision, fixture未登録)
 ```
 
-## 5. 実行できなかったテストと理由
+## P0 blocker fixes (this revision)
 
-| テスト | 状態 |
-|--------|------|
-| T8 長時間 soak（数百局） | 未実行（1局 soak は成功。フル統計は Phase 2 以降） |
-| T3 host apply 全 fixture | attack/single_select のみ response-validated。他 decision type は fixture 未整備 |
-| NumPy optional fast path parity | B0 safe path のみ実装（NumPy 経路は未追加） |
+### 1. Multi-select fail-fast
+- `Proposer` は `UnsupportedSelectionSchema` を握りつぶさない
+- `FallbackSelector` は `ValidatedResponseSet` / `operational_fallback()` 内の検証済み response のみ使用
+- `classify_selection_mode`: `empty` / `optional_single` / `set` / `sequence` を分離
+- 未登録 schema は `Runtime.act()` で incident 記録後に再送出（generic fallback 禁止）
 
-## 6. CompetitionContract 確認済み / 未確定
+### 2. Whitelist sanitizer
+- `observation_projector.py`: raw obs を whitelist projection（削除方式を廃止）
+- `event_visibility.py`: 許可イベントのみ ledger へ
+- 相手 hidden / `search_begin_input` は下流へ渡さない
+- 自分の face-down prize identity は unknown zone に混ぜない
 
-**確認済み（設計書 §2.1 準拠）:**
-- agent I/F, deck 60枚, host legal authority, 10分 time bank（`remainingOverageTime` を観測）
-- search API は production 不使用
+### 3. Ledger incremental processing
+- `ObservationLedger.ingest_public_events()`: delta のみ処理、fingerprint 再同期
 
-**未確定（保守的に無効 / None）:**
-- `native_extension_allowed`, `external_data_allowed`, `network_allowed`
-- `actTimeout` / `agentTimeout` の意味
-- artifact size 上限、提出環境 CPU/メモリ実測
+### 4. Exception taxonomy
+- `ContractMismatch`, `OperationalFailure`, `CardConservationMismatch`
+- policy は `OperationalFailure` のみ validated fallback
+- schema / conservation mismatch は fallback 禁止
 
-## 7. fixture coverage と未対応 schema
+### 5. Time bank
+- `act()` 入口で deadline 開始（sanitize を budget に含める）
+- `TimeBankState`: local monotonic 減算、host 欠損時の悲観推定
 
-**fixture 成熟度:**
-- `deck_selection/basic` — parsed
-- `attack/single_select` — response-validated
+## P1 improvements (partial)
 
-**未対応 response schema:**
-- independent set (`minCount>1` かつ `maxCount>1`) — `VALIDATED_SET_SCHEMAS` 空のため `UnsupportedSelectionSchema`
-- ordered sequence — 未実装
+### 6. PublicPokemon / PublicBoard
+- HP, damage, energy, status, retreat, slot 付き `PublicPokemon`
+- bench は slot sequence（multiset 廃止）
 
-## 8. smoke / soak 集計
+### 7. Card conservation
+- `sum(remaining) == deck_count + prize_face_down` を検証
+- 未検証時は `conservation_unverified` を diagnostics に記録（黙って続行しない／偽装もしない）
+- 検証済みかつ不一致時のみ `CardConservationMismatch`
 
-| 指標 | 値 |
-|------|-----|
-| crash | 0 |
-| illegal action | 0 |
-| protocol error | 0 |
-| fallback | 0 |
-| unsupported schema | 0 |
-| time bank exhaustion | 0 |
-| median decision ms | ~1.3 |
-| p95 decision ms | ~1.6 |
-| p99 decision ms | ~2.0 |
+## Phase status
 
-## 9. existing self-play / training への影響
+| Phase | Status |
+|-------|--------|
+| -1 artifact build | OK |
+| 0 contract probe | OK (local cabt) |
+| 1 B0 runtime | OK for builtin `single` 1..1 |
+| Blocker | `optional_single` (0..1), `empty` (0..0), `set`/`sequence` は fixture 登録待ち |
 
-- **影響なし** — legacy `sample_submission` と `training/` はそのまま
-- 新 runtime は `submission/` + `src/ptcg_ai/` に分離
+## Fixture coverage
 
-## 10. Phase 2 前の blocker
+| Category | Maturity | Notes |
+|----------|----------|-------|
+| deck_selection/basic | parsed | |
+| attack/single_select | response-validated | builtin single 1..1 |
+| optional_single (0..1) | **未登録** | soak で mulligan 等が停止 |
+| empty (0..0) | **未登録** | |
+| set / sequence | **未登録** | fail-fast |
 
-1. 主要 decision type の response-validated fixture 拡充（mulligan, evolve, multi-select 等）
-2. `VALIDATED_SET_SCHEMAS` への host apply 検証済み schema 登録
-3. 提出環境実測による `runtime_profile` 固定
-4. B0 と starter / legacy PVS の paired 勝率評価（統計未実施）
-
-## 11. rollback 方法
+## Rollback
 
 ```text
-git checkout main
-# または feat/competition-runtime-v1 を破棄して main の sample_submission を継続利用
+git checkout b87ee75  # pre-P0-fix baseline
+git checkout main       # legacy PVS only
 ```
 
-legacy 提出物は `sample_submission/` に無改造で残存。
+## git status at report time
+
+Uncommitted P0 fixes on `feat/competition-runtime-v1` (pending commit).

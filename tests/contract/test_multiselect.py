@@ -4,22 +4,25 @@ from __future__ import annotations
 import pytest
 
 from ptcg_ai.host.host_response import compile_candidate_responses
+from ptcg_ai.semantic.actor_view import (
+    ActorView,
+    DecisionContext,
+    OpponentPublicSummary,
+    PublicBoard,
+    SelfKnownOrder,
+    SelfUnknownZoneSummary,
+    VisibleZoneSummary,
+)
 from ptcg_ai.semantic.legal_contract import LegalActionContract, response_schema_key
 from ptcg_ai.semantic.option_ir import OptionIR, SanitizedDecision
 from ptcg_ai.semantic.response_ir import UnsupportedSelectionSchema, classify_selection_mode
 
 
-def _minimal_decision(min_c: int, max_c: int, n_opts: int) -> SanitizedDecision:
-    from ptcg_ai.semantic.actor_view import (
-        ActorView,
-        DecisionContext,
-        OpponentPublicSummary,
-        PublicBoard,
-        SelfKnownOrder,
-        SelfUnknownZoneSummary,
-        VisibleZoneSummary,
-    )
+def _empty_board() -> PublicBoard:
+    return PublicBoard(None, (), None, (), None, 6, 6)
 
+
+def _minimal_decision(min_c: int, max_c: int, n_opts: int) -> SanitizedDecision:
     contract = LegalActionContract(
         decision_id="t",
         request_fingerprint="fp",
@@ -32,12 +35,12 @@ def _minimal_decision(min_c: int, max_c: int, n_opts: int) -> SanitizedDecision:
         response_schema_key=response_schema_key(0, 0, min_c, max_c, "ofp"),
     )
     view = ActorView(
-        public_board=PublicBoard((), (), (), (), None),
+        public_board=_empty_board(),
         public_history=(),
         self_hand={},
-        self_visible_zones=VisibleZoneSummary({}, {}, {}, {}, {}, {}),
-        self_unknown_zone=SelfUnknownZoneSummary({}, SelfKnownOrder((), (), False)),
-        opponent_public=OpponentPublicSummary({}, 0, 6, PublicBoard((), (), (), (), None)),
+        self_visible_zones=VisibleZoneSummary({}, {}, {}, {}, {}, {}, {}),
+        self_unknown_zone=SelfUnknownZoneSummary({}, SelfKnownOrder((), (), False), True),
+        opponent_public=OpponentPublicSummary({}, 0, 6, _empty_board()),
         decision_context=DecisionContext(1, 0, 0, 0, 0),
         legal_contract=contract,
         observation_hash="h",
@@ -52,7 +55,17 @@ def test_single_selection_mode():
     assert classify_selection_mode(1, 1, 3) == "single"
 
 
+def test_empty_selection_mode():
+    assert classify_selection_mode(0, 0, 0) == "empty"
+
+
 def test_unsupported_multi_select_raises():
     decision = _minimal_decision(2, 3, 5)
+    with pytest.raises(UnsupportedSelectionSchema):
+        compile_candidate_responses(decision)
+
+
+def test_unsupported_empty_raises_without_fixture():
+    decision = _minimal_decision(0, 0, 0)
     with pytest.raises(UnsupportedSelectionSchema):
         compile_candidate_responses(decision)
