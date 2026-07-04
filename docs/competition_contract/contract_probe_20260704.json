@@ -1,0 +1,67 @@
+{
+  "top_level_keys": {
+    "select": 499,
+    "logs": 499,
+    "current": 499,
+    "search_begin_input": 499
+  },
+  "select_types": {
+    "9": 3,
+    "1": 138,
+    "0": 357,
+    "8": 1
+  },
+  "option_types": {
+    "1": 3,
+    "2": 3,
+    "3": 538,
+    "8": 710,
+    "7": 376,
+    "14": 357,
+    "12": 92,
+    "13": 264,
+    "9": 166,
+    "10": 73,
+    "0": 2
+  },
+  "minmax_combinations": {
+    "1..1": 449,
+    "0..3": 1,
+    "0..2": 11,
+    "0..1": 38
+  },
+  "option_count_summary": {
+    "min": 1,
+    "max": 29,
+    "samples": 499
+  },
+  "response_shapes": {
+    "1..1": 449,
+    "0..3": 1,
+    "0..2": 11,
+    "0..1": 38
+  },
+  "contexts": {
+    "41": 3,
+    "1": 6,
+    "2": 4,
+    "0": 357,
+    "5": 18,
+    "3": 24,
+    "7": 65,
+    "4": 21,
+    "38": 1
+  },
+  "unknown_field_names": {
+    "search_begin_input": 499
+  },
+  "decisions_per_game": [
+    63,
+    230,
+    206
+  ],
+  "time_bank_fields": {},
+  "redaction_note": "search_begin_input stripped in fixtures",
+  "probe_source": "cabt_simulator",
+  "probe_timestamp": "2026-07-04T04:55:08.945696+00:00"
+}

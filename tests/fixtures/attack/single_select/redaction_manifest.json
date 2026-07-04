@@ -1,0 +1,4 @@
+{
+  "maturity": "response-validated",
+  "redacted_fields": ["search_begin_input"]
+}

@@ -1,0 +1,15 @@
+{
+  "profile_id": "local_b0_v1",
+  "time_bank_seconds": 600.0,
+  "safety_margin_seconds": 60.0,
+  "hard_reserve_seconds": 2.0,
+  "full_eval_limit": 32,
+  "soft_cache_max_entries": 64,
+  "emergency_threshold_seconds": 30.0,
+  "time_bank_fields": {
+    "remainingOverageTime": "confirmed_actor_visible",
+    "actTimeout": "unconfirmed",
+    "agentTimeout": "unconfirmed"
+  },
+  "notes": ["local development profile for B0 runtime v1"]
+}

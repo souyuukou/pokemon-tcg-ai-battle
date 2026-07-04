@@ -1,0 +1,9 @@
+{
+  "observation_hash": "placeholder",
+  "self_hand": {"10": 1, "20": 1},
+  "legal_contract": {
+    "min_count": 1,
+    "max_count": 1,
+    "option_count": 3
+  }
+}

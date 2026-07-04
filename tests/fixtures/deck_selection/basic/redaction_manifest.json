@@ -1,0 +1,5 @@
+{
+  "maturity": "parsed",
+  "redacted_fields": ["search_begin_input"],
+  "notes": "deck selection phase — select is None"
+}
