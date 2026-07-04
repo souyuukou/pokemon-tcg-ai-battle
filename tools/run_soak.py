@@ -28,7 +28,7 @@ def main() -> int:
         card = run_self_play(runtime.act, deck, sim_root=ROOT / "sample_submission", config=cfg)
     else:
         card = run_soak_batch(runtime.act, deck, games=args.games, sim_root=ROOT / "sample_submission", config=cfg)
-    out = ROOT / "docs" / "qualification_reports" / "soak_latest.json"
+    out = ROOT / "artifacts" / "qualification" / "local" / "soak_latest.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(card.to_dict(), indent=2), encoding="utf-8")
     print(json.dumps(card.to_dict(), indent=2))

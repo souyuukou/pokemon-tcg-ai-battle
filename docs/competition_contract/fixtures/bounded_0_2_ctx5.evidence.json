@@ -1,0 +1,20 @@
+{
+  "semantic_schema_key": "family:1:0:2:sequence",
+  "verified_patterns": [
+    [
+      0
+    ],
+    [
+      1
+    ],
+    [
+      2
+    ]
+  ],
+  "pattern_rule": "bounded_set",
+  "reference_option_count": 3,
+  "empty_response_legal": false,
+  "order_sensitive": false,
+  "duplicates_allowed": false,
+  "host_apply_verified": true
+}

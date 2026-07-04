@@ -2,8 +2,8 @@
   "observation": {
     "select": {
       "type": 1,
-      "context": 2,
-      "minCount": 0,
+      "context": 1,
+      "minCount": 1,
       "maxCount": 1,
       "remainDamageCounter": 0,
       "remainEnergyCost": 0,
@@ -11,7 +11,13 @@
         {
           "type": 3,
           "area": 2,
-          "index": 0,
+          "index": 2,
+          "playerIndex": 1
+        },
+        {
+          "type": 3,
+          "area": 2,
+          "index": 6,
           "playerIndex": 1
         }
       ],
@@ -21,89 +27,95 @@
     },
     "logs": [
       {
-        "type": 6,
+        "type": 5,
+        "playerIndex": 0
+      },
+      {
+        "type": 5,
+        "playerIndex": 0
+      },
+      {
+        "type": 5,
+        "playerIndex": 0
+      },
+      {
+        "type": 5,
+        "playerIndex": 0
+      },
+      {
+        "type": 5,
+        "playerIndex": 0
+      },
+      {
+        "type": 5,
+        "playerIndex": 0
+      },
+      {
+        "type": 5,
+        "playerIndex": 0
+      },
+      {
+        "type": 4,
+        "playerIndex": 1,
+        "cardId": 11,
+        "serial": 119
+      },
+      {
+        "type": 4,
+        "playerIndex": 1,
+        "cardId": 1182,
+        "serial": 84
+      },
+      {
+        "type": 4,
         "playerIndex": 1,
         "cardId": 878,
-        "serial": 71,
+        "serial": 70
+      },
+      {
+        "type": 4,
+        "playerIndex": 1,
+        "cardId": 1182,
+        "serial": 85
+      },
+      {
+        "type": 4,
+        "playerIndex": 1,
+        "cardId": 1171,
+        "serial": 107
+      },
+      {
+        "type": 4,
+        "playerIndex": 1,
+        "cardId": 1171,
+        "serial": 109
+      },
+      {
+        "type": 4,
+        "playerIndex": 1,
+        "cardId": 878,
+        "serial": 71
+      },
+      {
+        "type": 1,
+        "playerIndex": 0,
+        "hasBasicPokemon": true
+      },
+      {
+        "type": 1,
+        "playerIndex": 1,
+        "hasBasicPokemon": true
+      },
+      {
+        "type": 7,
+        "playerIndex": 0,
         "fromArea": 2,
         "toArea": 4
-      },
-      {
-        "type": 7,
-        "playerIndex": 0,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 0,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 0,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 0,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 0,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 0,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 1,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 1,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 1,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 1,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 1,
-        "fromArea": 1,
-        "toArea": 6
-      },
-      {
-        "type": 7,
-        "playerIndex": 1,
-        "fromArea": 1,
-        "toArea": 6
       }
     ],
     "current": {
       "turn": 0,
-      "turnActionCount": 5,
+      "turnActionCount": 3,
       "yourIndex": 1,
       "firstPlayer": 0,
       "supporterPlayed": false,
@@ -120,16 +132,9 @@
           ],
           "bench": [],
           "benchMax": 5,
-          "deckCount": 47,
+          "deckCount": 53,
           "discard": [],
-          "prize": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-          ],
+          "prize": [],
           "handCount": 6,
           "hand": null,
           "poisoned": false,
@@ -139,51 +144,47 @@
           "confused": false
         },
         {
-          "active": [
-            null
-          ],
+          "active": [],
           "bench": [],
           "benchMax": 5,
-          "deckCount": 47,
+          "deckCount": 53,
           "discard": [],
-          "prize": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-          ],
-          "handCount": 6,
+          "prize": [],
+          "handCount": 7,
           "hand": [
             {
-              "id": 65,
-              "serial": 64,
-              "playerIndex": 1
-            },
-            {
-              "id": 879,
-              "serial": 75,
-              "playerIndex": 1
-            },
-            {
               "id": 11,
-              "serial": 120,
+              "serial": 119,
               "playerIndex": 1
             },
             {
-              "id": 1123,
-              "serial": 102,
+              "id": 1182,
+              "serial": 84,
               "playerIndex": 1
             },
             {
-              "id": 1255,
-              "serial": 113,
+              "id": 878,
+              "serial": 70,
               "playerIndex": 1
             },
             {
-              "id": 1086,
-              "serial": 89,
+              "id": 1182,
+              "serial": 85,
+              "playerIndex": 1
+            },
+            {
+              "id": 1171,
+              "serial": 107,
+              "playerIndex": 1
+            },
+            {
+              "id": 1171,
+              "serial": 109,
+              "playerIndex": 1
+            },
+            {
+              "id": 878,
+              "serial": 71,
               "playerIndex": 1
             }
           ],
@@ -202,16 +203,13 @@
     ],
     [
       0
-    ],
-    [
-      0
     ]
   ],
   "metadata": {
     "select_type": 1,
-    "context": 2,
-    "min_count": 0,
+    "context": 1,
+    "min_count": 1,
     "max_count": 1,
-    "option_count": 1
+    "option_count": 2
   }
 }

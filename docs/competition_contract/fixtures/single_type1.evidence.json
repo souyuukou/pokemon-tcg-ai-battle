@@ -1,0 +1,14 @@
+{
+  "semantic_schema_key": "family:1:1:1:single",
+  "verified_patterns": [
+    [
+      0
+    ]
+  ],
+  "pattern_rule": "any_singleton",
+  "reference_option_count": 2,
+  "empty_response_legal": false,
+  "order_sensitive": false,
+  "duplicates_allowed": false,
+  "host_apply_verified": true
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""M0 qualification evidence generator — machine-readable status + report."""
+"""M0.1 qualification — writes evidence to artifacts/qualification/<commit>/ only."""
 from __future__ import annotations
 
 import argparse
@@ -23,14 +23,23 @@ def _git(cmd: list[str]) -> str:
         return ""
 
 
-def _fixture_digest() -> tuple[int, str]:
-    fixture_dir = ROOT / "docs" / "competition_contract" / "fixtures"
-    paths = sorted(fixture_dir.rglob("*.json")) if fixture_dir.is_dir() else []
+def _tree_clean() -> bool:
+    return not bool(_git(["status", "--porcelain"]))
+
+
+def _digest_dir_json(dir_path: Path) -> tuple[int, str]:
+    paths = sorted(dir_path.rglob("*.json")) if dir_path.is_dir() else []
     h = hashlib.sha256()
     for p in paths:
-        h.update(p.name.encode())
+        h.update(p.relative_to(dir_path).as_posix().encode())
         h.update(p.read_bytes())
     return len(paths), h.hexdigest()[:16] if paths else "none"
+
+
+def _digest_file(path: Path) -> str:
+    if not path.is_file():
+        return "missing"
+    return hashlib.sha256(path.read_bytes()).hexdigest()[:16]
 
 
 def _run_pytest() -> tuple[str, bool, str]:
@@ -46,170 +55,237 @@ def _run_pytest() -> tuple[str, bool, str]:
     ]
     proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
     output = (proc.stdout or "") + (proc.stderr or "")
-    return " ".join(cmd), proc.returncode == 0, output.strip()[-2000:]
+    return " ".join(cmd), proc.returncode == 0, output
 
 
-def _run_soak(games: int) -> tuple[str, dict]:
+def _run_artifact_e2e(decisions: int = 25) -> tuple[str, bool, str]:
+    cmd = [sys.executable, str(ROOT / "tools" / "run_artifact_e2e.py"), "--decisions", str(decisions)]
+    proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    output = (proc.stdout or "") + (proc.stderr or "")
+    ok = proc.returncode == 0 and ("'illegal': 0" in output or '"illegal": 0' in output)
+    return " ".join(cmd), ok, output
+
+
+def _run_soak(games: int, *, mode: str) -> tuple[str, dict]:
     from ptcg_ai.eval.arena import ArenaConfig, run_soak_batch
     from ptcg_ai.runtime.runtime import CompetitionRuntime
 
     deck_path = ROOT / "submission" / "deck.csv"
     deck = [int(x) for x in deck_path.read_text().split() if x.strip()]
     runtime = CompetitionRuntime(deck)
-    cmd = f"python tools/qualify_runtime.py --soak-games {games}"
-    cfg = ArenaConfig(max_steps=800, time_bank_mode="authoritative", initial_time_seconds=600.0)
+    cmd = f"python tools/qualify_runtime.py --soak-games {games} --time-bank-mode {mode}"
+    cfg = ArenaConfig(
+        max_steps=800,
+        time_bank_mode="authoritative" if mode == "authoritative" else "no_authoritative",
+        initial_time_seconds=600.0,
+    )
     card = run_soak_batch(runtime.act, deck, games=games, sim_root=ROOT / "sample_submission", config=cfg)
     return cmd, card.to_dict()
 
 
 def _qualification_level(status: dict) -> str:
-    gate = [
-        not status["source_dirty"],
-        status["completed_games"] >= 50,
-        status["unsupported_schema_count"] == 0,
-        status["illegal_action_count"] == 0,
-        status["protocol_error_count"] == 0,
-        status["crash_count"] == 0,
-        status["fallback_count"] == 0,
+    gates = [
+        status.get("tested_tree_clean"),
+        status.get("pytest_passed"),
+        status.get("artifact_e2e_passed"),
+        status.get("soak_authoritative_passed"),
+        status.get("soak_no_authoritative_passed"),
+        status.get("completed_games", 0) >= 50,
+        status.get("unsupported_schema_count", 1) == 0,
+        status.get("fallback_count", 1) == 0,
+        status.get("illegal_action_count", 1) == 0,
+        status.get("protocol_error_count", 1) == 0,
+        status.get("crash_count", 1) == 0,
+        status.get("time_bank_exhaustion_count", 1) == 0,
+        status.get("max_rss_bytes") is not None,
+        status.get("matrix_all_fixtures_present"),
+        not status.get("registry_load_errors"),
     ]
-    if all(gate):
+    if all(gates):
         return "qualified"
-    if status["completed_games"] >= 1 and status["crash_count"] == 0:
+    if status.get("completed_games", 0) >= 1 and status.get("crash_count", 1) == 0:
         return "provisional"
     return "not_qualified"
 
 
-def build_status(*, soak_games: int = 50) -> dict:
-    branch = _git(["rev-parse", "--abbrev-ref", "HEAD"])
-    head = _git(["rev-parse", "HEAD"])
-    dirty = bool(_git(["status", "--porcelain"]))
-    fixture_count, fixture_digest = _fixture_digest()
+def _soak_passed(soak: dict) -> bool:
+    return (
+        soak.get("completed_games", 0) >= 50
+        and soak.get("unsupported_schema_count", 0) == 0
+        and soak.get("fallback_count", 0) == 0
+        and soak.get("illegal_action_count", 0) == 0
+        and soak.get("protocol_error_count", 0) == 0
+        and soak.get("crash_count", 0) == 0
+        and soak.get("time_bank_exhaustion_count", 0) == 0
+    )
+
+
+def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
+    tested_commit = _git(["rev-parse", "HEAD"])
+    if not allow_dirty and not _tree_clean():
+        raise SystemExit("working tree is dirty — commit/stash changes or pass --allow-dirty")
+
+    from ptcg_ai.host.schema_registry import all_supported_templates, load_errors, matrix_digest
+
+    fixture_dir = ROOT / "docs" / "competition_contract" / "fixtures"
+    fixture_count, fixture_digest = _digest_dir_json(fixture_dir)
+    matrix_path = ROOT / "docs" / "competition_contract" / "response_schema_matrix.json"
+    matrix_d = _digest_file(matrix_path)
+    registry_errors = list(load_errors())
+    templates = all_supported_templates()
+    matrix_all_fixtures = len(registry_errors) == 0 and len(templates) > 0
+
     test_cmd, test_ok, test_output = _run_pytest()
-    soak_cmd, soak = _run_soak(soak_games)
+    tested_tree_clean = _tree_clean()
+
+    e2e_cmd, e2e_ok, e2e_output = _run_artifact_e2e()
+    tested_tree_clean = _tree_clean()
+
+    auth_cmd, soak_auth = _run_soak(soak_games, mode="authoritative")
+    tested_tree_clean = _tree_clean()
+
+    noauth_cmd, soak_noauth = _run_soak(soak_games, mode="no_authoritative")
+    tested_tree_clean = _tree_clean()
+
+    merged_soak = {
+        "completed_games": min(soak_auth.get("completed_games", 0), soak_noauth.get("completed_games", 0)),
+        "unsupported_schema_count": soak_auth.get("unsupported_schema_count", 0)
+        + soak_noauth.get("unsupported_schema_count", 0),
+        "fallback_count": soak_auth.get("fallback_count", 0) + soak_noauth.get("fallback_count", 0),
+        "illegal_action_count": soak_auth.get("illegal_action_count", 0)
+        + soak_noauth.get("illegal_action_count", 0),
+        "protocol_error_count": soak_auth.get("protocol_error_count", 0)
+        + soak_noauth.get("protocol_error_count", 0),
+        "crash_count": soak_auth.get("crash_count", 0) + soak_noauth.get("crash_count", 0),
+        "time_bank_exhaustion_count": soak_auth.get("time_bank_exhaustion_count", 0)
+        + soak_noauth.get("time_bank_exhaustion_count", 0),
+        "max_rss_bytes": max(
+            filter(None, [soak_auth.get("max_rss_bytes"), soak_noauth.get("max_rss_bytes")]),
+            default=None,
+        ),
+        "median_decision_ms": soak_auth.get("median_decision_ms"),
+        "p95_decision_ms": soak_auth.get("p95_decision_ms"),
+        "p99_decision_ms": soak_auth.get("p99_decision_ms"),
+        "conservation_verified_count": soak_auth.get("conservation_verified_count", 0)
+        + soak_noauth.get("conservation_verified_count", 0),
+        "conservation_unverified_count": soak_auth.get("conservation_unverified_count", 0)
+        + soak_noauth.get("conservation_unverified_count", 0),
+        "conservation_mismatch_count": soak_auth.get("conservation_mismatch_count", 0)
+        + soak_noauth.get("conservation_mismatch_count", 0),
+        "seat_distribution": {
+            "first": soak_auth.get("seat_distribution", {}).get("first", 0)
+            + soak_noauth.get("seat_distribution", {}).get("first", 0),
+            "second": soak_auth.get("seat_distribution", {}).get("second", 0)
+            + soak_noauth.get("seat_distribution", {}).get("second", 0),
+        },
+    }
 
     status = {
-        "branch": branch,
-        "head_commit": head,
-        "source_dirty": dirty,
+        "tested_commit": tested_commit,
+        "tested_tree_clean": tested_tree_clean,
+        "branch": _git(["rev-parse", "--abbrev-ref", "HEAD"]),
         "python_version": platform.python_version(),
         "os": platform.platform(),
         "simulator_path": str(ROOT / "sample_submission" / "cg" / "game.py"),
         "executed_at": datetime.now(timezone.utc).isoformat(),
         "fixture_count": fixture_count,
         "fixture_digest": fixture_digest,
+        "response_schema_matrix_digest": matrix_d,
+        "registry_load_errors": registry_errors,
+        "matrix_all_fixtures_present": matrix_all_fixtures,
         "test_command": test_cmd,
-        "test_passed": test_ok,
-        "test_output_tail": test_output,
-        "soak_command": soak_cmd,
+        "pytest_passed": test_ok,
+        "artifact_e2e_command": e2e_cmd,
+        "artifact_e2e_passed": e2e_ok,
+        "soak_authoritative_command": auth_cmd,
+        "soak_authoritative_passed": _soak_passed(soak_auth),
+        "soak_no_authoritative_command": noauth_cmd,
+        "soak_no_authoritative_passed": _soak_passed(soak_noauth),
         "soak_deck_matchup": "self_play_same_deck",
-        "seat_distribution": {"first": soak_games // 2, "second": soak_games - soak_games // 2},
-        "completed_games": soak.get("completed_games", 0),
-        "unsupported_schema_count": soak.get("unsupported_schema_count", 0),
-        "fallback_count": soak.get("fallback_count", 0),
-        "illegal_action_count": soak.get("illegal_action_count", 0),
-        "protocol_error_count": soak.get("protocol_error_count", 0),
-        "crash_count": soak.get("crash_count", 0),
-        "time_bank_exhaustion_count": soak.get("time_bank_exhaustion_count", 0),
-        "max_rss_bytes": soak.get("max_rss_bytes"),
-        "median_decision_ms": soak.get("median_decision_ms"),
-        "p95_decision_ms": soak.get("p95_decision_ms"),
-        "p99_decision_ms": soak.get("p99_decision_ms"),
-        "conservation_unverified_count": soak.get("conservation_unverified_count", 0),
-        "conservation_verified_count": soak.get("conservation_verified_count", 0),
+        "seat_distribution": merged_soak["seat_distribution"],
+        "completed_games": merged_soak["completed_games"],
+        "unsupported_schema_count": merged_soak["unsupported_schema_count"],
+        "fallback_count": merged_soak["fallback_count"],
+        "illegal_action_count": merged_soak["illegal_action_count"],
+        "protocol_error_count": merged_soak["protocol_error_count"],
+        "crash_count": merged_soak["crash_count"],
+        "time_bank_exhaustion_count": merged_soak["time_bank_exhaustion_count"],
+        "max_rss_bytes": merged_soak["max_rss_bytes"],
+        "median_decision_ms": merged_soak["median_decision_ms"],
+        "p95_decision_ms": merged_soak["p95_decision_ms"],
+        "p99_decision_ms": merged_soak["p99_decision_ms"],
+        "conservation_verified_count": merged_soak["conservation_verified_count"],
+        "conservation_unverified_count": merged_soak["conservation_unverified_count"],
+        "conservation_mismatch_count": merged_soak["conservation_mismatch_count"],
     }
     status["qualification_level"] = _qualification_level(status)
-    status["reviewed_commit"] = head
-    return status
+    return status, {
+        "pytest_output": test_output,
+        "artifact_e2e_output": e2e_output,
+        "soak_authoritative": soak_auth,
+        "soak_no_authoritative": soak_noauth,
+    }
 
 
-def write_report(status: dict) -> None:
-    report_path = ROOT / "docs" / "qualification_reports" / "runtime_v1_implementation_report.md"
-    lines = [
-        "# Runtime v1 Qualification Report",
-        "",
-        "> Auto-generated by `tools/qualify_runtime.py`. Do not hand-edit status fields.",
-        "",
-        f"- **branch**: `{status['branch']}`",
-        f"- **HEAD commit**: `{status['head_commit']}`",
-        f"- **reviewed_commit**: `{status['reviewed_commit']}`",
-        f"- **source_dirty**: `{status['source_dirty']}`",
-        f"- **qualification_level**: `{status['qualification_level']}`",
-        f"- **executed_at**: {status['executed_at']}",
-        f"- **Python**: {status['python_version']}",
-        f"- **OS**: {status['os']}",
-        f"- **simulator**: `{status['simulator_path']}`",
-        "",
-        "## Fixtures",
-        f"- fixture_count: {status['fixture_count']}",
-        f"- fixture_digest: `{status['fixture_digest']}`",
-        "",
-        "## Tests",
-        f"- command: `{status['test_command']}`",
-        f"- passed: **{status['test_passed']}**",
-        "",
-        "## Soak",
-        f"- command: `{status['soak_command']}`",
-        f"- deck matchup: {status['soak_deck_matchup']}",
-        f"- seat distribution: {status['seat_distribution']}",
-        f"- completed_games: {status['completed_games']}",
-        f"- unsupported_schema_count: {status['unsupported_schema_count']}",
-        f"- fallback_count: {status['fallback_count']}",
-        f"- illegal_action_count: {status['illegal_action_count']}",
-        f"- protocol_error_count: {status['protocol_error_count']}",
-        f"- crash_count: {status['crash_count']}",
-        f"- time_bank_exhaustion_count: {status['time_bank_exhaustion_count']}",
-        f"- max RSS: {status['max_rss_bytes']}",
-        f"- decision time median / p95 / p99 (ms): {status['median_decision_ms']} / {status['p95_decision_ms']} / {status['p99_decision_ms']}",
-        f"- conservation verified / unverified: {status['conservation_verified_count']} / {status['conservation_unverified_count']}",
-        "",
-        "## M0 Gate",
-        "",
-        "| Criterion | Value |",
-        "|-----------|-------|",
-        f"| commit SHA matches HEAD | {not status['source_dirty']} |",
-        f"| source_dirty = false | {not status['source_dirty']} |",
-        f"| completed_games >= 50 | {status['completed_games'] >= 50} |",
-        f"| unsupported_schema_count = 0 | {status['unsupported_schema_count'] == 0} |",
-        f"| illegal_action_count = 0 | {status['illegal_action_count'] == 0} |",
-        f"| crash_count = 0 | {status['crash_count'] == 0} |",
-        f"| fallback_count = 0 | {status['fallback_count'] == 0} |",
-        "",
-    ]
-    report_path.write_text("\n".join(lines), encoding="utf-8")
+def write_artifacts(status: dict, outputs: dict) -> Path:
+    out_dir = ROOT / "artifacts" / "qualification" / status["tested_commit"]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "qualification_status.json").write_text(json.dumps(status, indent=2), encoding="utf-8")
+    (out_dir / "pytest_output.txt").write_text(outputs.get("pytest_output", ""), encoding="utf-8")
+    (out_dir / "artifact_e2e_result.json").write_text(
+        json.dumps({"passed": status["artifact_e2e_passed"], "output": outputs.get("artifact_e2e_output", "")}, indent=2),
+        encoding="utf-8",
+    )
+    (out_dir / "soak_authoritative.json").write_text(json.dumps(outputs.get("soak_authoritative", {}), indent=2), encoding="utf-8")
+    (out_dir / "soak_no_authoritative.json").write_text(
+        json.dumps(outputs.get("soak_no_authoritative", {}), indent=2),
+        encoding="utf-8",
+    )
+    report = _render_report(status)
+    (out_dir / "runtime_v1_qualification_report.md").write_text(report, encoding="utf-8")
+    return out_dir
+
+
+def _render_report(status: dict) -> str:
+    return "\n".join(
+        [
+            "# Runtime v1 Qualification Report",
+            "",
+            f"- tested_commit: `{status['tested_commit']}`",
+            f"- tested_tree_clean: `{status['tested_tree_clean']}`",
+            f"- qualification_level: `{status['qualification_level']}`",
+            f"- branch: `{status['branch']}`",
+            f"- executed_at: {status['executed_at']}",
+            "",
+            "## Digests",
+            f"- fixture_digest: `{status['fixture_digest']}`",
+            f"- response_schema_matrix_digest: `{status['response_schema_matrix_digest']}`",
+            "",
+            "## Gates",
+            f"- pytest_passed: {status['pytest_passed']}",
+            f"- artifact_e2e_passed: {status['artifact_e2e_passed']}",
+            f"- soak_authoritative_passed: {status['soak_authoritative_passed']}",
+            f"- soak_no_authoritative_passed: {status['soak_no_authoritative_passed']}",
+            f"- completed_games: {status['completed_games']}",
+            f"- max_rss_bytes: {status['max_rss_bytes']}",
+            f"- seat_distribution: {status['seat_distribution']}",
+            "",
+        ]
+    )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--soak-games", type=int, default=50)
-    parser.add_argument("--skip-soak", action="store_true")
-    parser.add_argument("--skip-tests", action="store_true")
+    parser.add_argument("--allow-dirty", action="store_true")
+    parser.add_argument("--time-bank-mode", choices=["authoritative", "no_authoritative"], default="authoritative")
     args = parser.parse_args()
 
-    if args.skip_soak and args.skip_tests:
-        status = {
-            "branch": _git(["rev-parse", "--abbrev-ref", "HEAD"]),
-            "head_commit": _git(["rev-parse", "HEAD"]),
-            "source_dirty": bool(_git(["status", "--porcelain"])),
-            "qualification_level": "not_qualified",
-            "fixture_count": 0,
-            "completed_games": 0,
-            "unsupported_schema_count": 0,
-            "fallback_count": 0,
-            "illegal_action_count": 0,
-            "protocol_error_count": 0,
-            "crash_count": 0,
-        }
-    else:
-        status = build_status(soak_games=0 if args.skip_soak else args.soak_games)
-
-    out_json = ROOT / "docs" / "qualification_reports" / "qualification_status.json"
-    out_json.parent.mkdir(parents=True, exist_ok=True)
-    out_json.write_text(json.dumps(status, indent=2), encoding="utf-8")
-    write_report(status)
+    status, outputs = build_status(soak_games=args.soak_games, allow_dirty=args.allow_dirty)
+    out_dir = write_artifacts(status, outputs)
     print(json.dumps(status, indent=2))
-    if status.get("qualification_level") != "qualified":
-        return 1
-    return 0
+    print(f"artifacts -> {out_dir}")
+    return 0 if status["qualification_level"] == "qualified" else 1
 
 
 if __name__ == "__main__":

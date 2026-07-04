@@ -1,4 +1,4 @@
-"""Fixture-validated response sets keyed by SelectionSemanticKey / family registry."""
+"""Fixture-validated response sets — matrix registry is sole production authority."""
 from __future__ import annotations
 
 from ..semantic.action_categories import OptionCategory
@@ -9,7 +9,7 @@ from ..semantic.option_ir import (
     response_fingerprint,
 )
 from ..semantic.response_ir import UnsupportedSelectionSchema, classify_selection_mode
-from .schema_registry import expand_dynamic_patterns, get_template
+from .schema_registry import expand_patterns, get_template
 
 
 def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[ResponseIR, ...]:
@@ -19,6 +19,7 @@ def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[Respons
     template = get_template(
         sem_key,
         select_type=contract.select_type,
+        context=contract.context,
         min_count=contract.min_count,
         max_count=contract.max_count,
         option_count=contract.option_count,
@@ -35,10 +36,7 @@ def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[Respons
     )
     registry_key = template.semantic_schema_key
 
-    if template.response_strategy in ("builtin_single", None) and template.semantic_schema_key == "__builtin_single_1_1__":
-        return _compile_single(decision, mode)
-
-    patterns = expand_dynamic_patterns(
+    patterns = expand_patterns(
         template,
         min_count=contract.min_count,
         max_count=contract.max_count,
@@ -53,7 +51,7 @@ def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[Respons
         responses.append(
             ResponseIR(
                 request_fingerprint=contract.request_fingerprint,
-                semantic_schema_key=registry_key if registry_key.startswith("family:") else sem_key,
+                semantic_schema_key=registry_key,
                 option_indices=indices,
                 selection_mode=mode,
                 category=_category_for_indices(decision, indices),
@@ -63,21 +61,6 @@ def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[Respons
     if not responses:
         raise UnsupportedSelectionSchema(sem_key)
     return tuple(responses)
-
-
-def _compile_single(decision: SanitizedDecision, mode: str) -> tuple[ResponseIR, ...]:
-    contract = decision.contract
-    return tuple(
-        ResponseIR(
-            request_fingerprint=contract.request_fingerprint,
-            semantic_schema_key=contract.semantic_schema_key,
-            option_indices=(opt.host_index,),
-            selection_mode=mode,
-            category=opt.category,
-            fingerprint=response_fingerprint((opt.host_index,), mode, opt.category),
-        )
-        for opt in decision.options
-    )
 
 
 def _category_for_indices(decision: SanitizedDecision, indices: tuple[int, ...]) -> str:

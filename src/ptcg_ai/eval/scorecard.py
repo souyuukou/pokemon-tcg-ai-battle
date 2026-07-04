@@ -17,12 +17,26 @@ class Scorecard:
     unsupported_schema_count: int = 0
     conservation_unverified_count: int = 0
     conservation_verified_count: int = 0
+    conservation_mismatch_count: int = 0
+    seat_first_count: int = 0
+    seat_second_count: int = 0
     max_rss_bytes: int | None = None
     decision_times_ms: list[float] = field(default_factory=list)
     time_bank_exhaustion_count: int = 0
 
     def record_decision_time(self, ms: float) -> None:
         self.decision_times_ms.append(ms)
+
+    def record_rss(self, rss_bytes: int | None) -> None:
+        if rss_bytes is None:
+            return
+        self.max_rss_bytes = max(self.max_rss_bytes or 0, rss_bytes)
+
+    def record_seat(self, your_index: int) -> None:
+        if your_index == 0:
+            self.seat_first_count += 1
+        else:
+            self.seat_second_count += 1
 
     def percentile(self, p: float) -> float | None:
         if not self.decision_times_ms:
@@ -31,11 +45,15 @@ class Scorecard:
         idx = max(0, min(len(sorted_t) - 1, int(len(sorted_t) * p) - 1))
         return sorted_t[idx]
 
+    def seat_distribution(self) -> dict[str, int]:
+        return {"first": self.seat_first_count, "second": self.seat_second_count}
+
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d["median_decision_ms"] = self.percentile(0.5)
         d["p95_decision_ms"] = self.percentile(0.95)
         d["p99_decision_ms"] = self.percentile(0.99)
+        d["seat_distribution"] = self.seat_distribution()
         return d
 
 
@@ -51,6 +69,9 @@ def merge_scorecards(a: Scorecard, b: Scorecard) -> Scorecard:
         unsupported_schema_count=a.unsupported_schema_count + b.unsupported_schema_count,
         conservation_unverified_count=a.conservation_unverified_count + b.conservation_unverified_count,
         conservation_verified_count=a.conservation_verified_count + b.conservation_verified_count,
+        conservation_mismatch_count=a.conservation_mismatch_count + b.conservation_mismatch_count,
+        seat_first_count=a.seat_first_count + b.seat_first_count,
+        seat_second_count=a.seat_second_count + b.seat_second_count,
         max_rss_bytes=max(filter(None, [a.max_rss_bytes, b.max_rss_bytes]), default=None),
         decision_times_ms=a.decision_times_ms + b.decision_times_ms,
         time_bank_exhaustion_count=a.time_bank_exhaustion_count + b.time_bank_exhaustion_count,

@@ -65,6 +65,11 @@ def build_submission(*, output: Path = DIST, repo_root: Path = ROOT) -> Path:
         deck_src = ROOT / "sample_submission" / "deck.csv"
     shutil.copy2(deck_src, output / "deck.csv")
 
+    contract_src = repo_root / "docs" / "competition_contract"
+    if contract_src.is_dir():
+        contract_dest = output / "docs" / "competition_contract"
+        shutil.copytree(contract_src, contract_dest)
+
     deck = [int(x) for x in (output / "deck.csv").read_text().split() if x.strip()]
 
     sys.path.insert(0, str(ROOT / "src"))
