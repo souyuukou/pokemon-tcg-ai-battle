@@ -112,5 +112,31 @@
     "response_strategy": "bounded_set",
     "first_observed_commit": "6577b1c",
     "last_verified_commit": "HEAD"
+  },
+  {
+    "semantic_schema_key": "__builtin_single_1_1__",
+    "select_type": "*",
+    "context": "*",
+    "min_count": 1,
+    "max_count": 1,
+    "selection_mode": "single",
+    "option_type_pattern": ["VARLEN"],
+    "fixture_path": null,
+    "host_apply_verified": false,
+    "supported_in_production": false,
+    "notes": "builtin-only — requires fixture evidence before production support"
+  },
+  {
+    "semantic_schema_key": "family:0:0:0:empty",
+    "select_type": 0,
+    "context": "*",
+    "min_count": 0,
+    "max_count": 0,
+    "selection_mode": "empty",
+    "option_type_pattern": ["VARLEN"],
+    "fixture_path": null,
+    "host_apply_verified": false,
+    "supported_in_production": false,
+    "notes": "no verified host fixture — unsupported until evidence exists"
   }
 ]

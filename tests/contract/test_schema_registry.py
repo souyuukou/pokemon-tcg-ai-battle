@@ -24,6 +24,7 @@ def test_registry_supports_single_family():
         min_count=1,
         max_count=1,
         option_count=3,
+        option_types=(14, 13, 12),
     )
     assert tpl is not None
     assert tpl.host_apply_verified
@@ -37,6 +38,7 @@ def test_registry_supports_optional_single():
         min_count=0,
         max_count=1,
         option_count=1,
+        option_types=(14,),
     )
     assert tpl is not None
     assert tpl.semantic_schema_key == "family:1:0:1:optional_single"

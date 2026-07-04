@@ -91,13 +91,21 @@ def _run_soak(games: int, *, mode: str) -> tuple[str, dict]:
     return cmd, card.to_dict()
 
 
+def _seat_distribution_ok(soak: dict, games: int) -> bool:
+    dist = soak.get("seat_distribution", {})
+    return dist.get("first", -1) == games // 2 and dist.get("second", -1) == games - games // 2
+
+
 def _qualification_level(status: dict) -> str:
     gates = [
         status.get("tested_tree_clean"),
         status.get("pytest_passed"),
+        status.get("schema_registry_load_errors_count", 1) == 0,
+        status.get("fixture_evidence_coverage", 0) >= 1.0,
         status.get("artifact_e2e_passed"),
         status.get("soak_authoritative_passed"),
         status.get("soak_no_authoritative_passed"),
+        status.get("seat_distribution_ok"),
         status.get("completed_games", 0) >= 50,
         status.get("unsupported_schema_count", 1) == 0,
         status.get("fallback_count", 1) == 0,
@@ -105,9 +113,7 @@ def _qualification_level(status: dict) -> str:
         status.get("protocol_error_count", 1) == 0,
         status.get("crash_count", 1) == 0,
         status.get("time_bank_exhaustion_count", 1) == 0,
-        (status.get("max_rss_bytes") or 0) > 0,
-        status.get("fixture_evidence_coverage", 0) >= 1.0,
-        not status.get("registry_load_errors"),
+        status.get("max_rss_bytes") is not None and (status.get("max_rss_bytes") or 0) > 0,
     ]
     if all(gates):
         return "qualified"
@@ -116,15 +122,16 @@ def _qualification_level(status: dict) -> str:
     return "not_qualified"
 
 
-def _soak_passed(soak: dict) -> bool:
+def _soak_passed(soak: dict, *, games: int) -> bool:
     return (
-        soak.get("completed_games", 0) >= 50
+        soak.get("completed_games", 0) >= games
         and soak.get("unsupported_schema_count", 0) == 0
         and soak.get("fallback_count", 0) == 0
         and soak.get("illegal_action_count", 0) == 0
         and soak.get("protocol_error_count", 0) == 0
         and soak.get("crash_count", 0) == 0
         and soak.get("time_bank_exhaustion_count", 0) == 0
+        and _seat_distribution_ok(soak, games)
     )
 
 
@@ -182,12 +189,12 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         "conservation_mismatch_count": soak_auth.get("conservation_mismatch_count", 0)
         + soak_noauth.get("conservation_mismatch_count", 0),
         "seat_distribution": {
-            "first": soak_auth.get("seat_distribution", {}).get("first", 0)
-            + soak_noauth.get("seat_distribution", {}).get("first", 0),
-            "second": soak_auth.get("seat_distribution", {}).get("second", 0)
-            + soak_noauth.get("seat_distribution", {}).get("second", 0),
+            "first": soak_auth.get("seat_distribution", {}).get("first", 0),
+            "second": soak_auth.get("seat_distribution", {}).get("second", 0),
         },
     }
+
+    seat_ok = _seat_distribution_ok(soak_auth, soak_games)
 
     status = {
         "tested_commit": tested_commit,
@@ -201,18 +208,21 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         "fixture_digest": fixture_digest,
         "response_schema_matrix_digest": matrix_d,
         "registry_load_errors": registry_errors,
+        "schema_registry_load_errors_count": len(registry_errors),
         "matrix_all_fixtures_present": matrix_all_fixtures,
         "fixture_evidence_coverage": fixture_evidence_coverage,
         "matrix_digest_runtime": matrix_digest(),
+        "artifact_manifest_hash": e2e_parsed.get("manifest_hash"),
         "test_command": test_cmd,
         "pytest_passed": test_ok,
         "artifact_e2e_command": e2e_cmd,
         "artifact_e2e_passed": e2e_ok,
         "soak_authoritative_command": auth_cmd,
-        "soak_authoritative_passed": _soak_passed(soak_auth),
+        "soak_authoritative_passed": _soak_passed(soak_auth, games=soak_games),
         "soak_no_authoritative_command": noauth_cmd,
-        "soak_no_authoritative_passed": _soak_passed(soak_noauth),
+        "soak_no_authoritative_passed": _soak_passed(soak_noauth, games=soak_games),
         "soak_deck_matchup": "self_play_same_deck",
+        "seat_distribution_ok": seat_ok,
         "seat_distribution": merged_soak["seat_distribution"],
         "completed_games": merged_soak["completed_games"],
         "unsupported_schema_count": merged_soak["unsupported_schema_count"],
@@ -257,7 +267,7 @@ def write_artifacts(status: dict, outputs: dict) -> Path:
         encoding="utf-8",
     )
     report = _render_report(status)
-    (out_dir / "runtime_qualification_report.md").write_text(report, encoding="utf-8")
+    (out_dir / "runtime_v1_qualification_report.md").write_text(report, encoding="utf-8")
     return out_dir
 
 
@@ -284,7 +294,8 @@ def _render_report(status: dict) -> str:
             f"- completed_games: {status['completed_games']}",
             f"- fixture_evidence_coverage: {status.get('fixture_evidence_coverage')}",
             f"- max_rss_bytes: {status['max_rss_bytes']}",
-            f"- seat_distribution: {status['seat_distribution']}",
+            f"- seat_distribution_ok: {status.get('seat_distribution_ok')}",
+            f"- schema_registry_load_errors_count: {status.get('schema_registry_load_errors_count')}",
             "",
         ]
     )

@@ -40,6 +40,7 @@ def _run_isolated(*, artifact: Path, sim_root: Path, decisions: int, tested_comm
     env.pop("PYTHONHOME", None)
     cmd = [
         sys.executable,
+        "-I",
         str(ROOT / "tools" / "run_artifact_e2e_isolated.py"),
         "--artifact",
         str(artifact),

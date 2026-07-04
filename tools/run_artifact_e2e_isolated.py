@@ -25,6 +25,28 @@ def _verify_under(path: str | None, root: Path) -> bool:
         return str(Path(path).resolve()).startswith(str(root.resolve()))
 
 
+def _purge_forbidden(forbid: Path) -> None:
+    cleaned: list[str] = []
+    forbid_resolved = forbid.resolve()
+    for entry in sys.path:
+        if not entry:
+            cleaned.append(entry)
+            continue
+        try:
+            resolved = Path(entry).resolve()
+        except OSError:
+            cleaned.append(entry)
+            continue
+        if resolved == forbid_resolved or forbid_resolved in resolved.parents:
+            continue
+        cleaned.append(entry)
+    sys.path = cleaned
+
+
+def _emit(result: dict) -> None:
+    print(json.dumps(result, separators=(",", ":")))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--artifact", type=Path, required=True)
@@ -36,27 +58,17 @@ def main() -> int:
 
     artifact = args.artifact.resolve()
     sim_root = args.sim_root.resolve()
-    forbid = args.forbid_path.resolve() if args.forbid_path else None
     if not (artifact / "main.py").is_file():
-        print(json.dumps({"error": "missing main.py", "artifact": str(artifact)}))
+        _emit({"passed": False, "error": "missing main.py", "artifact": str(artifact)})
         return 1
 
-    if forbid is not None:
-        cleaned: list[str] = []
-        for entry in sys.path:
-            if not entry:
-                cleaned.append(entry)
-                continue
-            try:
-                resolved = Path(entry).resolve()
-            except OSError:
-                cleaned.append(entry)
-                continue
-            if resolved == forbid or forbid in resolved.parents:
-                continue
-            cleaned.append(entry)
-        sys.path = cleaned
-    sys.path = [str(artifact), str(sim_root)] + [p for p in sys.path if p not in (str(artifact), str(sim_root))]
+    if args.forbid_path is not None:
+        _purge_forbidden(args.forbid_path.resolve())
+    for path_entry in (str(sim_root), str(artifact)):
+        while path_entry in sys.path:
+            sys.path.remove(path_entry)
+    sys.path.insert(0, str(sim_root))
+    sys.path.insert(0, str(artifact))
 
     import main as main_mod
     import ptcg_runtime.runtime as runtime_mod
@@ -66,22 +78,23 @@ def main() -> int:
     runtime_file = getattr(runtime_mod, "__file__", None)
     origins_ok = _verify_under(main_file, artifact) and _verify_under(runtime_file, artifact)
     if not origins_ok:
-        result = {
-            "passed": False,
-            "error": "import origin outside artifact",
-            "main.__file__": main_file,
-            "ptcg_runtime.__file__": runtime_file,
-            "sys.path": sys.path,
-            "artifact_manifest_hash": _manifest_hash(artifact),
-            "tested_commit": args.tested_commit,
-        }
-        print(json.dumps(result, indent=2))
+        _emit(
+            {
+                "passed": False,
+                "error": "import origin outside artifact",
+                "main.__file__": main_file,
+                "runtime.__file__": runtime_file,
+                "sys_path": sys.path,
+                "manifest_hash": _manifest_hash(artifact),
+                "tested_commit": args.tested_commit,
+            }
+        )
         return 3
 
     agent = main_mod.agent
     deck = agent({"select": None, "current": {}, "logs": []})
     if len(deck) != 60:
-        print(json.dumps({"error": "bad deck length", "length": len(deck)}))
+        _emit({"passed": False, "error": "bad deck length", "length": len(deck)})
         return 1
 
     obs, _ = battle_start(deck, deck)
@@ -109,17 +122,18 @@ def main() -> int:
             break
     battle_finish()
 
-    result = {
-        "passed": illegal == 0,
-        "decisions": made,
-        "illegal": illegal,
-        "main.__file__": main_file,
-        "ptcg_runtime.__file__": runtime_file,
-        "sys.path": sys.path,
-        "artifact_manifest_hash": _manifest_hash(artifact),
-        "tested_commit": args.tested_commit,
-    }
-    print(json.dumps(result, indent=2))
+    _emit(
+        {
+            "passed": illegal == 0,
+            "decisions": made,
+            "illegal": illegal,
+            "main.__file__": main_file,
+            "runtime.__file__": runtime_file,
+            "sys_path": sys.path,
+            "manifest_hash": _manifest_hash(artifact),
+            "tested_commit": args.tested_commit,
+        }
+    )
     return 0 if illegal == 0 else 2
 
 

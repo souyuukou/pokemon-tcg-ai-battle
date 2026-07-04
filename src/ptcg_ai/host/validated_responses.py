@@ -22,6 +22,7 @@ def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[Respons
         min_count=contract.min_count,
         max_count=contract.max_count,
         option_count=contract.option_count,
+        option_types=tuple(o.raw_type for o in decision.options),
     )
 
     if template is None:
