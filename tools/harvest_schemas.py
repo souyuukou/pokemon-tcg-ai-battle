@@ -59,8 +59,9 @@ def run_harvest(*, games: int, modes: tuple[str, ...]) -> dict:
                 agent_seat=event.agent_seat,
                 game_index=event.game_index,
                 decision_index=event.decision_index,
-                decision_trace_prefix=[list(step) for step in event.decision_trace_prefix],
+                replay_trace=[list(step) for step in event.replay_trace],
                 time_bank_mode=mode,
+                desired_seat=event.desired_seat,
             )
             if record is None:
                 return
@@ -89,14 +90,17 @@ def run_harvest(*, games: int, modes: tuple[str, ...]) -> dict:
         )
         merged = card.to_dict()
         tel = telemetry_card.to_dict()
-        merged["in_game_decision_count"] = tel.get("in_game_decision_count", 0)
-        merged["conservation_verified_count"] = tel.get("conservation_verified_count", 0)
-        merged["conservation_unverified_count"] = tel.get("conservation_unverified_count", 0)
-        merged["conservation_unavailable_count"] = tel.get("conservation_unavailable_count", 0)
-        merged["conservation_mismatch_count"] = tel.get("conservation_mismatch_count", 0)
-        merged["conservation_telemetry_coverage_ok"] = tel.get("conservation_telemetry_coverage_ok", False)
-        merged["fallback_count"] = tel.get("fallback_count", 0)
-        merged["emergency_decision_count"] = tel.get("emergency_decision_count", 0)
+        for key in (
+            "in_game_decision_count",
+            "conservation_verified_count",
+            "conservation_unverified_count",
+            "conservation_unavailable_count",
+            "conservation_mismatch_count",
+            "conservation_telemetry_coverage_ok",
+            "fallback_count",
+            "emergency_decision_count",
+        ):
+            merged[key] = tel.get(key, merged.get(key, 0))
         mode_results[mode] = merged
 
     inventory_path = ROOT / "docs" / "competition_contract" / "captured_schemas_inventory.json"

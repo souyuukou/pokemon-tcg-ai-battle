@@ -46,7 +46,9 @@ class SchemaCaptureRecord:
     option_category_summary: tuple[str, ...]
     public_state_summary: dict[str, Any]
     actor_view_summary: dict[str, Any]
+    replay_trace: tuple[tuple[int, ...], ...]
     decision_trace_prefix: tuple[tuple[int, ...], ...]
+    desired_seat: int | None
     schema_fingerprint: str
     host_call_kind: str
     time_bank_mode: str
@@ -157,8 +159,9 @@ def build_capture_record(
     agent_seat: int | None,
     game_index: int,
     decision_index: int,
-    decision_trace_prefix: list[list[int]],
+    replay_trace: list[list[int]],
     time_bank_mode: str,
+    desired_seat: int | None = None,
 ) -> SchemaCaptureRecord | None:
     sem = semantic_key_from_obs(obs)
     if sem is None:
@@ -192,7 +195,9 @@ def build_capture_record(
         ),
         public_state_summary=_public_state_summary(obs),
         actor_view_summary=_actor_view_summary(obs),
-        decision_trace_prefix=tuple(tuple(step) for step in decision_trace_prefix),
+        replay_trace=tuple(tuple(step) for step in replay_trace),
+        decision_trace_prefix=tuple(tuple(step) for step in replay_trace),
+        desired_seat=desired_seat,
         schema_fingerprint=_schema_fingerprint(sem),
         host_call_kind=envelope.host_call_kind.value,
         time_bank_mode=time_bank_mode,
@@ -257,6 +262,7 @@ class SchemaCaptureStore:
         payload = asdict(record)
         payload["option_type_pattern"] = list(record.option_type_pattern)
         payload["option_category_summary"] = list(record.option_category_summary)
+        payload["replay_trace"] = [list(step) for step in record.replay_trace]
         payload["decision_trace_prefix"] = [list(step) for step in record.decision_trace_prefix]
         path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
         return path

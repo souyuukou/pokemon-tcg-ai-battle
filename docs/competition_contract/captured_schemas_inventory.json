@@ -1,13 +1,75 @@
 {
-  "run_id": "20260704T164543Z_a0c0a4a1",
-  "generated_at": "2026-07-04T16:45:44.573917+00:00",
-  "schema_count": 4,
+  "run_id": "20260704T165158Z_91743066",
+  "generated_at": "2026-07-04T16:51:58.921384+00:00",
+  "schema_count": 3,
   "schemas": [
     {
-      "semantic_schema_key": "07a4f2d19b3b2962",
+      "semantic_schema_key": "b5b7d673653d0e27",
       "observation_count": 1,
-      "first_seen_commit": "c25aa67fb1d63b586fa912dbf3dd4505cd55b39e",
-      "last_seen_commit": "c25aa67fb1d63b586fa912dbf3dd4505cd55b39e",
+      "first_seen_commit": "2ca70fbf55c7e6aaecd32451a3466e94b356b6b3",
+      "last_seen_commit": "2ca70fbf55c7e6aaecd32451a3466e94b356b6b3",
+      "select_type": 1,
+      "context": 7,
+      "min_count": 0,
+      "max_count": 1,
+      "selection_mode": "optional_single",
+      "option_type_pattern": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "example_capture_ids": [
+        "8d90dc7d65e3430d89a7147b5fcaa2cd"
+      ],
+      "currently_supported": false,
+      "fixture_status": "pending",
+      "evidence_status": "pending"
+    },
+    {
+      "semantic_schema_key": "e97b419562f7c26d",
+      "observation_count": 1,
+      "first_seen_commit": "2ca70fbf55c7e6aaecd32451a3466e94b356b6b3",
+      "last_seen_commit": "2ca70fbf55c7e6aaecd32451a3466e94b356b6b3",
+      "select_type": 1,
+      "context": 7,
+      "min_count": 0,
+      "max_count": 1,
+      "selection_mode": "optional_single",
+      "option_type_pattern": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "example_capture_ids": [
+        "40bb0e9604ca428ab434dc8326a74b4c"
+      ],
+      "currently_supported": false,
+      "fixture_status": "pending",
+      "evidence_status": "pending"
+    },
+    {
+      "semantic_schema_key": "f4ecfb4ee2c35a18",
+      "observation_count": 1,
+      "first_seen_commit": "2ca70fbf55c7e6aaecd32451a3466e94b356b6b3",
+      "last_seen_commit": "2ca70fbf55c7e6aaecd32451a3466e94b356b6b3",
       "select_type": 1,
       "context": 5,
       "min_count": 0,
@@ -18,83 +80,10 @@
         3,
         3,
         3,
-        3,
         3
       ],
       "example_capture_ids": [
-        "31da5b99bf094887817f9d91c46e4fb6"
-      ],
-      "currently_supported": false,
-      "fixture_status": "pending",
-      "evidence_status": "pending"
-    },
-    {
-      "semantic_schema_key": "20f08c4601cbc0ad",
-      "observation_count": 1,
-      "first_seen_commit": "c25aa67fb1d63b586fa912dbf3dd4505cd55b39e",
-      "last_seen_commit": "c25aa67fb1d63b586fa912dbf3dd4505cd55b39e",
-      "select_type": 1,
-      "context": 2,
-      "min_count": 0,
-      "max_count": 2,
-      "selection_mode": "sequence",
-      "option_type_pattern": [
-        3,
-        3
-      ],
-      "example_capture_ids": [
-        "afc447a769c14b2c8d5b171972d6e116"
-      ],
-      "currently_supported": false,
-      "fixture_status": "pending",
-      "evidence_status": "pending"
-    },
-    {
-      "semantic_schema_key": "26be6d49f35042fd",
-      "observation_count": 1,
-      "first_seen_commit": "c25aa67fb1d63b586fa912dbf3dd4505cd55b39e",
-      "last_seen_commit": "c25aa67fb1d63b586fa912dbf3dd4505cd55b39e",
-      "select_type": 1,
-      "context": 7,
-      "min_count": 0,
-      "max_count": 1,
-      "selection_mode": "optional_single",
-      "option_type_pattern": [
-        3
-      ],
-      "example_capture_ids": [
-        "4477965f9f7c4fbfb3e918894244b711"
-      ],
-      "currently_supported": false,
-      "fixture_status": "pending",
-      "evidence_status": "pending"
-    },
-    {
-      "semantic_schema_key": "b51e4e5504234561",
-      "observation_count": 1,
-      "first_seen_commit": "c25aa67fb1d63b586fa912dbf3dd4505cd55b39e",
-      "last_seen_commit": "c25aa67fb1d63b586fa912dbf3dd4505cd55b39e",
-      "select_type": 1,
-      "context": 7,
-      "min_count": 0,
-      "max_count": 1,
-      "selection_mode": "optional_single",
-      "option_type_pattern": [
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3,
-        3
-      ],
-      "example_capture_ids": [
-        "d68d0a07e02f446996a777e2d1fcfcba"
+        "0e88653e750f4c82a4a5d9d4b3b922bb"
       ],
       "currently_supported": false,
       "fixture_status": "pending",

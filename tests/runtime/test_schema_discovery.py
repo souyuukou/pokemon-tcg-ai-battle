@@ -28,8 +28,9 @@ def test_discovery_mode_captures_without_crash():
             agent_seat=event.agent_seat,
             game_index=event.game_index,
             decision_index=event.decision_index,
-            decision_trace_prefix=[list(s) for s in event.decision_trace_prefix],
+            replay_trace=[list(s) for s in event.replay_trace],
             time_bank_mode=event.time_bank_mode,
+            desired_seat=event.desired_seat,
         )
         if record is not None:
             captures.append(record.semantic_schema_key)

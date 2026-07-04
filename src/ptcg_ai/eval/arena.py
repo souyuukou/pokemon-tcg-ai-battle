@@ -27,9 +27,10 @@ class ArenaConfig:
 class UnsupportedSchemaEvent:
     obs: dict[str, Any]
     agent_seat: int | None
+    desired_seat: int | None
     game_index: int
     decision_index: int
-    decision_trace_prefix: tuple[tuple[int, ...], ...]
+    replay_trace: tuple[tuple[int, ...], ...]
     time_bank_mode: str
     exception_key: str
 
@@ -104,9 +105,10 @@ def _handle_unsupported_schema(
                 UnsupportedSchemaEvent(
                     obs=_prepare_observation(obs, None),
                     agent_seat=agent_seat,
+                    desired_seat=cfg.desired_seat,
                     game_index=game_index,
                     decision_index=decision_index,
-                    decision_trace_prefix=tuple(tuple(step) for step in decision_trace),
+                    replay_trace=tuple(tuple(step) for step in decision_trace),
                     time_bank_mode=cfg.time_bank_mode,
                     exception_key=str(exc),
                 )
@@ -159,6 +161,7 @@ def _play_one_game(
                     ):
                         return card
                     raise
+                decision_trace.append(list(choice))
                 obs = battle_select(choice)
                 steps += 1
                 continue

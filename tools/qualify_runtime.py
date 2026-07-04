@@ -76,6 +76,16 @@ def _run_artifact_e2e(decisions: int = 25) -> tuple[str, bool, str, dict]:
     return " ".join(cmd), ok, output, parsed
 
 
+def _merge_runtime_telemetry(card, telemetry_card) -> None:
+    card.fallback_count = telemetry_card.fallback_count
+    card.emergency_decision_count = telemetry_card.emergency_decision_count
+    card.conservation_verified_count = telemetry_card.conservation_verified_count
+    card.conservation_unverified_count = telemetry_card.conservation_unverified_count
+    card.conservation_mismatch_count = telemetry_card.conservation_mismatch_count
+    card.conservation_unavailable_count = telemetry_card.conservation_unavailable_count
+    card.in_game_decision_count = telemetry_card.in_game_decision_count
+
+
 def _run_soak(games: int, *, mode: str) -> tuple[str, dict]:
     from ptcg_ai.eval.arena import ArenaConfig, run_soak_batch
     from ptcg_ai.eval.runtime_harness import wrap_runtime_act
@@ -94,11 +104,7 @@ def _run_soak(games: int, *, mode: str) -> tuple[str, dict]:
         mode="strict",
     )
     card = run_soak_batch(wrap_runtime_act(runtime, telemetry_card), deck, games=games, sim_root=ROOT / "sample_submission", config=cfg)
-    card.fallback_count = telemetry_card.fallback_count
-    card.emergency_decision_count = telemetry_card.emergency_decision_count
-    card.conservation_verified_count += telemetry_card.conservation_verified_count
-    card.conservation_unverified_count += telemetry_card.conservation_unverified_count
-    card.conservation_mismatch_count += telemetry_card.conservation_mismatch_count
+    _merge_runtime_telemetry(card, telemetry_card)
     return cmd, card.to_dict()
 
 
