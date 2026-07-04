@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ..semantic.legal_contract import family_schema_key
+from ..semantic.legal_contract import matrix_family_key
 from ..semantic.response_ir import classify_selection_mode
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -185,7 +185,7 @@ def get_template(
     max_count: int,
     option_count: int,
 ) -> SemanticResponseTemplate | None:
-    family = family_schema_key(select_type, min_count, max_count, option_count)
+    family = matrix_family_key(select_type, min_count, max_count, option_count)
     mode = classify_selection_mode(min_count, max_count, option_count)
     wildcard = f"family:*:{min_count}:{max_count}:{mode}"
     for key in (family, wildcard):
@@ -279,4 +279,64 @@ def all_supported_templates() -> tuple[SemanticResponseTemplate, ...]:
     return tuple(_REGISTRY.values())
 
 
-_load_matrix()
+class SchemaRegistry:
+    """Loads response_schema_matrix.json and matches canonical SelectionSemanticKey via family rules (plan B)."""
+
+    def __init__(self) -> None:
+        self._templates = dict(_REGISTRY)
+        self.matrix_digest = _MATRIX_DIGEST
+        self.load_errors = tuple(_LOAD_ERRORS)
+
+    @classmethod
+    def load(cls) -> SchemaRegistry:
+        _load_matrix()
+        return cls()
+
+    def lookup_for_contract(
+        self,
+        *,
+        canonical_semantic_key: str,
+        select_type: int | str | None,
+        context: int | str | None,
+        min_count: int,
+        max_count: int,
+        option_count: int,
+    ) -> SemanticResponseTemplate | None:
+        """Match matrix family rule — canonical hash key is diagnostic only."""
+        _ = canonical_semantic_key
+        _ = context
+        return get_template(
+            canonical_semantic_key,
+            select_type=select_type,
+            context=context,
+            min_count=min_count,
+            max_count=max_count,
+            option_count=option_count,
+        )
+
+    def family_key_for_contract(
+        self,
+        *,
+        select_type: int | str | None,
+        min_count: int,
+        max_count: int,
+        option_count: int,
+    ) -> str:
+        return matrix_family_key(select_type, min_count, max_count, option_count)
+
+    def supported_templates(self) -> tuple[SemanticResponseTemplate, ...]:
+        return tuple(self._templates.values())
+
+    def fixture_evidence_coverage(self) -> float:
+        rows_path = MATRIX_PATH
+        if not rows_path.is_file():
+            return 0.0
+        rows = json.loads(rows_path.read_text(encoding="utf-8"))
+        supported = [r for r in rows if r.get("supported_in_production")]
+        if not supported:
+            return 0.0
+        ok = sum(1 for r in supported if r["semantic_schema_key"] in self._templates)
+        return ok / len(supported)
+
+
+REGISTRY = SchemaRegistry.load()

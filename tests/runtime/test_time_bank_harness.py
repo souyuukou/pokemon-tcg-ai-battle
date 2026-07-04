@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -14,6 +15,13 @@ from ptcg_ai.host.raw_observation import RawObservation
 from ptcg_ai.runtime.agent_session import AgentSession
 from ptcg_ai.runtime.deadline import Deadline
 from ptcg_ai.runtime.time_bank import TimeBankState, begin_decision_clock, update_time_bank
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def _sim_deck() -> list[int]:
+    deck_path = ROOT / "submission" / "deck.csv"
+    return [int(x) for x in deck_path.read_text().split() if x.strip()]
 
 
 def _obs():
@@ -103,9 +111,53 @@ def test_arena_no_fixed_600_injection_in_no_authoritative_mode():
         seen.append(dict(obs))
         return [0]
 
-    deck = [65] * 60
+    deck = _sim_deck()
     cfg = ArenaConfig(max_steps=5, time_bank_mode="no_authoritative")
     run_self_play(spy, deck, config=cfg)
     for obs in seen:
         if obs.get("select") is not None:
             assert "remainingOverageTime" not in obs
+
+
+def test_arena_time_bank_exhaustion_disqualifies_game():
+    import time
+
+    deck = _sim_deck()
+
+    def slow_agent(obs):
+        if obs.get("select") is None:
+            return list(deck)
+        time.sleep(0.05)
+        s = obs.get("select") or {}
+        opts = s.get("option") or []
+        return [0] if opts else []
+
+    cfg = ArenaConfig(
+        max_steps=200,
+        time_bank_mode="authoritative",
+        initial_time_seconds=0.01,
+        desired_seat=None,
+    )
+    card = run_self_play(slow_agent, deck, config=cfg)
+    assert card.time_bank_exhaustion_count >= 1
+    assert card.completed_games == 0
+    assert card.protocol_error_count >= 1
+
+
+def test_soak_batch_alternates_seats():
+    from ptcg_ai.eval.arena import run_soak_batch
+
+    deck = _sim_deck()
+
+    def seat_spy(obs):
+        if obs.get("select") is None:
+            return list(deck)
+        s = obs.get("select") or {}
+        opts = s.get("option") or []
+        return [0] if opts else []
+
+    card = run_soak_batch(seat_spy, deck, games=8, config=ArenaConfig(max_steps=400))
+    dist = card.seat_distribution()
+    assert dist["first"] >= 1
+    assert dist["second"] >= 1
+    assert dist["first"] + dist["second"] == 8

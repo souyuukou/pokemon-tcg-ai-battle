@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""M0.1 qualification — writes evidence to artifacts/qualification/<commit>/ only."""
+"""M0.2 qualification — writes evidence to artifacts/qualification/<commit>/ only."""
 from __future__ import annotations
 
 import argparse
@@ -58,12 +58,20 @@ def _run_pytest() -> tuple[str, bool, str]:
     return " ".join(cmd), proc.returncode == 0, output
 
 
-def _run_artifact_e2e(decisions: int = 25) -> tuple[str, bool, str]:
+def _run_artifact_e2e(decisions: int = 25) -> tuple[str, bool, str, dict]:
     cmd = [sys.executable, str(ROOT / "tools" / "run_artifact_e2e.py"), "--decisions", str(decisions)]
     proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
     output = (proc.stdout or "") + (proc.stderr or "")
-    ok = proc.returncode == 0 and ("'illegal': 0" in output or '"illegal": 0' in output)
-    return " ".join(cmd), ok, output
+    parsed: dict = {}
+    text = (proc.stdout or "").strip()
+    start = text.find("{")
+    if start >= 0:
+        try:
+            parsed = json.loads(text[start:])
+        except json.JSONDecodeError:
+            parsed = {}
+    ok = proc.returncode == 0 and parsed.get("passed", False)
+    return " ".join(cmd), ok, output, parsed
 
 
 def _run_soak(games: int, *, mode: str) -> tuple[str, dict]:
@@ -97,8 +105,8 @@ def _qualification_level(status: dict) -> str:
         status.get("protocol_error_count", 1) == 0,
         status.get("crash_count", 1) == 0,
         status.get("time_bank_exhaustion_count", 1) == 0,
-        status.get("max_rss_bytes") is not None,
-        status.get("matrix_all_fixtures_present"),
+        (status.get("max_rss_bytes") or 0) > 0,
+        status.get("fixture_evidence_coverage", 0) >= 1.0,
         not status.get("registry_load_errors"),
     ]
     if all(gates):
@@ -125,7 +133,7 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
     if not allow_dirty and not _tree_clean():
         raise SystemExit("working tree is dirty — commit/stash changes or pass --allow-dirty")
 
-    from ptcg_ai.host.schema_registry import all_supported_templates, load_errors, matrix_digest
+    from ptcg_ai.host.schema_registry import REGISTRY, all_supported_templates, load_errors, matrix_digest
 
     fixture_dir = ROOT / "docs" / "competition_contract" / "fixtures"
     fixture_count, fixture_digest = _digest_dir_json(fixture_dir)
@@ -133,12 +141,13 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
     matrix_d = _digest_file(matrix_path)
     registry_errors = list(load_errors())
     templates = all_supported_templates()
-    matrix_all_fixtures = len(registry_errors) == 0 and len(templates) > 0
+    fixture_evidence_coverage = REGISTRY.fixture_evidence_coverage()
+    matrix_all_fixtures = len(registry_errors) == 0 and len(templates) > 0 and fixture_evidence_coverage >= 1.0
 
     test_cmd, test_ok, test_output = _run_pytest()
     tested_tree_clean = _tree_clean()
 
-    e2e_cmd, e2e_ok, e2e_output = _run_artifact_e2e()
+    e2e_cmd, e2e_ok, e2e_output, e2e_parsed = _run_artifact_e2e()
     tested_tree_clean = _tree_clean()
 
     auth_cmd, soak_auth = _run_soak(soak_games, mode="authoritative")
@@ -193,6 +202,8 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         "response_schema_matrix_digest": matrix_d,
         "registry_load_errors": registry_errors,
         "matrix_all_fixtures_present": matrix_all_fixtures,
+        "fixture_evidence_coverage": fixture_evidence_coverage,
+        "matrix_digest_runtime": matrix_digest(),
         "test_command": test_cmd,
         "pytest_passed": test_ok,
         "artifact_e2e_command": e2e_cmd,
@@ -222,6 +233,7 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
     return status, {
         "pytest_output": test_output,
         "artifact_e2e_output": e2e_output,
+        "artifact_e2e_result": e2e_parsed,
         "soak_authoritative": soak_auth,
         "soak_no_authoritative": soak_noauth,
     }
@@ -233,16 +245,19 @@ def write_artifacts(status: dict, outputs: dict) -> Path:
     (out_dir / "qualification_status.json").write_text(json.dumps(status, indent=2), encoding="utf-8")
     (out_dir / "pytest_output.txt").write_text(outputs.get("pytest_output", ""), encoding="utf-8")
     (out_dir / "artifact_e2e_result.json").write_text(
-        json.dumps({"passed": status["artifact_e2e_passed"], "output": outputs.get("artifact_e2e_output", "")}, indent=2),
+        json.dumps(outputs.get("artifact_e2e_result") or {"passed": status["artifact_e2e_passed"]}, indent=2),
         encoding="utf-8",
     )
-    (out_dir / "soak_authoritative.json").write_text(json.dumps(outputs.get("soak_authoritative", {}), indent=2), encoding="utf-8")
-    (out_dir / "soak_no_authoritative.json").write_text(
+    (out_dir / "authoritative_soak.json").write_text(
+        json.dumps(outputs.get("soak_authoritative", {}), indent=2),
+        encoding="utf-8",
+    )
+    (out_dir / "no_authoritative_soak.json").write_text(
         json.dumps(outputs.get("soak_no_authoritative", {}), indent=2),
         encoding="utf-8",
     )
     report = _render_report(status)
-    (out_dir / "runtime_v1_qualification_report.md").write_text(report, encoding="utf-8")
+    (out_dir / "runtime_qualification_report.md").write_text(report, encoding="utf-8")
     return out_dir
 
 
@@ -267,6 +282,7 @@ def _render_report(status: dict) -> str:
             f"- soak_authoritative_passed: {status['soak_authoritative_passed']}",
             f"- soak_no_authoritative_passed: {status['soak_no_authoritative_passed']}",
             f"- completed_games: {status['completed_games']}",
+            f"- fixture_evidence_coverage: {status.get('fixture_evidence_coverage')}",
             f"- max_rss_bytes: {status['max_rss_bytes']}",
             f"- seat_distribution: {status['seat_distribution']}",
             "",

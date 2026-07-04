@@ -2,22 +2,21 @@
 from __future__ import annotations
 
 from ..semantic.action_categories import OptionCategory
-from ..semantic.legal_contract import family_schema_key
 from ..semantic.option_ir import (
     ResponseIR,
     SanitizedDecision,
     response_fingerprint,
 )
 from ..semantic.response_ir import UnsupportedSelectionSchema, classify_selection_mode
-from .schema_registry import expand_patterns, get_template
+from .schema_registry import REGISTRY, expand_patterns
 
 
 def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[ResponseIR, ...]:
     contract = decision.contract
     sem_key = contract.semantic_schema_key
     mode = classify_selection_mode(contract.min_count, contract.max_count, contract.option_count)
-    template = get_template(
-        sem_key,
+    template = REGISTRY.lookup_for_contract(
+        canonical_semantic_key=sem_key,
         select_type=contract.select_type,
         context=contract.context,
         min_count=contract.min_count,
@@ -28,12 +27,13 @@ def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[Respons
     if template is None:
         raise UnsupportedSelectionSchema(sem_key)
 
-    family = family_schema_key(
-        contract.select_type,
-        contract.min_count,
-        contract.max_count,
-        contract.option_count,
+    family = REGISTRY.family_key_for_contract(
+        select_type=contract.select_type,
+        min_count=contract.min_count,
+        max_count=contract.max_count,
+        option_count=contract.option_count,
     )
+    _ = family
     registry_key = template.semantic_schema_key
 
     patterns = expand_patterns(

@@ -21,6 +21,21 @@ class LegalActionContract:
     response_schema_key: str  # legacy alias = semantic_schema_key
 
 
+def matrix_family_key(
+    select_type: int | str | None,
+    min_count: int,
+    max_count: int,
+    option_count: int,
+) -> str:
+    """Matrix row key (family rule) — matches response_schema_matrix.json semantic_schema_key."""
+    from .response_ir import classify_selection_mode
+
+    mode = classify_selection_mode(min_count, max_count, option_count)
+    if select_type in ("*", None):
+        return f"family:*:{min_count}:{max_count}:{mode}"
+    return f"family:{select_type}:{min_count}:{max_count}:{mode}"
+
+
 def family_schema_key(
     select_type: int | str | None,
     min_count: int,
@@ -29,8 +44,7 @@ def family_schema_key(
 ) -> str:
     from .response_ir import classify_selection_mode
 
-    mode = classify_selection_mode(min_count, max_count, option_count)
-    return f"family:{select_type}:{min_count}:{max_count}:{mode}"
+    return matrix_family_key(select_type, min_count, max_count, option_count)
 
 
 def semantic_schema_key_from(

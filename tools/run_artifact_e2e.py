@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Artifact E2E — isolated build + real cabt battle_select loop."""
+"""Artifact E2E — build in subprocess, run in isolated -I subprocess."""
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -12,47 +14,47 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _run_loop(artifact: Path, sim_root: Path, decisions: int) -> int:
-    prev_cwd = Path.cwd()
-    prev_path = list(sys.path)
+def _git_head() -> str:
     try:
-        os.chdir(artifact)
-        sys.path[:0] = [str(artifact), str(sim_root)]
-        from cg.game import battle_finish, battle_select, battle_start
-        from main import agent
+        return (
+            subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL)
+            .strip()
+        )
+    except Exception:
+        return "unknown"
 
-        deck = agent({"select": None, "current": {}, "logs": []})
-        if len(deck) != 60:
-            print("bad deck length", len(deck))
-            return 1
-        obs, _ = battle_start(deck, deck)
-        if obs.get("select") is None:
-            obs = battle_select(agent({"select": None, "current": {}, "logs": []}))
-        made = 0
-        illegal = 0
-        while made < decisions:
-            if obs.get("select") is None:
-                obs = battle_select(agent({"select": None, "current": {}, "logs": []}))
-                continue
-            choice = agent(obs)
-            s = obs.get("select") or {}
-            lo, hi = int(s.get("minCount", 0)), int(s.get("maxCount", 0))
-            opts = s.get("option") or []
-            if not (lo <= len(choice) <= hi):
-                illegal += 1
-            for idx in choice:
-                if idx < 0 or idx >= len(opts):
-                    illegal += 1
-            obs = battle_select(choice)
-            made += 1
-            if int((obs.get("current") or {}).get("result", -1)) >= 0:
-                break
-        battle_finish()
-        print({"decisions": made, "illegal": illegal})
-        return 0 if illegal == 0 else 2
-    finally:
-        os.chdir(prev_cwd)
-        sys.path[:] = prev_path
+
+def _build_artifact(output: Path) -> int:
+    cmd = [sys.executable, str(ROOT / "tools" / "build_submission.py"), "--output", str(output)]
+    proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    if proc.returncode != 0:
+        print(proc.stdout)
+        print(proc.stderr, file=sys.stderr)
+    return proc.returncode
+
+
+def _run_isolated(*, artifact: Path, sim_root: Path, decisions: int, tested_commit: str) -> tuple[int, str]:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = ""
+    env["PYTHONNOUSERSITE"] = "1"
+    env.pop("PYTHONHOME", None)
+    cmd = [
+        sys.executable,
+        str(ROOT / "tools" / "run_artifact_e2e_isolated.py"),
+        "--artifact",
+        str(artifact),
+        "--sim-root",
+        str(sim_root),
+        "--decisions",
+        str(decisions),
+        "--tested-commit",
+        tested_commit,
+        "--forbid-path",
+        str(ROOT),
+    ]
+    proc = subprocess.run(cmd, cwd=artifact, env=env, capture_output=True, text=True)
+    output = (proc.stdout or "") + (proc.stderr or "")
+    return proc.returncode, output
 
 
 def main() -> int:
@@ -66,18 +68,23 @@ def main() -> int:
     if args.artifact is not None:
         artifact = args.artifact.resolve()
     else:
-        sys.path.insert(0, str(ROOT))
-        from tools.build_submission import build_submission
-
         staging = Path(tempfile.mkdtemp(prefix="ptcg_e2e_"))
-        artifact = build_submission(output=staging / "artifact")
+        artifact = staging / "artifact"
+        if _build_artifact(artifact) != 0:
+            return 1
 
     sim_root = (ROOT / "sample_submission").resolve()
-    try:
-        return _run_loop(artifact, sim_root, args.decisions)
-    finally:
-        if staging is not None and not args.keep:
-            shutil.rmtree(staging, ignore_errors=True)
+    tested_commit = _git_head()
+    code, output = _run_isolated(
+        artifact=artifact,
+        sim_root=sim_root,
+        decisions=args.decisions,
+        tested_commit=tested_commit,
+    )
+    print(output)
+    if staging is not None and not args.keep:
+        shutil.rmtree(staging, ignore_errors=True)
+    return code
 
 
 if __name__ == "__main__":

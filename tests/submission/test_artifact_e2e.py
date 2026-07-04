@@ -16,4 +16,14 @@ def test_artifact_e2e_host_battle_select():
         text=True,
     )
     assert result.returncode == 0, result.stderr + result.stdout
-    assert "'illegal': 0" in result.stdout or '"illegal": 0' in result.stdout
+    import json
+
+    text = (result.stdout or "").strip()
+    start = text.find("{")
+    assert start >= 0, result.stdout
+    payload = json.loads(text[start:])
+    assert payload.get("passed") is True
+    assert payload.get("illegal") == 0
+    main_file = Path(payload["main.__file__"]).resolve()
+    assert main_file.name == "main.py"
+    assert main_file != (ROOT / "submission" / "main.py").resolve()

@@ -54,6 +54,20 @@ def _first_seat(obs: dict[str, Any]) -> int | None:
         return None
 
 
+def _minimal_legal_choice(obs: dict[str, Any]) -> list[int]:
+    s = obs.get("select") or {}
+    lo = int(s.get("minCount", 0))
+    hi = int(s.get("maxCount", 0))
+    opts = s.get("option") or []
+    if lo == 0:
+        return []
+    if not opts:
+        return []
+    if lo == 1:
+        return [0]
+    return list(range(min(lo, len(opts))))
+
+
 def _play_one_game(
     agent_fn: Callable[[dict[str, Any]], list[int]],
     deck: list[int],
@@ -68,38 +82,49 @@ def _play_one_game(
     if cfg.time_bank_mode == "authoritative":
         tracker = AuthoritativeTimeTracker(cfg.initial_time_seconds)
 
-    for _attempt in range(8):
-        finished = False
-        try:
-            obs, _ = battle_start(deck, deck)
-            if obs is None:
-                card.protocol_error_count += 1
-                return card
-            seat_recorded = False
-            steps = 0
-            while steps < cfg.max_steps:
-                if obs.get("select") is None:
-                    choice = agent_fn(_prepare_observation(obs, tracker))
-                    obs = battle_select(choice)
-                    steps += 1
-                    continue
-                seat = _first_seat(obs)
-                if seat is not None and not seat_recorded:
-                    if cfg.desired_seat is not None and seat != cfg.desired_seat:
-                        finished = True
-                        break
-                    card.record_seat(seat)
-                    seat_recorded = True
+    seat_recorded = False
+    try:
+        obs, _ = battle_start(deck, deck)
+        if obs is None:
+            card.protocol_error_count += 1
+            return card
+        steps = 0
+        while steps < cfg.max_steps:
+            if obs.get("select") is None:
+                choice = agent_fn(_prepare_observation(obs, tracker))
+                obs = battle_select(choice)
+                steps += 1
+                continue
+
+            seat = _first_seat(obs)
+            agent_turn = cfg.desired_seat is None or seat == cfg.desired_seat
+            if agent_turn and seat is not None and not seat_recorded:
+                card.record_seat(seat)
+                seat_recorded = True
+
+            if agent_turn:
                 t0 = time.perf_counter()
+                if tracker is not None and tracker.remaining <= 0:
+                    card.time_bank_exhaustion_count += 1
+                    card.protocol_error_count += 1
+                    break
                 choice = agent_fn(_prepare_observation(obs, tracker))
                 elapsed = (time.perf_counter() - t0) * 1000
                 if tracker is not None:
                     tracker.record_elapsed(elapsed / 1000.0)
+                    if tracker.remaining <= 0:
+                        card.time_bank_exhaustion_count += 1
+                        card.protocol_error_count += 1
+                        break
                 card.record_decision_time(elapsed)
                 card.record_rss(memory_snapshot().get("rss_bytes"))
-                lo = int((obs.get("select") or {}).get("minCount", 0))
-                hi = int((obs.get("select") or {}).get("maxCount", 0))
-                opts = (obs.get("select") or {}).get("option") or []
+            else:
+                choice = _minimal_legal_choice(obs)
+
+            lo = int((obs.get("select") or {}).get("minCount", 0))
+            hi = int((obs.get("select") or {}).get("maxCount", 0))
+            opts = (obs.get("select") or {}).get("option") or []
+            if agent_turn:
                 if not (lo <= len(choice) <= hi):
                     card.illegal_action_count += 1
                 if len(choice) != len(set(choice)):
@@ -107,29 +132,25 @@ def _play_one_game(
                 for i in choice:
                     if i < 0 or i >= len(opts):
                         card.illegal_action_count += 1
-                obs = battle_select(choice)
-                steps += 1
-                if int((obs.get("current") or {}).get("result", -1)) >= 0:
-                    card.completed_games = 1
-                    finished = True
-                    break
-            if finished and (seat_recorded or cfg.desired_seat is None):
-                return card
-        except Exception as exc:
-            from ..semantic.response_ir import UnsupportedSelectionSchema
+            obs = battle_select(choice)
+            steps += 1
+            if int((obs.get("current") or {}).get("result", -1)) >= 0:
+                card.completed_games = 1
+                break
+    except Exception as exc:
+        from ..semantic.response_ir import UnsupportedSelectionSchema
 
-            if isinstance(exc, UnsupportedSelectionSchema):
-                card.unsupported_schema_count += 1
-            else:
-                card.crash_count += 1
-            return card
-        finally:
-            try:
-                battle_finish()
-            except Exception:
-                pass
-        if seat_recorded:
-            return card
+        if isinstance(exc, UnsupportedSelectionSchema):
+            card.unsupported_schema_count += 1
+        else:
+            card.crash_count += 1
+        return card
+    finally:
+        try:
+            battle_finish()
+        except Exception:
+            pass
+
     if cfg.desired_seat is not None and not seat_recorded:
         card.protocol_error_count += 1
     return card
@@ -175,9 +196,9 @@ def run_soak_batch(
     config: ArenaConfig | None = None,
 ) -> Scorecard:
     merged = Scorecard()
-    for _i in range(games):
+    for game_index in range(games):
         base = config or ArenaConfig()
-        cfg = replace(base, desired_seat=None)
+        cfg = replace(base, desired_seat=game_index % 2)
         card = run_self_play(agent_fn, deck, sim_root=sim_root, config=cfg)
         merged = merge_scorecards(merged, card)
     merged.total_games = games

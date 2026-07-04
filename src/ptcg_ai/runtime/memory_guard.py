@@ -31,7 +31,7 @@ def sample_rss_bytes() -> int | None:
                 ctypes.byref(counters),
                 counters.cb,
             )
-            return int(counters.WorkingSetSize)
+            return int(counters.PeakWorkingSetSize or counters.WorkingSetSize)
         except Exception:
             return None
     return None
