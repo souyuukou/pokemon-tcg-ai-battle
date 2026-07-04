@@ -15,6 +15,8 @@ class Scorecard:
     fallback_count: int = 0
     backend_failure_count: int = 0
     unsupported_schema_count: int = 0
+    conservation_unverified_count: int = 0
+    conservation_verified_count: int = 0
     max_rss_bytes: int | None = None
     decision_times_ms: list[float] = field(default_factory=list)
     time_bank_exhaustion_count: int = 0
@@ -47,6 +49,8 @@ def merge_scorecards(a: Scorecard, b: Scorecard) -> Scorecard:
         fallback_count=a.fallback_count + b.fallback_count,
         backend_failure_count=a.backend_failure_count + b.backend_failure_count,
         unsupported_schema_count=a.unsupported_schema_count + b.unsupported_schema_count,
+        conservation_unverified_count=a.conservation_unverified_count + b.conservation_unverified_count,
+        conservation_verified_count=a.conservation_verified_count + b.conservation_verified_count,
         max_rss_bytes=max(filter(None, [a.max_rss_bytes, b.max_rss_bytes]), default=None),
         decision_times_ms=a.decision_times_ms + b.decision_times_ms,
         time_bank_exhaustion_count=a.time_bank_exhaustion_count + b.time_bank_exhaustion_count,

@@ -1,39 +1,76 @@
-"""Fixture-validated response sets — fallback may only use these."""
+"""Fixture-validated response sets keyed by SelectionSemanticKey / family registry."""
 from __future__ import annotations
 
 from ..semantic.action_categories import OptionCategory
+from ..semantic.legal_contract import family_schema_key
 from ..semantic.option_ir import (
     ResponseIR,
     SanitizedDecision,
-    SelectionMode,
     response_fingerprint,
 )
 from ..semantic.response_ir import UnsupportedSelectionSchema, classify_selection_mode
-
-# Schema keys registered via fixture (categories A/B/C).
-VALIDATED_EMPTY_SCHEMAS: frozenset[str] = frozenset()
-VALIDATED_OPTIONAL_SINGLE_SCHEMAS: frozenset[str] = frozenset()
-VALIDATED_SET_SCHEMAS: frozenset[str] = frozenset()
-VALIDATED_SEQUENCE_SCHEMAS: frozenset[str] = frozenset()
-
-# Pre-registered safe responses per schema key (from fixture host-apply validation).
-_REGISTRY: dict[str, tuple[ResponseIR, ...]] = {}
+from .schema_registry import expand_dynamic_patterns, get_template
 
 
-def register_validated_responses(schema_key: str, responses: tuple[ResponseIR, ...]) -> None:
-    _REGISTRY[schema_key] = responses
-
-
-def is_builtin_single(contract) -> bool:
-    return contract.min_count == 1 and contract.max_count == 1 and contract.option_count >= 1
-
-
-def compile_single_responses(decision: SanitizedDecision) -> tuple[ResponseIR, ...]:
+def compile_responses_for_decision(decision: SanitizedDecision) -> tuple[ResponseIR, ...]:
     contract = decision.contract
-    mode = SelectionMode.SINGLE.value
+    sem_key = contract.semantic_schema_key
+    mode = classify_selection_mode(contract.min_count, contract.max_count, contract.option_count)
+    template = get_template(
+        sem_key,
+        select_type=contract.select_type,
+        min_count=contract.min_count,
+        max_count=contract.max_count,
+        option_count=contract.option_count,
+    )
+
+    if template is None:
+        raise UnsupportedSelectionSchema(sem_key)
+
+    family = family_schema_key(
+        contract.select_type,
+        contract.min_count,
+        contract.max_count,
+        contract.option_count,
+    )
+    registry_key = template.semantic_schema_key
+
+    if template.response_strategy in ("builtin_single", None) and template.semantic_schema_key == "__builtin_single_1_1__":
+        return _compile_single(decision, mode)
+
+    patterns = expand_dynamic_patterns(
+        template,
+        min_count=contract.min_count,
+        max_count=contract.max_count,
+        option_count=contract.option_count,
+    )
+    if not patterns and template.valid_index_patterns:
+        patterns = template.valid_index_patterns
+
+    responses: list[ResponseIR] = []
+    for pattern in patterns:
+        indices = tuple(pattern)
+        responses.append(
+            ResponseIR(
+                request_fingerprint=contract.request_fingerprint,
+                semantic_schema_key=registry_key if registry_key.startswith("family:") else sem_key,
+                option_indices=indices,
+                selection_mode=mode,
+                category=_category_for_indices(decision, indices),
+                fingerprint=response_fingerprint(indices, mode, registry_key),
+            )
+        )
+    if not responses:
+        raise UnsupportedSelectionSchema(sem_key)
+    return tuple(responses)
+
+
+def _compile_single(decision: SanitizedDecision, mode: str) -> tuple[ResponseIR, ...]:
+    contract = decision.contract
     return tuple(
         ResponseIR(
             request_fingerprint=contract.request_fingerprint,
+            semantic_schema_key=contract.semantic_schema_key,
             option_indices=(opt.host_index,),
             selection_mode=mode,
             category=opt.category,
@@ -43,53 +80,14 @@ def compile_single_responses(decision: SanitizedDecision) -> tuple[ResponseIR, .
     )
 
 
-def compile_empty_response(decision: SanitizedDecision) -> tuple[ResponseIR, ...]:
-    contract = decision.contract
-    mode = SelectionMode.EMPTY.value
-    return (
-        ResponseIR(
-            request_fingerprint=contract.request_fingerprint,
-            option_indices=(),
-            selection_mode=mode,
-            category=OptionCategory.CONFIRM.value,
-            fingerprint=response_fingerprint((), mode, OptionCategory.CONFIRM.value),
-        ),
-    )
-
-
-def get_validated_responses(decision: SanitizedDecision) -> tuple[ResponseIR, ...]:
-    contract = decision.contract
-    key = contract.response_schema_key
-    mode = classify_selection_mode(contract.min_count, contract.max_count, contract.option_count)
-
-    if mode == SelectionMode.SINGLE.value:
-        if is_builtin_single(contract):
-            return compile_single_responses(decision)
-        raise UnsupportedSelectionSchema(key)
-
-    if mode == SelectionMode.EMPTY.value:
-        if key not in VALIDATED_EMPTY_SCHEMAS and key not in _REGISTRY:
-            raise UnsupportedSelectionSchema(key)
-        if key in _REGISTRY:
-            return _REGISTRY[key]
-        return compile_empty_response(decision)
-
-    if mode == SelectionMode.OPTIONAL_SINGLE.value:
-        if key not in VALIDATED_OPTIONAL_SINGLE_SCHEMAS and key not in _REGISTRY:
-            raise UnsupportedSelectionSchema(key)
-        return _REGISTRY[key]
-
-    if mode == SelectionMode.SET.value:
-        if key not in VALIDATED_SET_SCHEMAS and key not in _REGISTRY:
-            raise UnsupportedSelectionSchema(key)
-        return _REGISTRY[key]
-
-    if mode == SelectionMode.SEQUENCE.value:
-        if key not in VALIDATED_SEQUENCE_SCHEMAS and key not in _REGISTRY:
-            raise UnsupportedSelectionSchema(key)
-        return _REGISTRY[key]
-
-    raise UnsupportedSelectionSchema(key)
+def _category_for_indices(decision: SanitizedDecision, indices: tuple[int, ...]) -> str:
+    if not indices:
+        return OptionCategory.CONFIRM.value
+    idx = indices[0]
+    for opt in decision.options:
+        if opt.host_index == idx:
+            return opt.category
+    return OptionCategory.OPAQUE.value
 
 
 _CATEGORY_PRIORITY: dict[str, int] = {
@@ -106,13 +104,13 @@ _CATEGORY_PRIORITY: dict[str, int] = {
 
 
 def operational_fallback(decision: SanitizedDecision, *, reason: str) -> ResponseIR:
-    """Pick from validated response set only — never fabricate indices."""
-    validated = get_validated_responses(decision)
-    if not validated:
-        raise UnsupportedSelectionSchema(decision.contract.response_schema_key)
+    validated = compile_responses_for_decision(decision)
     ranked = sorted(
         validated,
         key=lambda r: (_CATEGORY_PRIORITY.get(r.category, 15), -r.option_indices[0] if r.option_indices else 0),
         reverse=True,
     )
     return ranked[0]
+
+
+get_validated_responses = compile_responses_for_decision

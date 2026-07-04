@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..runtime.exceptions import CardConservationMismatch
+from ..semantic.conservation import ConservationQuality, classify_conservation
 from ..semantic.actor_view import (
     ActorView,
     DecisionContext,
@@ -17,13 +18,12 @@ from ..semantic.legal_contract import (
     LegalActionContract,
     option_fingerprint,
     request_fingerprint,
-    response_schema_key,
+    semantic_schema_key_from,
 )
 from ..semantic.option_ir import SanitizedDecision, build_option_ir
 from ..semantic.self_card_ledger import build_visible_zones, compute_unknown_zone, verify_conservation
 
 from .observation_projector import ProjectedCard, project_observation
-from .raw_observation import RawObservation
 
 if TYPE_CHECKING:
     from ..runtime.agent_session import AgentSession
@@ -111,10 +111,12 @@ def _build_actor_view(
                 f"deck conservation failed: visible+unknown != manifest "
                 f"(deck={self_player.deck_count} prizes_down={self_player.prize_face_down_count})"
             )
+        session.diagnostics.record({"event": "conservation_quality", "quality": ConservationQuality.VERIFIED.value})
     else:
         session.diagnostics.record(
             {
-                "event": "conservation_unverified",
+                "event": "conservation_quality",
+                "quality": classify_conservation(conservation_verified=False).value,
                 "deck_count": self_player.deck_count,
                 "prize_face_down": self_player.prize_face_down_count,
             }
@@ -183,7 +185,14 @@ def _build_contract(projected, observation_hash: str, decision_id: str) -> Legal
     min_count = select.min_count
     max_count = select.max_count
     opt_fp = option_fingerprint([dict(o) for o in options])
-    schema = response_schema_key(select.select_type, select.context, min_count, max_count, opt_fp)
+    sem_key = semantic_schema_key_from(
+        select.select_type,
+        select.context,
+        min_count,
+        max_count,
+        len(options),
+        [dict(o) for o in options],
+    )
     contract_fields = {
         "select_type": select.select_type,
         "context": select.context,
@@ -194,13 +203,14 @@ def _build_contract(projected, observation_hash: str, decision_id: str) -> Legal
     return LegalActionContract(
         decision_id=decision_id,
         request_fingerprint=request_fingerprint(observation_hash, contract_fields),
+        semantic_schema_key=sem_key,
         select_type=select.select_type,
         context=select.context,
         min_count=min_count,
         max_count=max_count,
         option_count=len(options),
         option_fingerprint=opt_fp,
-        response_schema_key=schema,
+        response_schema_key=sem_key,
     )
 
 
@@ -224,13 +234,14 @@ class HostAdapter:
                     "option_fp": pre_contract.option_fingerprint,
                 },
             ),
+            semantic_schema_key=pre_contract.semantic_schema_key,
             select_type=pre_contract.select_type,
             context=pre_contract.context,
             min_count=pre_contract.min_count,
             max_count=pre_contract.max_count,
             option_count=pre_contract.option_count,
             option_fingerprint=pre_contract.option_fingerprint,
-            response_schema_key=pre_contract.response_schema_key,
+            response_schema_key=pre_contract.semantic_schema_key,
         )
         actor_view = _build_actor_view(projected, contract, session)
         select = projected.select

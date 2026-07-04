@@ -74,6 +74,7 @@ def test_hidden_twin_invariance():
     ranker = Ranker(DEFAULT_PROFILE)
     resp = ResponseIR(
         request_fingerprint=dec_a.contract.request_fingerprint,
+        semantic_schema_key=dec_a.contract.semantic_schema_key,
         option_indices=(1,),
         selection_mode="single",
         category="ATTACK",

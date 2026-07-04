@@ -8,6 +8,7 @@ from typing import Any
 from ..baseline.policy_b0 import PolicyB0
 from ..contract.runtime_profile import RuntimeProfile, load_runtime_profile
 from ..host.host_adapter import HostAdapter
+from ..host.host_envelope import preflight
 from ..host.host_response import to_host_response
 from ..host.raw_observation import RawObservation
 from ..runtime.exceptions import CardConservationMismatch, ContractMismatch, OperationalFailure
@@ -52,7 +53,10 @@ class CompetitionRuntime:
 
     def act(self, obs_dict: dict[str, Any]) -> list[int]:
         session = self._ensure_session()
-        if obs_dict.get("select") is None:
+        raw = RawObservation.from_dict(obs_dict)
+        envelope = preflight(raw)
+
+        if envelope.is_deck_selection:
             if self._session is not None:
                 self._session.close()
             deck = self._deck_provider.select_deck(DeckSelectionRequest())
@@ -62,16 +66,9 @@ class CompetitionRuntime:
             return list(deck)
 
         call_start = begin_decision_clock(session.time_bank_state)
-        host_remaining = obs_dict.get("remainingOverageTime")
-        if host_remaining is not None:
-            try:
-                host_remaining = float(host_remaining)
-            except (TypeError, ValueError):
-                host_remaining = None
-
         update_time_bank(
             session.time_bank_state,
-            host_remaining=host_remaining,
+            host_remaining=envelope.authoritative_remaining_time,
             safety_margin=self._profile.safety_margin_seconds,
             call_start_monotonic=call_start,
             match_budget_seconds=self._profile.time_bank_seconds,
@@ -83,7 +80,7 @@ class CompetitionRuntime:
 
         budget = budget_for_decision(
             session.time_bank_state,
-            option_count=len((obs_dict.get("select") or {}).get("option") or []),
+            option_count=envelope.legal_option_count,
             emergency_threshold=self._profile.emergency_threshold_seconds,
             emergency=session.emergency_mode,
             total_budget_seconds=self._profile.time_bank_seconds,
@@ -94,7 +91,6 @@ class CompetitionRuntime:
             started_at=call_start,
         )
 
-        raw = RawObservation.from_dict(obs_dict)
         try:
             decision = self._host.sanitize_decision(raw, session)
         except (CardConservationMismatch, ContractMismatch) as exc:
@@ -150,8 +146,7 @@ class CompetitionRuntime:
                 **memory_snapshot(),
             }
         )
-        current = obs_dict.get("current") or {}
-        if int(current.get("result", -1)) >= 0:
+        if envelope.is_terminal:
             session.close()
         return host_response
 

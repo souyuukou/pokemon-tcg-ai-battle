@@ -5,19 +5,30 @@ from typing import TYPE_CHECKING
 
 from ..semantic.response_ir import ValidationResult, validate_response_indices
 from ..semantic.option_ir import ResponseIR, SanitizedDecision
-from .validated_responses import get_validated_responses
+from ..semantic.schema_keys import ResponseInstanceKey
+from .validated_responses import compile_responses_for_decision
 
 if TYPE_CHECKING:
     from ..semantic.legal_contract import LegalActionContract
 
 
 def compile_candidate_responses(decision: SanitizedDecision) -> tuple[ResponseIR, ...]:
-    return get_validated_responses(decision)
+    return compile_responses_for_decision(decision)
 
 
 def validate_response(contract: LegalActionContract, response: ResponseIR) -> ValidationResult:
     if response.request_fingerprint != contract.request_fingerprint:
         return ValidationResult(False, "fingerprint_mismatch")
+    instance = ResponseInstanceKey.build(
+        request_fingerprint=contract.request_fingerprint,
+        option_fingerprint=contract.option_fingerprint,
+        response_mode=response.selection_mode,
+        option_indices=response.option_indices,
+    )
+    if instance.request_fingerprint != contract.request_fingerprint:
+        return ValidationResult(False, "instance_request_mismatch")
+    if instance.option_fingerprint != contract.option_fingerprint:
+        return ValidationResult(False, "instance_option_mismatch")
     return validate_response_indices(
         contract.min_count,
         contract.max_count,

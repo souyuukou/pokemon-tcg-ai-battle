@@ -45,6 +45,7 @@ class SanitizedDecision:
 @dataclass(frozen=True)
 class ResponseIR:
     request_fingerprint: str
+    semantic_schema_key: str
     option_indices: tuple[int, ...]
     selection_mode: str
     category: str

@@ -23,16 +23,19 @@ def _empty_board() -> PublicBoard:
 
 
 def _minimal_decision(min_c: int, max_c: int, n_opts: int) -> SanitizedDecision:
+    opts_payload = [{"type": 14} for _ in range(n_opts)]
+    sem_key = response_schema_key(0, 0, min_c, max_c, "ofp", option_count=n_opts, options=opts_payload)
     contract = LegalActionContract(
         decision_id="t",
         request_fingerprint="fp",
+        semantic_schema_key=sem_key,
         select_type=0,
         context=0,
         min_count=min_c,
         max_count=max_c,
         option_count=n_opts,
         option_fingerprint="ofp",
-        response_schema_key=response_schema_key(0, 0, min_c, max_c, "ofp"),
+        response_schema_key=sem_key,
     )
     view = ActorView(
         public_board=_empty_board(),
@@ -66,6 +69,19 @@ def test_unsupported_multi_select_raises():
 
 
 def test_unsupported_empty_raises_without_fixture():
-    decision = _minimal_decision(0, 0, 0)
+    base = _minimal_decision(0, 0, 0)
+    contract = LegalActionContract(
+        decision_id="t2",
+        request_fingerprint="fp2",
+        semantic_schema_key="unknown_empty",
+        select_type=99,
+        context=0,
+        min_count=0,
+        max_count=0,
+        option_count=0,
+        option_fingerprint="ofp",
+        response_schema_key="unknown_empty",
+    )
+    decision = SanitizedDecision(base.actor_view, contract, base.options)
     with pytest.raises(UnsupportedSelectionSchema):
         compile_candidate_responses(decision)
