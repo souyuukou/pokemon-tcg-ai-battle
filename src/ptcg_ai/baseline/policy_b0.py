@@ -29,9 +29,9 @@ class PolicyB0:
         deadline: Deadline,
         decision_counter: int,
         emergency: bool,
-    ) -> tuple[ResponseIR, bool]:
+    ) -> tuple[ResponseIR, bool, str | None]:
         if deadline.should_stop() or emergency:
-            return self._fallback.choose(decision, reason="deadline_or_emergency"), True
+            return self._fallback.choose(decision, reason="deadline_or_emergency"), True, "deadline_or_emergency"
         try:
             candidates = self._proposer.propose(decision)
         except UnsupportedSelectionSchema:
@@ -39,15 +39,15 @@ class PolicyB0:
         try:
             selected = self._ranker.select(decision, candidates, decision_counter=decision_counter)
         except Exception:
-            return self._fallback.choose(decision, reason="ranker_exception"), True
+            return self._fallback.choose(decision, reason="ranker_exception"), True, "ranker_exception"
         if selected is not None:
-            return selected, False
+            return selected, False, None
         try:
-            return self._fallback.choose(decision, reason="ranker_empty"), True
+            return self._fallback.choose(decision, reason="ranker_empty"), True, "ranker_empty"
         except OperationalFailure:
             raise
         except Exception as exc:
             try:
-                return self._fallback.choose(decision, reason="exception"), True
+                return self._fallback.choose(decision, reason="exception"), True, "exception"
             except OperationalFailure:
                 raise OperationalFailure("ranker failed without validated fallback") from exc

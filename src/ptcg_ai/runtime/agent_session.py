@@ -75,6 +75,9 @@ class AgentSession:
     def close(self) -> None:
         self.actor_view_cache.clear()
         self.observation_ledger.reset_for_new_game()
+        self.time_bank_state = TimeBankState()
+        self.emergency_mode = False
+        self.decision_counter = 0
 
 
 class FixedDeckProvider:

@@ -38,7 +38,7 @@ def test_registry_supports_optional_single():
         min_count=0,
         max_count=1,
         option_count=1,
-        option_types=(14,),
+        option_types=(3,),
     )
     assert tpl is not None
     assert tpl.semantic_schema_key == "family:1:0:1:optional_single"
@@ -52,7 +52,7 @@ def test_registry_requires_exact_context():
         min_count=0,
         max_count=1,
         option_count=1,
-        option_types=(14,),
+        option_types=(3,),
     )
     assert tpl is None
 
@@ -71,7 +71,7 @@ def test_compile_optional_single_via_registry():
             "context": 2,
             "minCount": 0,
             "maxCount": 1,
-            "option": [{"type": 14}],
+            "option": [{"type": 3}],
         },
         "current": {"yourIndex": 0, "players": []},
         "logs": [],

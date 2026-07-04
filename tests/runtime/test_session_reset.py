@@ -12,7 +12,8 @@ def test_session_reset_clears_state():
     s.diagnostics.fallback_count = 3
     s.close()
     assert s.observation_ledger.decision_counter == 0
-    assert s.emergency_mode is True  # emergency is per-session until new session
+    assert s.emergency_mode is False
     s2 = AgentSession.start_new(deck)
     assert s2.observation_ledger.decision_counter == 0
+    assert s2.emergency_mode is False
     assert s2.diagnostics.fallback_count == 0

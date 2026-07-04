@@ -50,7 +50,7 @@ def test_t_time_1_emergency_uses_validated_fallback_only():
     policy = PolicyB0(DEFAULT_PROFILE)
     deadline = Deadline.from_budget(0.0, 0.0)
     with patch.object(policy._ranker, "select", return_value=None):
-        resp, used_fb = policy.decide(decision, deadline=deadline, decision_counter=1, emergency=True)
+        resp, used_fb, _reason = policy.decide(decision, deadline=deadline, decision_counter=1, emergency=True)
     assert used_fb
     assert len(resp.option_indices) == 1
     assert 0 <= resp.option_indices[0] < decision.contract.option_count
@@ -101,6 +101,29 @@ def test_t_time_4_emergency_mode_irreversible():
         match_budget_seconds=600.0,
     )
     assert state.emergency_mode
+
+
+def test_t_time_5_emergency_does_not_bypass_unknown_schema():
+    from ptcg_ai.runtime.runtime import CompetitionRuntime
+    from ptcg_ai.semantic.response_ir import UnsupportedSelectionSchema
+
+    deck = _sim_deck()
+    runtime = CompetitionRuntime(deck)
+    runtime.act({"select": None, "current": {}, "logs": []})
+    runtime._session.emergency_mode = True
+    obs = {
+        "select": {
+            "type": 0,
+            "context": 0,
+            "minCount": 2,
+            "maxCount": 3,
+            "option": [{"type": 14}] * 5,
+        },
+        "current": {"yourIndex": 0, "players": _obs()["current"]["players"]},
+        "logs": [],
+    }
+    with pytest.raises(UnsupportedSelectionSchema):
+        runtime.act(obs)
 
 
 def test_arena_no_fixed_600_injection_in_no_authoritative_mode():

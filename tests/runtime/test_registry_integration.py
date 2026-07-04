@@ -58,7 +58,7 @@ def test_reg_int_1_single_schema_uses_registry():
 def test_reg_int_2_optional_single_schema_uses_registry():
     runtime = CompetitionRuntime(_deck())
     _start(runtime)
-    obs = _obs(select_type=1, context=2, min_count=0, max_count=1, options=[{"type": 14}])
+    obs = _obs(select_type=1, context=2, min_count=0, max_count=1, options=[{"type": 3}])
     with patch.object(REGISTRY, "lookup_for_contract", wraps=REGISTRY.lookup_for_contract) as spy:
         choice = runtime.act(obs)
     spy.assert_called()
@@ -108,3 +108,46 @@ def test_reg_int_6_unknown_schema_raises_without_fallback():
     obs = _obs(select_type=0, context=0, min_count=2, max_count=3, options=[{"type": 14}] * 5)
     with pytest.raises(UnsupportedSelectionSchema):
         runtime.act(obs)
+
+
+def test_reg_int_7_rejects_mismatched_request_fingerprint():
+    from ptcg_ai.host.host_adapter import HostAdapter
+    from ptcg_ai.host.host_response import validate_response_instance
+    from ptcg_ai.runtime.agent_session import AgentSession
+    from ptcg_ai.host.raw_observation import RawObservation
+    from ptcg_ai.semantic.option_ir import ResponseIR
+
+    obs = _obs(select_type=0, context=0, min_count=1, max_count=1, options=[{"type": 14}, {"type": 13}])
+    decision = HostAdapter().sanitize_decision(RawObservation.from_dict(obs), AgentSession.start_new(_deck()))
+    bad = ResponseIR(
+        request_fingerprint="deadbeef",
+        semantic_schema_key="family:0:1:1:single",
+        option_indices=(0,),
+        selection_mode="single",
+        category="opaque",
+        fingerprint="badfp",
+    )
+    result = validate_response_instance(decision, bad)
+    assert not result.ok
+    assert result.reason == "fingerprint_mismatch"
+
+
+def test_reg_int_8_rejects_pattern_outside_registry_set():
+    from ptcg_ai.host.host_adapter import HostAdapter
+    from ptcg_ai.host.host_response import validate_response_instance
+    from ptcg_ai.runtime.agent_session import AgentSession
+    from ptcg_ai.host.raw_observation import RawObservation
+    from ptcg_ai.semantic.option_ir import ResponseIR
+
+    obs = _obs(select_type=0, context=0, min_count=1, max_count=1, options=[{"type": 14}, {"type": 13}])
+    decision = HostAdapter().sanitize_decision(RawObservation.from_dict(obs), AgentSession.start_new(_deck()))
+    bad = ResponseIR(
+        request_fingerprint=decision.contract.request_fingerprint,
+        semantic_schema_key=decision.contract.semantic_schema_key,
+        option_indices=(0, 1),
+        selection_mode="single",
+        category="opaque",
+        fingerprint="badfp2",
+    )
+    result = validate_response_instance(decision, bad)
+    assert not result.ok

@@ -19,6 +19,6 @@ def test_response_validated_fixtures_compile():
         decision = adapter.sanitize_decision(RawObservation.from_dict(fx.raw_observation), session)
         candidates = compile_candidate_responses(decision)
         assert candidates
-        host_resp = to_host_response(decision.contract, candidates[0])
+        host_resp = to_host_response(decision, candidates[0])
         lo, hi = decision.contract.min_count, decision.contract.max_count
         assert lo <= len(host_resp) <= hi

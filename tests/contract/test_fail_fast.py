@@ -50,7 +50,7 @@ def test_proposer_exception_uses_validated_fallback():
     policy = PolicyB0(DEFAULT_PROFILE)
     deadline = Deadline.from_budget(10.0, 10.0)
     with patch.object(policy._ranker, "select", return_value=None):
-        resp, used_fb = policy.decide(decision, deadline=deadline, decision_counter=1, emergency=False)
+        resp, used_fb, _reason = policy.decide(decision, deadline=deadline, decision_counter=1, emergency=False)
     assert used_fb
     assert len(resp.option_indices) == 1
     assert 0 <= resp.option_indices[0] < 2

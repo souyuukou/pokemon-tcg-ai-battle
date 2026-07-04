@@ -29,4 +29,4 @@ def test_artifact_e2e_host_battle_select():
     assert main_file != (ROOT / "submission" / "main.py").resolve()
     assert payload.get("runtime.__file__")
     assert payload.get("manifest_hash")
-    assert payload.get("sys_path")
+    assert payload.get("schema_registry_matrix_path")

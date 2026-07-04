@@ -76,18 +76,26 @@ def _run_artifact_e2e(decisions: int = 25) -> tuple[str, bool, str, dict]:
 
 def _run_soak(games: int, *, mode: str) -> tuple[str, dict]:
     from ptcg_ai.eval.arena import ArenaConfig, run_soak_batch
+    from ptcg_ai.eval.runtime_harness import wrap_runtime_act
+    from ptcg_ai.eval.scorecard import Scorecard
     from ptcg_ai.runtime.runtime import CompetitionRuntime
 
     deck_path = ROOT / "submission" / "deck.csv"
     deck = [int(x) for x in deck_path.read_text().split() if x.strip()]
     runtime = CompetitionRuntime(deck)
+    telemetry_card = Scorecard()
     cmd = f"python tools/qualify_runtime.py --soak-games {games} --time-bank-mode {mode}"
     cfg = ArenaConfig(
         max_steps=800,
         time_bank_mode="authoritative" if mode == "authoritative" else "no_authoritative",
         initial_time_seconds=600.0,
     )
-    card = run_soak_batch(runtime.act, deck, games=games, sim_root=ROOT / "sample_submission", config=cfg)
+    card = run_soak_batch(wrap_runtime_act(runtime, telemetry_card), deck, games=games, sim_root=ROOT / "sample_submission", config=cfg)
+    card.fallback_count = telemetry_card.fallback_count
+    card.emergency_decision_count = telemetry_card.emergency_decision_count
+    card.conservation_verified_count += telemetry_card.conservation_verified_count
+    card.conservation_unverified_count += telemetry_card.conservation_unverified_count
+    card.conservation_mismatch_count += telemetry_card.conservation_mismatch_count
     return cmd, card.to_dict()
 
 
@@ -105,7 +113,8 @@ def _qualification_level(status: dict) -> str:
         status.get("artifact_e2e_passed"),
         status.get("soak_authoritative_passed"),
         status.get("soak_no_authoritative_passed"),
-        status.get("seat_distribution_ok"),
+        status.get("seat_distribution_authoritative_ok"),
+        status.get("seat_distribution_no_authoritative_ok"),
         status.get("completed_games", 0) >= 50,
         status.get("unsupported_schema_count", 1) == 0,
         status.get("fallback_count", 1) == 0,
@@ -141,6 +150,23 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         raise SystemExit("working tree is dirty — commit/stash changes or pass --allow-dirty")
 
     from ptcg_ai.host.schema_registry import REGISTRY, all_supported_templates, load_errors, matrix_digest
+
+    registry_snapshot = {
+        "matrix_digest": matrix_digest(),
+        "load_errors": list(load_errors()),
+        "supported_templates": [
+            {
+                "semantic_schema_key": t.semantic_schema_key,
+                "select_type": t.select_type,
+                "context": t.context,
+                "min_count": t.min_count,
+                "max_count": t.max_count,
+                "selection_mode": t.selection_mode,
+                "fixture_path": t.fixture_path,
+            }
+            for t in all_supported_templates()
+        ],
+    }
 
     fixture_dir = ROOT / "docs" / "competition_contract" / "fixtures"
     fixture_count, fixture_digest = _digest_dir_json(fixture_dir)
@@ -194,7 +220,8 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         },
     }
 
-    seat_ok = _seat_distribution_ok(soak_auth, soak_games)
+    seat_auth_ok = _seat_distribution_ok(soak_auth, soak_games)
+    seat_noauth_ok = _seat_distribution_ok(soak_noauth, soak_games)
 
     status = {
         "tested_commit": tested_commit,
@@ -222,8 +249,12 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         "soak_no_authoritative_command": noauth_cmd,
         "soak_no_authoritative_passed": _soak_passed(soak_noauth, games=soak_games),
         "soak_deck_matchup": "self_play_same_deck",
-        "seat_distribution_ok": seat_ok,
-        "seat_distribution": merged_soak["seat_distribution"],
+        "seat_distribution_ok": seat_auth_ok and seat_noauth_ok,
+        "seat_distribution_authoritative_ok": seat_auth_ok,
+        "seat_distribution_no_authoritative_ok": seat_noauth_ok,
+        "seat_distribution": soak_auth.get("seat_distribution", {}),
+        "emergency_decision_count": soak_auth.get("emergency_decision_count", 0)
+        + soak_noauth.get("emergency_decision_count", 0),
         "completed_games": merged_soak["completed_games"],
         "unsupported_schema_count": merged_soak["unsupported_schema_count"],
         "fallback_count": merged_soak["fallback_count"],
@@ -246,6 +277,7 @@ def build_status(*, soak_games: int = 50, allow_dirty: bool = False) -> dict:
         "artifact_e2e_result": e2e_parsed,
         "soak_authoritative": soak_auth,
         "soak_no_authoritative": soak_noauth,
+        "schema_registry_snapshot": registry_snapshot,
     }
 
 
@@ -264,6 +296,10 @@ def write_artifacts(status: dict, outputs: dict) -> Path:
     )
     (out_dir / "no_authoritative_soak.json").write_text(
         json.dumps(outputs.get("soak_no_authoritative", {}), indent=2),
+        encoding="utf-8",
+    )
+    (out_dir / "schema_registry_snapshot.json").write_text(
+        json.dumps(outputs.get("schema_registry_snapshot", {}), indent=2),
         encoding="utf-8",
     )
     report = _render_report(status)

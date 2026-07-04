@@ -9,13 +9,14 @@ from ..baseline.policy_b0 import PolicyB0
 from ..contract.runtime_profile import RuntimeProfile, load_runtime_profile
 from ..host.host_adapter import HostAdapter
 from ..host.host_envelope import HostCallKind, preflight
-from ..host.host_response import require_validated_response, to_host_response
+from ..host.host_response import to_host_response
 from ..host.raw_observation import RawObservation
 from ..runtime.exceptions import CardConservationMismatch, ContractMismatch, OperationalFailure
 from ..semantic.response_ir import UnsupportedSelectionSchema
 from .agent_session import AgentSession, DeckSelectionRequest, FixedDeckProvider
 from .deadline import Deadline
 from .memory_guard import memory_snapshot
+from .telemetry import DecisionTelemetry
 from .time_bank import begin_decision_clock, budget_for_decision, update_time_bank
 
 POLICY_VERSION = "b0_v1.11.2"
@@ -33,6 +34,18 @@ class CompetitionRuntime:
         self._session: AgentSession | None = None
         self._host = HostAdapter()
         self._policy = PolicyB0(self._profile)
+        self._last_telemetry: DecisionTelemetry | None = None
+        self._telemetry_consumed = False
+
+    def consume_last_decision_telemetry(self) -> DecisionTelemetry | None:
+        if self._telemetry_consumed:
+            return None
+        self._telemetry_consumed = True
+        return self._last_telemetry
+
+    def _set_telemetry(self, telemetry: DecisionTelemetry | None) -> None:
+        self._last_telemetry = telemetry
+        self._telemetry_consumed = False
 
     def _ensure_session(self) -> AgentSession:
         if self._session is None:
@@ -59,6 +72,19 @@ class CompetitionRuntime:
             if self._session is not None:
                 self._session.close()
                 self._session = None
+            self._set_telemetry(
+                DecisionTelemetry(
+                    used_fallback=False,
+                    fallback_reason=None,
+                    emergency_mode=False,
+                    semantic_schema_key=None,
+                    response_pattern=(),
+                    elapsed_ms=None,
+                    conservation_quality=None,
+                    incident_code=None,
+                    host_call_kind=HostCallKind.TERMINAL.value,
+                )
+            )
             return []
 
         if envelope.host_call_kind == HostCallKind.DECK_SELECTION:
@@ -68,6 +94,19 @@ class CompetitionRuntime:
             self._session = AgentSession.start_new(deck, profile_cache_max=self._profile.soft_cache_max_entries)
             session = self._session
             session.diagnostics.record({"event": "deck_selection", "deck_hash": session.deck_hash})
+            self._set_telemetry(
+                DecisionTelemetry(
+                    used_fallback=False,
+                    fallback_reason=None,
+                    emergency_mode=False,
+                    semantic_schema_key=None,
+                    response_pattern=None,
+                    elapsed_ms=None,
+                    conservation_quality=None,
+                    incident_code=None,
+                    host_call_kind=HostCallKind.DECK_SELECTION.value,
+                )
+            )
             return list(deck)
 
         session = self._ensure_session()
@@ -97,10 +136,27 @@ class CompetitionRuntime:
             started_at=call_start,
         )
 
+        conservation_quality: str | None = None
         try:
             decision = self._host.sanitize_decision(raw, session)
+            conservation_quality = getattr(decision.actor_view, "conservation_quality", None)
+            if conservation_quality is None and hasattr(decision.actor_view, "metadata"):
+                conservation_quality = (decision.actor_view.metadata or {}).get("conservation_quality")
         except (CardConservationMismatch, ContractMismatch) as exc:
             self._record_incident(session, reason_code=type(exc).__name__, stage="sanitize", exc=exc)
+            self._set_telemetry(
+                DecisionTelemetry(
+                    used_fallback=False,
+                    fallback_reason=None,
+                    emergency_mode=session.emergency_mode,
+                    semantic_schema_key=None,
+                    response_pattern=None,
+                    elapsed_ms=None,
+                    conservation_quality=None,
+                    incident_code=type(exc).__name__,
+                    host_call_kind=HostCallKind.IN_GAME.value,
+                )
+            )
             raise
         except Exception as exc:
             self._record_incident(session, reason_code="sanitizer_failure", stage="sanitize", exc=exc)
@@ -110,8 +166,9 @@ class CompetitionRuntime:
             session.emergency_mode = True
 
         used_fallback = False
+        fallback_reason: str | None = None
         try:
-            response, used_fallback = self._policy.decide(
+            response, used_fallback, fallback_reason = self._policy.decide(
                 decision,
                 deadline=deadline,
                 decision_counter=session.observation_ledger.decision_counter,
@@ -126,6 +183,19 @@ class CompetitionRuntime:
                     "reason": str(exc),
                 }
             )
+            self._set_telemetry(
+                DecisionTelemetry(
+                    used_fallback=False,
+                    fallback_reason=None,
+                    emergency_mode=session.emergency_mode,
+                    semantic_schema_key=decision.contract.semantic_schema_key,
+                    response_pattern=None,
+                    elapsed_ms=None,
+                    conservation_quality=conservation_quality,
+                    incident_code="unsupported_schema",
+                    host_call_kind=HostCallKind.IN_GAME.value,
+                )
+            )
             raise
         except (CardConservationMismatch, ContractMismatch) as exc:
             self._record_incident(session, reason_code=type(exc).__name__, stage="policy", exc=exc)
@@ -135,10 +205,9 @@ class CompetitionRuntime:
             raise
 
         if used_fallback:
-            session.diagnostics.record_fallback(response.category)
+            session.diagnostics.record_fallback(fallback_reason or response.category)
 
-        require_validated_response(decision, response)
-        host_response = to_host_response(decision.contract, response)
+        host_response = to_host_response(decision, response)
         elapsed_ms = (time.perf_counter() - call_start) * 1000
         session.diagnostics.record(
             {
@@ -150,8 +219,22 @@ class CompetitionRuntime:
                 "candidate_count": decision.contract.option_count,
                 "elapsed_ms": round(elapsed_ms, 2),
                 "fallback": used_fallback,
+                "fallback_reason": fallback_reason,
                 **memory_snapshot(),
             }
+        )
+        self._set_telemetry(
+            DecisionTelemetry(
+                used_fallback=used_fallback,
+                fallback_reason=fallback_reason,
+                emergency_mode=session.emergency_mode,
+                semantic_schema_key=decision.contract.semantic_schema_key,
+                response_pattern=tuple(response.option_indices),
+                elapsed_ms=elapsed_ms,
+                conservation_quality=conservation_quality,
+                incident_code=None,
+                host_call_kind=HostCallKind.IN_GAME.value,
+            )
         )
         return host_response
 

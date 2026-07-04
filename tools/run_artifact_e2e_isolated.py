@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run artifact E2E in an isolated interpreter — no repository imports."""
+"""Run artifact E2E in an isolated interpreter — actual host observations only."""
 from __future__ import annotations
 
 import argparse
@@ -43,6 +43,19 @@ def _purge_forbidden(forbid: Path) -> None:
     sys.path = cleaned
 
 
+def _minimal_legal_choice(obs: dict) -> list[int]:
+    s = obs.get("select") or {}
+    lo = int(s.get("minCount", 0))
+    opts = s.get("option") or []
+    if lo == 0:
+        return []
+    if not opts:
+        return []
+    if lo == 1:
+        return [0]
+    return list(range(min(lo, len(opts))))
+
+
 def _emit(result: dict) -> None:
     print(json.dumps(result, separators=(",", ":")))
 
@@ -76,7 +89,12 @@ def main() -> int:
 
     main_file = getattr(main_mod, "__file__", None)
     runtime_file = getattr(runtime_mod, "__file__", None)
-    origins_ok = _verify_under(main_file, artifact) and _verify_under(runtime_file, artifact)
+    matrix_path = artifact / "docs" / "competition_contract" / "response_schema_matrix.json"
+    origins_ok = (
+        _verify_under(main_file, artifact)
+        and _verify_under(runtime_file, artifact)
+        and matrix_path.is_file()
+    )
     if not origins_ok:
         _emit(
             {
@@ -84,7 +102,7 @@ def main() -> int:
                 "error": "import origin outside artifact",
                 "main.__file__": main_file,
                 "runtime.__file__": runtime_file,
-                "sys_path": sys.path,
+                "schema_registry_matrix_path": str(matrix_path),
                 "manifest_hash": _manifest_hash(artifact),
                 "tested_commit": args.tested_commit,
             }
@@ -92,49 +110,84 @@ def main() -> int:
         return 3
 
     agent = main_mod.agent
-    deck = agent({"select": None, "current": {}, "logs": []})
+    deck_csv = artifact / "deck.csv"
+    deck = [int(x) for x in deck_csv.read_text().split() if x.strip()]
     if len(deck) != 60:
-        _emit({"passed": False, "error": "bad deck length", "length": len(deck)})
+        _emit({"passed": False, "error": "bad deck.csv length", "length": len(deck)})
         return 1
-
-    obs, _ = battle_start(deck, deck)
-    if obs.get("select") is None:
-        obs = battle_select(agent({"select": None, "current": {}, "logs": []}))
 
     made = 0
     illegal = 0
-    while made < args.decisions:
-        if obs.get("select") is None:
-            obs = battle_select(agent({"select": None, "current": {}, "logs": []}))
-            continue
-        choice = agent(obs)
-        s = obs.get("select") or {}
-        lo, hi = int(s.get("minCount", 0)), int(s.get("maxCount", 0))
-        opts = s.get("option") or []
-        if not (lo <= len(choice) <= hi):
-            illegal += 1
-        for idx in choice:
-            if idx < 0 or idx >= len(opts):
-                illegal += 1
-        obs = battle_select(choice)
-        made += 1
-        if int((obs.get("current") or {}).get("result", -1)) >= 0:
-            break
-    battle_finish()
+    protocol_errors = 0
+    completed_game = False
+    last_error: str | None = None
+    games_played = 0
+    max_games = 10
 
+    while made < args.decisions and games_played < max_games:
+        obs, _ = battle_start(deck, deck)
+        if obs is None:
+            protocol_errors += 1
+            last_error = "battle_start failed"
+            break
+        games_played += 1
+
+        while made < args.decisions:
+            if int((obs.get("current") or {}).get("result", -1)) >= 0:
+                completed_game = True
+                break
+            try:
+                if obs.get("select") is None:
+                    choice = agent(obs)
+                else:
+                    seat = int((obs.get("current") or {}).get("yourIndex", 0))
+                    if seat == 0:
+                        choice = agent(obs)
+                    else:
+                        choice = _minimal_legal_choice(obs)
+            except Exception as exc:
+                protocol_errors += 1
+                last_error = f"{type(exc).__name__}: {exc}"
+                break
+
+            if obs.get("select") is not None:
+                s = obs.get("select") or {}
+                lo, hi = int(s.get("minCount", 0)), int(s.get("maxCount", 0))
+                opts = s.get("option") or []
+                if not (lo <= len(choice) <= hi):
+                    illegal += 1
+                for idx in choice:
+                    if idx < 0 or idx >= len(opts):
+                        illegal += 1
+                made += 1
+
+            obs = battle_select(choice)
+            if obs is None:
+                protocol_errors += 1
+                last_error = last_error or f"battle_select_none choice={choice!r} made={made}"
+                break
+
+        battle_finish()
+        if protocol_errors:
+            break
+
+    passed = illegal == 0 and protocol_errors == 0 and made >= args.decisions
     _emit(
         {
-            "passed": illegal == 0,
+            "passed": passed,
             "decisions": made,
+            "completed_game": completed_game,
             "illegal": illegal,
+            "protocol_errors": protocol_errors,
             "main.__file__": main_file,
             "runtime.__file__": runtime_file,
-            "sys_path": sys.path,
+            "schema_registry_matrix_path": str(matrix_path),
             "manifest_hash": _manifest_hash(artifact),
             "tested_commit": args.tested_commit,
+            "last_error": last_error,
         }
     )
-    return 0 if illegal == 0 else 2
+    return 0 if passed else 2
 
 
 if __name__ == "__main__":

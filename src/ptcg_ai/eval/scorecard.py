@@ -13,6 +13,7 @@ class Scorecard:
     illegal_action_count: int = 0
     protocol_error_count: int = 0
     fallback_count: int = 0
+    emergency_decision_count: int = 0
     backend_failure_count: int = 0
     unsupported_schema_count: int = 0
     conservation_unverified_count: int = 0
@@ -65,6 +66,7 @@ def merge_scorecards(a: Scorecard, b: Scorecard) -> Scorecard:
         illegal_action_count=a.illegal_action_count + b.illegal_action_count,
         protocol_error_count=a.protocol_error_count + b.protocol_error_count,
         fallback_count=a.fallback_count + b.fallback_count,
+        emergency_decision_count=a.emergency_decision_count + b.emergency_decision_count,
         backend_failure_count=a.backend_failure_count + b.backend_failure_count,
         unsupported_schema_count=a.unsupported_schema_count + b.unsupported_schema_count,
         conservation_unverified_count=a.conservation_unverified_count + b.conservation_unverified_count,

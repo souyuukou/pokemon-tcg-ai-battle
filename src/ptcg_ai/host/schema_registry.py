@@ -143,6 +143,10 @@ def _validate_row(row: dict[str, Any]) -> str | None:
         return f"{key}: supported_in_production requires fixture_path"
     if row.get("supported_in_production") and not row.get("response_strategy"):
         return f"{key}: supported_in_production requires response_strategy"
+    mode = row.get("selection_mode", "single")
+    pat = row.get("option_type_pattern") or []
+    if mode != "single" and pat == ["VARLEN"] and not row.get("generalization_verified"):
+        return f"{key}: multi-select VARLEN requires generalization_verified"
     gen_err = _validate_generalization(row)
     if gen_err:
         return gen_err

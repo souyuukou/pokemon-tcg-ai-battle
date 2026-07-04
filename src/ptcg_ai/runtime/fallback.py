@@ -4,6 +4,7 @@ from __future__ import annotations
 from ..host.validated_responses import operational_fallback
 from ..runtime.exceptions import OperationalFailure
 from ..semantic.option_ir import ResponseIR, SanitizedDecision
+from ..semantic.response_ir import UnsupportedSelectionSchema
 
 
 class ValidatedFallbackSelector:
@@ -12,6 +13,8 @@ class ValidatedFallbackSelector:
     def choose(self, decision: SanitizedDecision, *, reason: str = "operational") -> ResponseIR:
         try:
             return operational_fallback(decision, reason=reason)
+        except UnsupportedSelectionSchema:
+            raise
         except Exception as exc:
             raise OperationalFailure(f"no validated fallback: {reason}") from exc
 
